@@ -41,6 +41,12 @@ models:
       +schema: sandbox
     mlv:
       +schema: mlv
-
+seeds:
+  prism_dbt: # Replace with the name in your dbt_project.yml
+    bl_unmaskedcardno:
+      +column_types:
+        maskedcardno: varchar(255)
+        cardno: varchar(255)
+        blp_cardno: varchar(255)
 
 
