@@ -1,5 +1,4 @@
 
--- {{config(MATERIALIZED = 'table')}}
 {{ config(materialized='table')}}
 
 

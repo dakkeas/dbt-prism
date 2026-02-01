@@ -1,0 +1,93 @@
+version: 2
+
+models:
+  - name: combined
+    description: "Tests for the combined table"
+    columns:
+      - name: maskedcardno
+        tests:
+          - not_null
+      - name: starting_claimno
+        tests:
+          - not_null
+      - name: starting_admissiondate
+        tests:
+          - not_null
+      - name: starting_dischargedate
+        tests:
+          - not_null
+      - name: starting_physiciancode
+        tests:
+          - not_null
+      - name: starting_primaryicdgroup
+        tests:
+          - not_null
+      - name: starting_primaryicdcode
+        tests:
+          - not_null
+          - relationships:
+              to: source('public','blp_icdcodes_v2')
+              field: icdcode
+      - name: starting_providername
+        tests:
+          - not_null
+      - name: starting_loatype
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['OP_CONSULT','OP LAB']
+      - name: starting_bill
+        tests:
+          - not_null
+      - name: starting_approved
+        tests:
+          - not_null
+      - name: starting_philhealth
+        tests:
+          - not_null
+      - name: claim_sequence
+        tests:
+          - not_null
+      - name: subsequent_claimno
+        tests:
+          - not_null
+          - unique
+      - name: subsequent_admissiondate
+        tests:
+          - not_null
+      - name: subsequent_dischargedate
+        tests:
+          - not_null
+      - name: subsequent_primary_physiciancode_by_rank
+        tests:
+          - not_null
+      - name: subsequent_primary_physiciancode_by_approved_amount
+        tests:
+          - not_null
+      - name: subsequent_primaryicdgroup
+        tests:
+          - not_null
+      - name: subsequent_primaryicdcode
+        tests:
+          - not_null
+      - name: subsequent_primaryicddesc
+        tests:
+          - not_null
+      - name: subsequent_providername
+        tests:
+          - not_null
+      - name: subsequent_loatype
+        tests:
+          - not_null
+      - name: subsequent_coverage
+        tests:
+          - not_null
+      - name: subsequent_bill
+        tests:
+          - not_null
+      - name: subsequent_approved
+        tests:
+          - not_null
+      - name: subsequent_philhealth
+        tests:
+          - not_null

@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: public
+    database: prism_db
+    schema: public
+    tables:
+      - name: blp_icdcodes_v2
+        description: 'reference table for best life icd codes'
+      - name: mlv_px_level_v4_eph
+        description: 'original eph query'
+      - name: mlv_query_01202026
+        description: 'v2 query for mlv with less stringent first consults (skipping null first claim)'
