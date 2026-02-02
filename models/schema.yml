@@ -26,7 +26,7 @@ models:
         tests:
           - not_null
           - relationships:
-              to: source('public','blp_icdcodes_v2')
+              to: ref('blp_icdcodes_v2')
               field: icdcode
       - name: starting_providername
         tests:

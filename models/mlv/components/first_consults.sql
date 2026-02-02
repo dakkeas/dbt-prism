@@ -26,7 +26,7 @@ WITH cool_off_period AS ( -- produces unique patients
         INNER JOIN raw_claims_2023_2025 rc -- joining with raw
         ON c.maskedcardno = rc.maskedcardno
         WHERE
-            rc.primaryicdcode IN (SELECT icdcode FROM blp_icdcodes_v2) -- primaryicdcode has to be in best life  
+            rc.primaryicdcode IN (SELECT icdcode FROM {{ref('blp_icdcodes_v2')}}) -- primaryicdcode has to be in best life  
             AND rc.loatype IN ('OP LAB', 'OP_CONSULT') -- has to be the ff loatypes
 ),
 aggregate_starting_claim AS (

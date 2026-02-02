@@ -63,15 +63,12 @@ subsequent_details AS (
         {{ref('prim_doctor')}} pd ON s.subsequent_claimno = pd.subsequent_claimno
     GROUP BY
         s.maskedcardno, 
-        -- s.claim_sequence, 
         s.subsequent_claimno
-        -- You must include the counts in GROUP BY since they are used outside aggregates
-        -- Include the ICD check in group by if used directly, or aggregate it. 
-        -- Since we want one status per claim, MIN/MAX or Group By works.
 ),
 merged_table AS (
     SELECT
         fc.maskedcardno,
+        bl.cardno AS bl_cardno,
         fc.starting_claimno,
         fc.starting_admissiondate,
         fc.starting_dischargedate,
@@ -80,6 +77,7 @@ merged_table AS (
         fc.starting_primaryicdcode,
         fc.starting_primaryicddesc,
         fc.starting_providername,
+        fc.starting_physiciancode || ' - ' || fc.starting_providername AS physician_providercode,
         fc.starting_loatype,
         fc.starting_coverage,
         fc.starting_bill,
@@ -95,7 +93,7 @@ merged_table AS (
         s.subsequent_primaryicdgroup,
         s.subsequent_primaryicdcode,
         CASE 
-            WHEN UPPER(TRIM(s.subsequent_primaryicdcode)) IN (SELECT UPPER(TRIM(icdcode)) FROM blp_icdcodes_v2) THEN 'Y'
+            WHEN UPPER(TRIM(s.subsequent_primaryicdcode)) IN (SELECT UPPER(TRIM(icdcode)) FROM {{ref('blp_icdcodes_v2')}}) THEN 'Y'
             ELSE 'N'
         END AS is_bestlife_icd,
         s.subsequent_primaryicddesc,
@@ -109,6 +107,8 @@ merged_table AS (
         first_claim_details fc
     INNER JOIN
         subsequent_details s ON fc.maskedcardno = s.maskedcardno
+    LEFT JOIN
+        {{ref('bl_unmaskedcardno')}} bl ON bl.maskedcardno = fc.maskedcardno
     ORDER BY
         fc.maskedcardno,
         s.claim_sequence
