@@ -1,8 +1,10 @@
 
+{{config(materialized = 'view')}}
+
 WITH patient_engine AS (
     SELECT
         maskedcardno,
-        bl_cardno,
+        MIN(bl_cardno),
         MIN(starting_providername) AS starting_providername,
         MIN(starting_physiciancode) AS starting_physiciancode,
         
@@ -23,9 +25,11 @@ WITH patient_engine AS (
         ROUND(SUM(CASE WHEN subsequent_loatype IN ('EMERGENCY','OP_CONSULT','ACU') THEN subsequent_approved ELSE 0 END)::numeric, 2) AS others_util, -- total util of 'others' claims
         
         -- PHILHEALTH
-        SUM(subsequent_philhealth) AS sum_philhealth,
-        COUNT(DISTINCT CASE WHEN subsequent_philhealth > 0 THEN subsequent_claimno END) as philhealth_claim_count
+        SUM(subsequent_philhealth) AS sum_philhealth, -- total philhealth claim from patient
+        COUNT(DISTINCT CASE WHEN subsequent_philhealth > 0 THEN subsequent_claimno END) as philhealth_claim_count -- count of claims with philhealth
 
     FROM {{ref('combined')}}
+    WHERE starting_primaryicdgroup = 'ESSENTIAL (PRIMARY) HYPERTENSION' -- just eph patients
     GROUP BY maskedcardno
-),
+)
+SELECT * FROM patient_engine

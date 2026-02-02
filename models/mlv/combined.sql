@@ -77,6 +77,7 @@ merged_table AS (
         fc.starting_primaryicdcode,
         fc.starting_primaryicddesc,
         fc.starting_providername,
+        fc.starting_physiciancode || ' - ' || fc.starting_providername AS physician_providercode,
         fc.starting_loatype,
         fc.starting_coverage,
         fc.starting_bill,
@@ -92,7 +93,7 @@ merged_table AS (
         s.subsequent_primaryicdgroup,
         s.subsequent_primaryicdcode,
         CASE 
-            WHEN UPPER(TRIM(s.subsequent_primaryicdcode)) IN (SELECT UPPER(TRIM(icdcode)) FROM blp_icdcodes_v2) THEN 'Y'
+            WHEN UPPER(TRIM(s.subsequent_primaryicdcode)) IN (SELECT UPPER(TRIM(icdcode)) FROM {{ref('blp_icdcodes_v2')}}) THEN 'Y'
             ELSE 'N'
         END AS is_bestlife_icd,
         s.subsequent_primaryicddesc,

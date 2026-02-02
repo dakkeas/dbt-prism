@@ -1,158 +1,184 @@
 
+{{config(materialized = 'table')}}
 
-
-
-WITH patient_engine AS (
-    SELECT
-        maskedcardno,
-        MIN(starting_providername) AS starting_providername,
-        MIN(starting_physiciancode) AS starting_physiciancode,
-        
-        -- OVERALL COUNTS
-        COUNT(DISTINCT subsequent_claimno) AS overall_count_of_claims,
-        SUM(subsequent_approved) AS overall_util,
-        
-        -- OP LAB COUNTS & UTIL
-        COUNT(DISTINCT CASE WHEN subsequent_loatype='OP LAB' THEN subsequent_claimno END) AS opl_coc,
-        ROUND(SUM(CASE WHEN subsequent_loatype='OP LAB' THEN subsequent_approved ELSE 0 END)::numeric, 2) AS opl_util,
-        
-        -- INPATIENT COUNTS & UTIL
-        COUNT(DISTINCT CASE WHEN subsequent_loatype='INPATIENT' THEN subsequent_claimno END) AS inp_coc,
-        ROUND(SUM(CASE WHEN subsequent_loatype='INPATIENT' THEN subsequent_approved ELSE 0 END)::numeric, 2) AS inp_util,
-        
-        -- OTHERS (EMERGENCY/OP_CONSULT/ACU) COUNTS & UTIL
-        COUNT(DISTINCT CASE WHEN subsequent_loatype IN ('EMERGENCY','OP_CONSULT','ACU') THEN subsequent_claimno END) AS others_coc,
-        ROUND(SUM(CASE WHEN subsequent_loatype IN ('EMERGENCY','OP_CONSULT','ACU') THEN subsequent_approved ELSE 0 END)::numeric, 2) AS others_util,
-        
-        -- PHILHEALTH
-        SUM(subsequent_philhealth) AS sum_philhealth,
-        COUNT(DISTINCT CASE WHEN subsequent_philhealth > 0 THEN subsequent_claimno END) as philhealth_claim_count
-
-    FROM mlv_px_level_v5_eph
-    GROUP BY maskedcardno
-),
-physician_provider_agg AS (
+WITH physician_provider_agg AS (
     SELECT
         -- IDENTIFIERS
-        starting_physiciancode || ' - ' || starting_providername AS physician_provider_code,
-        starting_physiciancode AS physician_code,
-        starting_providername AS provider_code,
+        starting_physiciancode || ' - ' || starting_providername AS physician_providercode,
+        starting_physiciancode AS physiciancode,
+        starting_providername AS providercode,
+        MIN(pn.physicianname) AS physicianname,
         
         -- BASE
-        COUNT(DISTINCT maskedcardno) AS total_unique_patient_count,
+        COUNT(DISTINCT maskedcardno) AS total_unique_patient_cnt,
+        SUM(overall_count_of_claims) AS total_claim_count,
+        SUM(overall_util) AS total_util,
+        SUM(overall_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS ave_year_util_per_patient,
 
         -- =============================================
         -- OP LAB METRICS
         -- =============================================
-        -- 1. Unique Patient Count with at least one
-        COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END) AS opl_unique_px_count_at_least_one,
-        
-        -- 2. Unique Patient Count with at least one (%)
-        ROUND(
-            (COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END)::numeric 
-            / NULLIF(COUNT(DISTINCT maskedcardno), 0)) * 100
-        , 2) AS opl_unique_px_count_at_least_one_pct,
+        COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END) AS opl_unique_px_cnt_at_least_one,
 
-        -- 3. Ave count of claims per patient (>=1)
-        ROUND(
-            SUM(opl_coc)::numeric 
-            / NULLIF(COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END), 0)
-        , 2) AS opl_ave_claims_per_px_at_least_one,
+        (COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END)::numeric
+         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        ) AS opl_unique_px_count_at_least_one_pct,
 
-        -- 4. Total Claims
+        (SUM(opl_coc)::numeric
+         / NULLIF(COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END), 0)
+        ) AS opl_ave_claims_per_px_at_least_one,
+
         SUM(opl_coc) AS opl_total_claims,
 
-        -- 5. Average cost per claim per patient with at least one (Cost Per Claim)
-        ROUND(
-            SUM(opl_util)::numeric 
-            / NULLIF(SUM(opl_coc), 0)
-        , 2) AS opl_ave_cost_per_claim_per_px_at_least_one,
+        (SUM(opl_util)::numeric
+         / NULLIF(SUM(opl_coc), 0)
+        ) AS opl_ave_cost_per_claim_per_px_at_least_one,
 
-        -- 6. Sum of Util
         SUM(opl_util) AS opl_sum_of_util,
 
-        -- 7. Ave 12-Month Util (per Active Patient)
-        ROUND(
-            SUM(opl_util)::numeric
-            / NULLIF(COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END), 0)
-        , 2) AS opl_ave_twelve_month_util_per_px,
-
+        (SUM(opl_util)::numeric
+         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        ) AS opl_ave_twelve_month_util_per_px,
 
         -- =============================================
         -- INPATIENT METRICS
         -- =============================================
-        -- 1. Unique Patient Count with at least one
         COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END) AS inp_unique_px_count_at_least_one,
-        
-        -- 2. Unique Patient Count with at least one (%)
-        ROUND(
-            (COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END)::numeric 
-            / NULLIF(COUNT(DISTINCT maskedcardno), 0)) * 100
-        , 2) AS inp_unique_px_count_at_least_one_pct,
 
-        -- 3. Ave count of claims per patient (>=1)
-        ROUND(
-            SUM(inp_coc)::numeric 
-            / NULLIF(COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END), 0)
-        , 2) AS inp_ave_claims_per_px_at_least_one,
+        (COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END)::numeric
+         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        ) AS inp_unique_px_count_at_least_one_pct,
 
-        -- 4. Total Claims
+        (SUM(inp_coc)::numeric
+         / NULLIF(COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END), 0)
+        ) AS inp_ave_claims_per_px_at_least_one,
+
         SUM(inp_coc) AS inp_total_claims,
 
-        -- 5. Average cost per claim per patient with at least one
-        ROUND(
-            SUM(inp_util)::numeric 
-            / NULLIF(SUM(inp_coc), 0)
-        , 2) AS inp_ave_cost_per_claim_per_px_at_least_one,
+        (SUM(inp_util)::numeric
+         / NULLIF(SUM(inp_coc), 0)
+        ) AS inp_ave_cost_per_claim_per_px_at_least_one,
 
-        -- 6. Sum of Util
         SUM(inp_util) AS inp_sum_of_util,
 
-        -- 7. Ave 12-Month Util (per Active Patient)
-        ROUND(
-            SUM(inp_util)::numeric
-            / NULLIF(COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END), 0)
-        , 2) AS inp_ave_twelve_month_util_per_px,
-
+        (SUM(inp_util)::numeric
+         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        ) AS inp_ave_twelve_month_util_per_px,
 
         -- =============================================
         -- OTHERS METRICS
         -- =============================================
-        -- 1. Unique Patient Count with at least one
         COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END) AS others_unique_px_count_at_least_one,
-        
-        -- 2. Unique Patient Count with at least one (%)
-        ROUND(
-            (COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END)::numeric 
-            / NULLIF(COUNT(DISTINCT maskedcardno), 0)) * 100
-        , 2) AS others_unique_px_count_at_least_one_pct,
 
-        -- 3. Ave count of claims per patient (>=1)
-        ROUND(
-            SUM(others_coc)::numeric 
-            / NULLIF(COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END), 0)
-        , 2) AS others_ave_claims_per_px_at_least_one,
+        (COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END)::numeric
+         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        ) AS others_unique_px_count_at_least_one_pct,
 
-        -- 4. Total Claims
+        (SUM(others_coc)::numeric
+         / NULLIF(COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END), 0)
+        ) AS others_ave_claims_per_px_at_least_one,
+
         SUM(others_coc) AS others_total_claims,
 
-        -- 5. Average cost per claim per patient with at least one
-        ROUND(
-            SUM(others_util)::numeric 
-            / NULLIF(SUM(others_coc), 0)
-        , 2) AS others_ave_cost_per_claim_per_px_at_least_one,
+        (SUM(others_util)::numeric
+         / NULLIF(SUM(others_coc), 0)
+        ) AS others_ave_cost_per_claim_per_px_at_least_one,
 
-        -- 6. Sum of Util
         SUM(others_util) AS others_sum_of_util,
 
-        -- 7. Ave 12-Month Util (per Active Patient)
-        ROUND(
-            SUM(others_util)::numeric
-            / NULLIF(COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END), 0)
-        , 2) AS others_ave_twelve_month_util_per_px
+        (SUM(others_util)::numeric
+         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        ) AS others_ave_twelve_month_util_per_px,
 
-    FROM patient_engine
-    WHERE starting_providername IN (
+        -- =============================================
+        -- PHILHEALTH METRICS
+        -- =============================================
+        SUM(sum_philhealth) AS total_philhealth,
+
+        SUM(sum_philhealth)::numeric
+        / COUNT(DISTINCT maskedcardno)::numeric AS ave_philhealth_claim
+
+    FROM {{ ref('eph_patient_engine') }} pe
+    LEFT JOIN {{ ref('physiciannames') }} pn
+        ON pe.starting_physiciancode = pn.physiciancode
+    GROUP BY starting_physiciancode, starting_providername
+)
+SELECT
+    -- 1. IDENTIFIERS
+    physician_providercode,
+    p.physiciancode,
+    p.providercode,
+    p.physicianname,
+    d.specialization,
+
+
+    -- 2. BASE PATIENT METRICS
+    total_unique_patient_cnt,
+    
+    -- -- 3. RANKING & CLASSIFICATION (Derived)
+    -- ROUND(PERCENT_RANK() OVER (ORDER BY ave_year_util_per_patient ASC)::numeric, 4) AS percentile_by_avg_12_month_cc,
+    -- CASE 
+    --     WHEN PERCENT_RANK() OVER (ORDER BY ave_year_util_per_patient ASC) >= 0.8 THEN 'High Cost'
+    --     WHEN PERCENT_RANK() OVER (ORDER BY ave_year_util_per_patient ASC) <= 0.2 THEN 'Low Cost'
+    --     ELSE 'Average'
+    -- END AS classification,
+
+    -- 4. ALL CLAIMS METRICS
+    total_claim_count,
+    total_util AS all_claims_sum_of_util,
+    ave_year_util_per_patient AS ave_12_month_util_per_patient,
+
+    -- 5. OP LAB METRICS
+    opl_unique_px_cnt_at_least_one,
+    opl_unique_px_count_at_least_one_pct,
+    opl_ave_claims_per_px_at_least_one,
+    opl_total_claims,
+    opl_ave_cost_per_claim_per_px_at_least_one,
+    opl_sum_of_util,
+
+    opl_unique_px_count_at_least_one_pct * 
+    opl_ave_claims_per_px_at_least_one * 
+    opl_ave_cost_per_claim_per_px_at_least_one AS opl_per_capita,
+
+    opl_ave_twelve_month_util_per_px,
+
+    -- 6. INPATIENT METRICS
+    inp_unique_px_count_at_least_one,
+    inp_unique_px_count_at_least_one_pct,
+    inp_ave_claims_per_px_at_least_one,
+    inp_total_claims,
+    inp_ave_cost_per_claim_per_px_at_least_one,
+    inp_sum_of_util,
+
+    inp_unique_px_count_at_least_one_pct * 
+    inp_ave_claims_per_px_at_least_one * 
+    inp_ave_cost_per_claim_per_px_at_least_one AS inp_per_capita,
+
+    inp_ave_twelve_month_util_per_px,
+
+    -- 7. OTHERS METRICS
+    others_unique_px_count_at_least_one,
+    others_unique_px_count_at_least_one_pct,
+    others_ave_claims_per_px_at_least_one,
+    others_total_claims,
+    others_ave_cost_per_claim_per_px_at_least_one,
+    others_sum_of_util,
+
+    others_unique_px_count_at_least_one_pct * 
+    others_ave_claims_per_px_at_least_one * 
+    others_ave_cost_per_claim_per_px_at_least_one AS others_per_capita,
+
+    others_ave_twelve_month_util_per_px,
+
+    -- 8. PHILHEALTH METRICS
+    total_philhealth,
+    ave_philhealth_claim
+
+FROM physician_provider_agg p
+LEFT JOIN {{ref('doc_spec')}} d
+ON d.physiciancode = p.physiciancode
+
+    WHERE p.providercode IN (
         'MAKATI MEDICAL CENTER',
         'ST. LUKE''S MEDICAL CENTER-GLOBAL CITY',
         'ASIAN HOSPITAL AND MEDICAL CENTER',
@@ -174,7 +200,6 @@ physician_provider_agg AS (
         'CARDINAL SANTOS MEDICAL CENTER',
         'OUR LADY OF LOURDES HOSPITAL-MANILA'
     )
-
-    GROUP BY starting_physiciancode, starting_providername
-    GROUP BY starting_physiciancode, starting_providername
-)
+    AND total_unique_patient_cnt > 6
+ORDER BY ave_12_month_util_per_patient DESC
+LIMIT 500
