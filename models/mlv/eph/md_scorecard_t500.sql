@@ -8,6 +8,7 @@ WITH physician_provider_agg AS (
         starting_physiciancode AS physiciancode,
         starting_providername AS providercode,
         MIN(pn.physicianname) AS physicianname,
+        MIN(pn.specialization) AS specialization,
         
         -- BASE
         COUNT(DISTINCT maskedcardno) AS total_unique_patient_cnt,
@@ -98,18 +99,18 @@ WITH physician_provider_agg AS (
         SUM(sum_philhealth)::numeric
         / COUNT(DISTINCT maskedcardno)::numeric AS ave_philhealth_claim
 
-    FROM {{ ref('eph_patient_engine') }} pe
-    LEFT JOIN {{ ref('physiciannames') }} pn
+    FROM {{ ref('px_engine_eph') }} pe
+    LEFT JOIN {{ ref('physicianinfo') }} pn
         ON pe.starting_physiciancode = pn.physiciancode
     GROUP BY starting_physiciancode, starting_providername
 )
 SELECT
     -- 1. IDENTIFIERS
     physician_providercode,
-    p.physiciancode,
-    p.providercode,
-    p.physicianname,
-    d.specialization,
+    physiciancode,
+    providercode,
+    physicianname,
+    specialization,
 
 
     -- 2. BASE PATIENT METRICS
@@ -174,11 +175,9 @@ SELECT
     total_philhealth,
     ave_philhealth_claim
 
-FROM physician_provider_agg p
-LEFT JOIN {{ref('doc_spec')}} d
-ON d.physiciancode = p.physiciancode
+FROM physician_provider_agg
 
-    WHERE p.providercode IN (
+    WHERE providercode IN (
         'MAKATI MEDICAL CENTER',
         'ST. LUKE''S MEDICAL CENTER-GLOBAL CITY',
         'ASIAN HOSPITAL AND MEDICAL CENTER',

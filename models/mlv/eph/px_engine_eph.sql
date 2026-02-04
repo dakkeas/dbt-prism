@@ -28,7 +28,7 @@ WITH patient_engine AS (
         SUM(subsequent_philhealth) AS sum_philhealth, -- total philhealth claim from patient
         COUNT(DISTINCT CASE WHEN subsequent_philhealth > 0 THEN subsequent_claimno END) as philhealth_claim_count -- count of claims with philhealth
 
-    FROM {{ref('combined')}}
+    FROM {{ref('mlv')}}
     WHERE starting_primaryicdgroup = 'ESSENTIAL (PRIMARY) HYPERTENSION' -- just eph patients
     GROUP BY maskedcardno
 )

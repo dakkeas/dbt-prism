@@ -60,7 +60,7 @@ subsequent_details AS (
     INNER JOIN
         raw_claims_2023_2025 rc ON s.subsequent_claimno = rc.claimno
     LEFT JOIN
-        {{ref('prim_doctor')}} pd ON s.subsequent_claimno = pd.subsequent_claimno
+        {{ref('prim_physician')}} pd ON s.subsequent_claimno = pd.subsequent_claimno
     GROUP BY
         s.maskedcardno, 
         s.subsequent_claimno

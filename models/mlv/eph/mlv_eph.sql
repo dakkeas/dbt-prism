@@ -2,6 +2,6 @@
 
 SELECT
     c.*
-FROM {{ref('combined')}} c
+FROM {{ref('mlv')}} c
 WHERE
     c.starting_primaryicdgroup = 'ESSENTIAL (PRIMARY) HYPERTENSION'

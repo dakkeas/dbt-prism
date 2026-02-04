@@ -99,5 +99,17 @@ seeds:
         # Philhealth Metrics
         total_philhealth: numeric
         ave_philhealth_claim: numeric
-
-
+    OCR_012126:
+      +column_types:
+        item_name: text
+        item_name_simple_clean: text
+        item_name_hard_clean: text
+        item_quantity: numeric
+        item_unit_gross_price: numeric
+        total_price: numeric
+        loe_folder: text
+        source_file: text
+        file_name: text
+        claimno: varchar(255)
+        physiciancode: varchar(255)
+        icdcode: varchar(255)
