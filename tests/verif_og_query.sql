@@ -5,7 +5,7 @@ SELECT
 FROM
     public.mlv_px_level_v4 og  -- Specify schema for external table
 LEFT JOIN
-    {{ ref('combined') }} new
+    {{ ref('mlv') }} new
 ON
     og.maskedcardno = new.maskedcardno
 AND

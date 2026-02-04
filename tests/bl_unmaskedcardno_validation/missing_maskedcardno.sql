@@ -2,7 +2,7 @@
 
 SELECT
     c.maskedcardno
-FROM {{ref('combined')}} c
+FROM {{ref('mlv')}} c
 LEFT JOIN
     {{ref('bl_unmaskedcardno')}} b
 ON c.maskedcardno = b.maskedcardno

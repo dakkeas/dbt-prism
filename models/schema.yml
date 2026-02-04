@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: combined
+  - name: mlv
     description: "Tests for the combined table"
     columns:
       - name: maskedcardno
@@ -89,5 +89,50 @@ models:
         tests:
           - not_null
       - name: subsequent_philhealth
+        tests:
+          - not_null
+  - name: ocr_012126   # replace with your model name
+    description: "Combined OCR line items with cleaned claimno and physiciancode"
+    columns:
+      - name: item_name
+        tests:
+          - not_null
+      - name: item_name_simple_clean
+        tests:
+          - not_null
+      - name: item_name_hard_clean
+        tests:
+          - not_null
+      - name: item_quantity
+        tests:
+          - not_null
+      - name: item_unit_gross_price
+        tests:
+          - not_null
+      - name: total_price
+        tests:
+          - not_null
+      - name: claimno
+        tests:
+          - not_null
+      - name: physician_providercode
+        tests:
+          - not_null
+      - name: physiciancode
+        tests:
+          - not_null
+      - name: providername
+        tests:
+          - not_null
+      - name: loe_folder
+        tests:
+          - not_null
+      - name: source_file
+        tests:
+          - not_null
+      - name: file_name
+        tests:
+          - not_null
+      - name: icdcode
         tests:
           - not_null

@@ -12,7 +12,7 @@ SELECT
 FROM
     public.mlv_px_level_v4 AS og  -- Added schema name
 LEFT JOIN
-    {{ ref('combined') }} AS new
+    {{ ref('mlv') }} AS new
 ON
     og.maskedcardno = new.maskedcardno
     AND og.subsequent_claimno = new.subsequent_claimno
