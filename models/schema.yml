@@ -1,6 +1,14 @@
 version: 2
 
 models:
+  - name: physiciannames
+    columns:
+      - name: physicianname
+        tests:
+          - unique
+      - name: physiciancode
+        tests:
+          - unique
   - name: mlv
     description: "Tests for the combined table"
     columns:
@@ -112,25 +120,25 @@ models:
       - name: total_price
         tests:
           - not_null
-      - name: claimno
+      - name: file_claimno
         tests:
           - not_null
-      - name: physician_providercode
+      - name: subsequent_claimno
         tests:
           - not_null
-      - name: physiciancode
+      - name: maskedcardno
         tests:
           - not_null
-      - name: providername
+      - name: starting_physician_providername
         tests:
           - not_null
-      - name: loe_folder
+      - name: subsequent_physician_providername
         tests:
           - not_null
-      - name: source_file
+      - name: subsequent_physiciancode
         tests:
           - not_null
-      - name: file_name
+      - name: subsequent_providername
         tests:
           - not_null
       - name: icdcode

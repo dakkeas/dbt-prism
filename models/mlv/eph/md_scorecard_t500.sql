@@ -4,17 +4,17 @@
 WITH physician_provider_agg AS (
     SELECT
         -- IDENTIFIERS
-        starting_physiciancode || ' - ' || starting_providername AS physician_providercode,
+        starting_physiciancode || ' - ' || starting_providername AS physician_providername,
         starting_physiciancode AS physiciancode,
-        starting_providername AS providercode,
-        MIN(pn.physicianname) AS physicianname,
-        MIN(pn.specialization) AS specialization,
-        
+        starting_providername AS providername,
+        MIN(pi.physicianname) AS physicianname,
+        MIN(pi.specialization) AS specialization,
         -- BASE
         COUNT(DISTINCT maskedcardno) AS total_unique_patient_cnt,
         SUM(overall_count_of_claims) AS total_claim_count,
         SUM(overall_util) AS total_util,
-        SUM(overall_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS ave_year_util_per_patient,
+        SUM(overall_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS ave_12_month_util_per_patient,
+        
 
         -- =============================================
         -- OP LAB METRICS
@@ -100,15 +100,17 @@ WITH physician_provider_agg AS (
         / COUNT(DISTINCT maskedcardno)::numeric AS ave_philhealth_claim
 
     FROM {{ ref('px_engine_eph') }} pe
-    LEFT JOIN {{ ref('physicianinfo') }} pn
-        ON pe.starting_physiciancode = pn.physiciancode
+    LEFT JOIN (SELECT DISTINCT physiciancode, providername, physicianname, specialization FROM {{ ref('physicianinfo') }}) pi
+    ON pe.starting_physiciancode = pi.physiciancode
+    AND pe.starting_providername = pi.providername
+
     GROUP BY starting_physiciancode, starting_providername
 )
 SELECT
     -- 1. IDENTIFIERS
-    physician_providercode,
+    physician_providername,
     physiciancode,
-    providercode,
+    providername,
     physicianname,
     specialization,
 
@@ -116,18 +118,11 @@ SELECT
     -- 2. BASE PATIENT METRICS
     total_unique_patient_cnt,
     
-    -- -- 3. RANKING & CLASSIFICATION (Derived)
-    -- ROUND(PERCENT_RANK() OVER (ORDER BY ave_year_util_per_patient ASC)::numeric, 4) AS percentile_by_avg_12_month_cc,
-    -- CASE 
-    --     WHEN PERCENT_RANK() OVER (ORDER BY ave_year_util_per_patient ASC) >= 0.8 THEN 'High Cost'
-    --     WHEN PERCENT_RANK() OVER (ORDER BY ave_year_util_per_patient ASC) <= 0.2 THEN 'Low Cost'
-    --     ELSE 'Average'
-    -- END AS classification,
 
     -- 4. ALL CLAIMS METRICS
     total_claim_count,
     total_util AS all_claims_sum_of_util,
-    ave_year_util_per_patient AS ave_12_month_util_per_patient,
+    ave_12_month_util_per_patient,
 
     -- 5. OP LAB METRICS
     opl_unique_px_cnt_at_least_one,
@@ -177,7 +172,7 @@ SELECT
 
 FROM physician_provider_agg
 
-    WHERE providercode IN (
+    WHERE providername IN (
         'MAKATI MEDICAL CENTER',
         'ST. LUKE''S MEDICAL CENTER-GLOBAL CITY',
         'ASIAN HOSPITAL AND MEDICAL CENTER',

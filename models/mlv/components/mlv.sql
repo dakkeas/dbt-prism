@@ -77,7 +77,7 @@ merged_table AS (
         fc.starting_primaryicdcode,
         fc.starting_primaryicddesc,
         fc.starting_providername,
-        fc.starting_physiciancode || ' - ' || fc.starting_providername AS physician_providercode,
+        fc.starting_physiciancode || ' - ' || fc.starting_providername AS physician_providername,
         fc.starting_loatype,
         fc.starting_coverage,
         fc.starting_bill,
