@@ -7,6 +7,7 @@ WITH patient_engine AS (
         MIN(bl_cardno),
         MIN(starting_providername) AS starting_providername,
         MIN(starting_physiciancode) AS starting_physiciancode,
+        MIN(starting_primaryicdgroup) AS starting_primaryicdgroup,
         
         -- ALL LOA TYPES
         COUNT(DISTINCT subsequent_claimno) AS overall_count_of_claims, -- total count of claim numbers
@@ -29,7 +30,6 @@ WITH patient_engine AS (
         COUNT(DISTINCT CASE WHEN subsequent_philhealth > 0 THEN subsequent_claimno END) as philhealth_claim_count -- count of claims with philhealth
 
     FROM {{ref('mlv')}}
-    WHERE starting_primaryicdgroup = 'ESSENTIAL (PRIMARY) HYPERTENSION' -- just eph patients
     GROUP BY maskedcardno
 )
 SELECT * FROM patient_engine
