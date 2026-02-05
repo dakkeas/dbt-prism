@@ -99,10 +99,11 @@ WITH physician_provider_agg AS (
         SUM(sum_philhealth)::numeric
         / COUNT(DISTINCT maskedcardno)::numeric AS ave_philhealth_claim
 
-    FROM {{ ref('px_engine_eph') }} pe
+    FROM {{ ref('px_engine') }} pe
     LEFT JOIN (SELECT DISTINCT physiciancode, providername, physicianname, specialization FROM {{ ref('physicianinfo') }}) pi
     ON pe.starting_physiciancode = pi.physiciancode
     AND pe.starting_providername = pi.providername
+    WHERE pe.starting_primaryicdgroup = 'NON-INSULIN-DEPENDENT DIABETES MELLITUS'
 
     GROUP BY starting_physiciancode, starting_providername
 )
@@ -173,26 +174,11 @@ SELECT
 FROM physician_provider_agg
 
     WHERE providername IN (
-        'MAKATI MEDICAL CENTER',
-        'ST. LUKE''S MEDICAL CENTER-GLOBAL CITY',
-        'ASIAN HOSPITAL AND MEDICAL CENTER',
-        'ST. LUKE''S MEDICAL CENTER-QC',
-        'THE MEDICAL CITY',
-        'COMMONWEALTH HOSPITAL AND MEDICAL CENTER',
-        'THE MEDICAL CITY SATELLITE CLINICS-SM FAIRVIEW CLINIC',
-        'CHINESE GENERAL HOSPITAL & MEDICAL CENTER',
-        'THE MEDICAL CITY SATELLITE CLINICS-VICTORY MALL',
-        'MANILA DOCTORS HOSPITAL',
-        'DILIMAN DOCTORS HOSPITAL INC.',
-        'MARIKINA VALLEY MEDICAL CENTER INC.',
-        'SAN MATEO MEDICAL CENTER',
-        'DIVINE GRACE MEDICAL CENTER',
-        'UNIVERSITY OF PERPETUAL HELP DALTA MEDICAL CENTER INC',
-        'MANILA EAST MEDICAL CENTER, INC.',
-        'MEDICAL CENTER MANILA, INC.',
-        'THE MEDICAL CITY SATELLITE CLINICS-TRINOMA',
-        'CARDINAL SANTOS MEDICAL CENTER',
-        'OUR LADY OF LOURDES HOSPITAL-MANILA'
+        SELECT starting_providername AS providername 
+        FROM {{ref('provider_engine')}}
+        WHERE starting_primaryicdgroup = 'NON-INSULIN-DEPENDENT DIABETES MELLITUS'
+        ORDER BY total_util DESC 
+        LIMIT 20
     )
     AND total_unique_patient_cnt > 6
 ORDER BY ave_12_month_util_per_patient DESC
