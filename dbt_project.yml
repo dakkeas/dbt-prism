@@ -33,14 +33,21 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   prism_dbt:
   #automatically creates tables in the ff schemas depending on folder
-    testing:
-      +schema: testing
-    analytics:
-      +schema: analytics
-    sandbox:
-      +schema: sandbox
+    # testing:
+    #   +schema: testing
+    # analytics:
+    #   +schema: analytics
+    # sandbox:
+    #   +schema: sandbox
     mlv:
-      +schema: mlv
+      raw:
+        +materialized: "{{ 'view' if target.name == 'dev' else 'ephemeral' }}"
+      staging:
+        +materialized: "{{ 'view' if target.name == 'dev' else 'ephemeral' }}"
+      sandbox:
+        +materialized: "{{ 'view' if target.name == 'dev' else 'ephemeral' }}"
+      marts_local:
+        +materialized: table  # always table
 seeds:
   prism_dbt: # Replace with the name in your dbt_project.yml
     bl_unmaskedcardno:

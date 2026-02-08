@@ -1,6 +1,8 @@
 
 {{config(materialized = 'table')}}
 
+
+
 WITH physician_provider_agg AS (
     SELECT
         -- IDENTIFIERS
@@ -178,7 +180,7 @@ FROM physician_provider_agg
         FROM {{ref('provider_engine')}}
         WHERE starting_primaryicdgroup = 'NON-INSULIN-DEPENDENT DIABETES MELLITUS'
         ORDER BY total_util DESC 
-        LIMIT 20
+            LIMIT 20
     )
     AND total_unique_patient_cnt > 6
 ORDER BY ave_12_month_util_per_patient DESC
