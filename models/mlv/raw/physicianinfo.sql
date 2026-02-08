@@ -7,6 +7,6 @@ SELECT
     md.providercode AS providername,
     md.specialization
 FROM {{ ref('t500_md')}} md
-LEFT JOIN (SELECT DISTINCT physicianname, physiciancode FROM {{ref('physiciannames')}}) pn
+LEFT JOIN (SELECT DISTINCT physicianname, physiciancode FROM {{ref('physiciannames_from_seed')}}) pn
 ON
     md.physiciancode = pn.physiciancode

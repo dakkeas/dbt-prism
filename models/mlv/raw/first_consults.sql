@@ -37,22 +37,63 @@ aggregate_starting_claim AS (
         t.claimno AS starting_claimno,
         MIN(rc.admissiondate) AS starting_admissiondate, 
         MIN(rc.dischargedate) AS starting_dischargedate, 
+        -- COALESCE(
+        --     MAX(rc.physiciancode) FILTER (
+        --         WHERE rc.coverageitemdesc ILIKE '%DOCTOR%' 
+        --         AND TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
+        --         AND rc.physiciancode IS NOT NULL
+        --     ),
+        --     MAX(rc.physiciancode) FILTER (
+        --         WHERE rc.coverageitemdesc ILIKE '%CONSULT%' 
+        --         AND TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
+        --         AND rc.physiciancode IS NOT NULL
+        --     ),
+        --     MAX(rc.physiciancode) FILTER (
+        --         WHERE TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
+        --         AND rc.physiciancode IS NOT NULL
+        --     )
+        -- ) AS starting_physiciancode,
+        
+        -- COALESCE(
+        --     MAX(CASE
+        --         WHEN rc.coverageitemdesc ILIKE '%DOCTOR%' 
+        --         AND TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
+        --         AND rc.physiciancode IS NOT NULL
+        --         THEN rc.physiciancode
+        --     END),
+        --     MAX(CASE
+        --         WHEN rc.coverageitemdesc ILIKE '%CONSULT%' 
+        --         AND TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
+        --         AND rc.physiciancode IS NOT NULL
+        --         THEN rc.physiciancode
+        --     END),
+        --     MAX(CASE
+        --         WHEN TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
+        --         AND rc.physiciancode IS NOT NULL
+        --         THEN rc.physiciancode
+        --     END)
+        -- ) AS starting_physiciancode,
+
         COALESCE(
-            MAX(rc.physiciancode) FILTER (
-                WHERE rc.coverageitemdesc ILIKE '%DOCTOR%' 
+            MAX(CASE
+                WHEN UPPER(rc.coverageitemdesc) LIKE '%DOCTOR%' 
                 AND TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
                 AND rc.physiciancode IS NOT NULL
-            ),
-            MAX(rc.physiciancode) FILTER (
-                WHERE rc.coverageitemdesc ILIKE '%CONSULT%' 
+                THEN rc.physiciancode
+            END),
+            MAX(CASE
+                WHEN UPPER(rc.coverageitemdesc) LIKE '%CONSULT%' 
                 AND TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
                 AND rc.physiciancode IS NOT NULL
-            ),
-            MAX(rc.physiciancode) FILTER (
-                WHERE TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
+                THEN rc.physiciancode
+            END),
+            MAX(CASE
+                WHEN TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
                 AND rc.physiciancode IS NOT NULL
-            )
-        ) AS starting_physiciancode,
+                THEN rc.physiciancode
+            END)
+        ) AS starting_physiciancode,        
+
         MIN(rc.primaryicdcode) AS starting_primaryicdcode,
         MIN(rc.primaryicdgroup) AS starting_primaryicdgroup,
         MIN(rc.providername) AS starting_providername,
