@@ -1,12 +1,12 @@
 
+
 {{config(materialized = 'table')}}
-
-
 
 WITH physician_provider_agg AS (
     SELECT
         -- IDENTIFIERS
-        starting_physiciancode || ' - ' || starting_providername AS physician_providername,
+        
+        CONCAT(starting_physiciancode, ' - ', starting_providername) AS physician_providername,
         starting_physiciancode AS physiciancode,
         starting_providername AS providername,
         MIN(pi.physicianname) AS physicianname,
@@ -23,23 +23,23 @@ WITH physician_provider_agg AS (
         -- =============================================
         COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END) AS opl_unique_px_cnt_at_least_one,
 
-        (COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END)::numeric
+        (CAST(COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END) AS NUMERIC)
          / NULLIF(COUNT(DISTINCT maskedcardno), 0)
         ) AS opl_unique_px_count_at_least_one_pct,
 
-        (SUM(opl_coc)::numeric
+        (CAST(SUM(opl_coc) AS NUMERIC)
          / NULLIF(COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END), 0)
         ) AS opl_ave_claims_per_px_at_least_one,
 
         SUM(opl_coc) AS opl_total_claims,
 
-        (SUM(opl_util)::numeric
+        (CAST(SUM(opl_util) AS NUMERIC)
          / NULLIF(SUM(opl_coc), 0)
         ) AS opl_ave_cost_per_claim_per_px_at_least_one,
 
         SUM(opl_util) AS opl_sum_of_util,
 
-        (SUM(opl_util)::numeric
+        (CAST(SUM(opl_util) AS NUMERIC)
          / NULLIF(COUNT(DISTINCT maskedcardno), 0)
         ) AS opl_ave_twelve_month_util_per_px,
 
@@ -48,23 +48,23 @@ WITH physician_provider_agg AS (
         -- =============================================
         COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END) AS inp_unique_px_count_at_least_one,
 
-        (COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END)::numeric
+        (CAST(COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END) AS NUMERIC)
          / NULLIF(COUNT(DISTINCT maskedcardno), 0)
         ) AS inp_unique_px_count_at_least_one_pct,
 
-        (SUM(inp_coc)::numeric
+        (CAST(SUM(inp_coc) AS NUMERIC)
          / NULLIF(COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END), 0)
         ) AS inp_ave_claims_per_px_at_least_one,
 
         SUM(inp_coc) AS inp_total_claims,
 
-        (SUM(inp_util)::numeric
+        (CAST(SUM(inp_util) AS NUMERIC)
          / NULLIF(SUM(inp_coc), 0)
         ) AS inp_ave_cost_per_claim_per_px_at_least_one,
 
         SUM(inp_util) AS inp_sum_of_util,
 
-        (SUM(inp_util)::numeric
+        (CAST(SUM(inp_util) AS NUMERIC)
          / NULLIF(COUNT(DISTINCT maskedcardno), 0)
         ) AS inp_ave_twelve_month_util_per_px,
 
@@ -73,23 +73,23 @@ WITH physician_provider_agg AS (
         -- =============================================
         COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END) AS others_unique_px_count_at_least_one,
 
-        (COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END)::numeric
+        (CAST(COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END) AS NUMERIC)
          / NULLIF(COUNT(DISTINCT maskedcardno), 0)
         ) AS others_unique_px_count_at_least_one_pct,
 
-        (SUM(others_coc)::numeric
+        (CAST(SUM(others_coc) AS NUMERIC)
          / NULLIF(COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END), 0)
         ) AS others_ave_claims_per_px_at_least_one,
 
         SUM(others_coc) AS others_total_claims,
 
-        (SUM(others_util)::numeric
+        (CAST(SUM(others_util) AS NUMERIC)
          / NULLIF(SUM(others_coc), 0)
         ) AS others_ave_cost_per_claim_per_px_at_least_one,
 
         SUM(others_util) AS others_sum_of_util,
 
-        (SUM(others_util)::numeric
+        (CAST(SUM(others_util) AS NUMERIC)
          / NULLIF(COUNT(DISTINCT maskedcardno), 0)
         ) AS others_ave_twelve_month_util_per_px,
 
@@ -98,8 +98,8 @@ WITH physician_provider_agg AS (
         -- =============================================
         SUM(sum_philhealth) AS total_philhealth,
 
-        SUM(sum_philhealth)::numeric
-        / COUNT(DISTINCT maskedcardno)::numeric AS ave_philhealth_claim
+        CAST(SUM(sum_philhealth) AS NUMERIC)
+        / CAST(COUNT(DISTINCT maskedcardno) AS NUMERIC) AS ave_philhealth_claim
 
     FROM {{ ref('px_engine') }} pe
     LEFT JOIN (SELECT DISTINCT physiciancode, providername, physicianname, specialization FROM {{ ref('physicianinfo') }}) pi
@@ -180,7 +180,7 @@ FROM physician_provider_agg
         FROM {{ref('provider_engine')}}
         WHERE starting_primaryicdgroup = 'NON-INSULIN-DEPENDENT DIABETES MELLITUS'
         ORDER BY total_util DESC 
-            LIMIT 20
+        LIMIT 20
     )
     AND total_unique_patient_cnt > 6
 ORDER BY ave_12_month_util_per_patient DESC
