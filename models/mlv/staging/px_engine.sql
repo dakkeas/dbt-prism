@@ -1,33 +1,30 @@
-
 {{config(materialized = 'view')}}
 
 WITH patient_engine AS (
     SELECT
         maskedcardno,
-        MIN(bl_cardno),
+        MIN(bl_cardno) as bl_cardno,
         MIN(starting_providername) AS starting_providername,
         MIN(starting_physiciancode) AS starting_physiciancode,
         MIN(starting_primaryicdgroup) AS starting_primaryicdgroup,
         
-        -- ALL LOA TYPES
-        COUNT(DISTINCT subsequent_claimno) AS overall_count_of_claims, -- total count of claim numbers
-        SUM(subsequent_approved) AS overall_util, -- total utilization
+        COUNT(DISTINCT subsequent_claimno) AS overall_count_of_claims,
+        SUM(subsequent_approved) AS overall_util,
         
-        -- OP LAB COUNTS & UTIL
-        COUNT(DISTINCT CASE WHEN subsequent_loatype='OP LAB' THEN subsequent_claimno END) AS opl_coc, -- total count of op lab claims
-        ROUND(SUM(CASE WHEN subsequent_loatype='OP LAB' THEN subsequent_approved ELSE 0 END)::numeric, 2) AS opl_util, -- total util of op lab claims
+        -- OP LAB
+        COUNT(DISTINCT CASE WHEN subsequent_loatype='OP LAB' THEN subsequent_claimno END) AS opl_coc,
+        ROUND(CAST(SUM(CASE WHEN subsequent_loatype='OP LAB' THEN subsequent_approved ELSE 0 END) AS NUMERIC), 2) AS opl_util,
         
-        -- INPATIENT COUNTS & UTIL
-        COUNT(DISTINCT CASE WHEN subsequent_loatype='INPATIENT' THEN subsequent_claimno END) AS inp_coc, -- total count of inpatient claims
-        ROUND(SUM(CASE WHEN subsequent_loatype='INPATIENT' THEN subsequent_approved ELSE 0 END)::numeric, 2) AS inp_util, -- total util of inpatient claims
+        -- INPATIENT
+        COUNT(DISTINCT CASE WHEN subsequent_loatype='INPATIENT' THEN subsequent_claimno END) AS inp_coc,
+        ROUND(CAST(SUM(CASE WHEN subsequent_loatype='INPATIENT' THEN subsequent_approved ELSE 0 END) AS NUMERIC), 2) AS inp_util,
         
-        -- OTHERS (EMERGENCY/OP_CONSULT/ACU) COUNTS & UTIL
-        COUNT(DISTINCT CASE WHEN subsequent_loatype IN ('EMERGENCY','OP_CONSULT','ACU') THEN subsequent_claimno END) AS others_coc, -- total count of 'others' claims
-        ROUND(SUM(CASE WHEN subsequent_loatype IN ('EMERGENCY','OP_CONSULT','ACU') THEN subsequent_approved ELSE 0 END)::numeric, 2) AS others_util, -- total util of 'others' claims
+        -- OTHERS
+        COUNT(DISTINCT CASE WHEN subsequent_loatype IN ('EMERGENCY','OP_CONSULT','ACU') THEN subsequent_claimno END) AS others_coc,
+        ROUND(CAST(SUM(CASE WHEN subsequent_loatype IN ('EMERGENCY','OP_CONSULT','ACU') THEN subsequent_approved ELSE 0 END) AS NUMERIC), 2) AS others_util,
         
-        -- PHILHEALTH
-        SUM(subsequent_philhealth) AS sum_philhealth, -- total philhealth claim from patient
-        COUNT(DISTINCT CASE WHEN subsequent_philhealth > 0 THEN subsequent_claimno END) as philhealth_claim_count -- count of claims with philhealth
+        SUM(subsequent_philhealth) AS sum_philhealth,
+        COUNT(DISTINCT CASE WHEN subsequent_philhealth > 0 THEN subsequent_claimno END) as philhealth_claim_count
 
     FROM {{ref('mlv')}}
     GROUP BY maskedcardno
