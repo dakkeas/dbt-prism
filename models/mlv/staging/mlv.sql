@@ -19,7 +19,7 @@ WITH first_claim_details AS (
         SUM(rc.approved) AS starting_approved,
         SUM(
             CASE
-                WHEN rc.coverageitemdesc = 'PHILHEALTH' THEN rc.approved
+                WHEN rc.coverageitemdesc = 'PHILHEALTH' THEN ABS(rc.approved)
                 ELSE 0 END
         ) AS starting_philhealth
     FROM
@@ -54,7 +54,7 @@ subsequent_details AS (
         MIN(rc.coverage) AS subsequent_coverage,
         SUM(rc.billed) AS subsequent_bill,
         SUM(rc.approved) AS subsequent_approved,
-        SUM(CASE WHEN rc.coverageitemdesc = 'PHILHEALTH' THEN rc.approved ELSE 0 END) AS subsequent_philhealth
+        SUM(CASE WHEN rc.coverageitemdesc = 'PHILHEALTH' THEN ABS(rc.approved) ELSE 0 END) AS subsequent_philhealth
     FROM
         {{ref('subsequent_claims')}} s
     INNER JOIN

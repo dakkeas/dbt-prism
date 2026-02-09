@@ -23,7 +23,7 @@ WITH patient_engine AS (
         COUNT(DISTINCT CASE WHEN subsequent_loatype IN ('EMERGENCY','OP_CONSULT','ACU') THEN subsequent_claimno END) AS others_coc,
         ROUND(CAST(SUM(CASE WHEN subsequent_loatype IN ('EMERGENCY','OP_CONSULT','ACU') THEN subsequent_approved ELSE 0 END) AS NUMERIC), 2) AS others_util,
         
-        SUM(subsequent_philhealth) AS sum_philhealth,
+        SUM(ABS(subsequent_philhealth)) AS sum_philhealth,
         COUNT(DISTINCT CASE WHEN subsequent_philhealth > 0 THEN subsequent_claimno END) as philhealth_claim_count
 
     FROM {{ref('mlv')}}
