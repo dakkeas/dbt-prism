@@ -38,20 +38,18 @@ models:
     # analytics:
     #   +schema: analytics
     # sandbox:
-    #   k+schema: sandbox
-    mlv:
-      raw:
-        +schema: raw
-        +materialized: view
-      staging:
-        +schema: staging
-        +materialized: table
-      sandbox:
-        +schema: sandbox
-        +materialized: view
-      marts:
-        +schema: marts
-        +materialized: table  # always table
+    models:
+      prism_dbt:
+        +schema: "{{ target.schema }}"  # automatically dev or prism_mlv
+        mlv:
+          raw:
+            +materialized: view
+          staging:
+            +materialized: table
+          sandbox:
+            +materialized: view
+          marts:
+            +materialized: table
 seeds:
 
   prism_dbt: # Replace with the name in your dbt_project.yml

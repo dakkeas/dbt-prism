@@ -21,7 +21,55 @@ WITH first_claim_details AS (
             CASE
                 WHEN rc.coverageitemdesc = 'PHILHEALTH' THEN ABS(rc.approved)
                 ELSE 0 END
-        ) AS starting_philhealth
+        ) AS starting_philhealth,
+
+        -- count & sum of cptcode
+
+        SUM(
+            CASE 
+                WHEN NULLIF(rc.cptcode,'') IS NOT NULL THEN 1 ELSE 0
+            END
+        )
+        AS starting_count_of_cptcode,
+
+        SUM(
+            CASE 
+                WHEN NULLIF(rc.cptcode,'') IS NOT NULL THEN rc.approved ELSE 0
+            END
+        )
+        AS starting_sum_of_util_cptcode,
+
+
+        -- count & sum of ruvcode
+
+        SUM(
+            CASE 
+                WHEN NULLIF(rc.ruvcode,'') IS NOT NULL THEN 1 ELSE 0
+            END
+        )
+        AS starting_count_of_ruvcode,
+
+        SUM(
+            CASE 
+                WHEN NULLIF(rc.ruvcode,'') IS NOT NULL THEN rc.approved ELSE 0
+            END
+        )
+        AS starting_sum_of_util_ruvcode,
+
+        -- aggregation of cptcode & ruvcode
+
+        STRING_AGG(DISTINCT CASE
+
+        WHEN TRIM(rc.cptcode) NOT IN ('0', ' ', '') AND rc.cptcode IS NOT NULL THEN rc.cptcode
+
+        END, ', ') AS starting_cptcodes,
+
+        STRING_AGG(DISTINCT CASE
+
+        WHEN TRIM(rc.ruvcode) NOT IN ('0', ' ', '') AND rc.ruvcode IS NOT NULL THEN rc.ruvcode
+
+        END, ', ') AS starting_ruvcodes
+
     FROM
         {{ ref('first_consults')}} fc
     INNER JOIN
@@ -54,7 +102,50 @@ subsequent_details AS (
         MIN(rc.coverage) AS subsequent_coverage,
         SUM(rc.billed) AS subsequent_bill,
         SUM(rc.approved) AS subsequent_approved,
-        SUM(CASE WHEN rc.coverageitemdesc = 'PHILHEALTH' THEN ABS(rc.approved) ELSE 0 END) AS subsequent_philhealth
+        SUM(CASE WHEN rc.coverageitemdesc = 'PHILHEALTH' THEN ABS(rc.approved) ELSE 0 END) AS subsequent_philhealth,
+
+        SUM(
+            CASE 
+                WHEN NULLIF(rc.cptcode,'') IS NOT NULL THEN 1 ELSE 0
+            END
+        )
+        AS subsequent_count_of_cptcode,
+
+        SUM(
+            CASE 
+                WHEN NULLIF(rc.cptcode,'') IS NOT NULL THEN rc.approved ELSE 0
+            END
+        )
+        AS subsequent_sum_of_util_cptcode,
+
+
+        SUM(
+            CASE 
+                WHEN NULLIF(rc.ruvcode,'') IS NOT NULL THEN 1 ELSE 0
+            END
+        )
+        AS subsequent_count_of_ruvcode,
+
+        SUM(
+            CASE 
+                WHEN NULLIF(rc.ruvcode,'') IS NOT NULL THEN rc.approved ELSE 0
+            END
+        )
+        AS subsequent_sum_of_util_ruvcode,
+
+        STRING_AGG(DISTINCT CASE
+
+        WHEN TRIM(rc.cptcode) NOT IN ('0', ' ', '') AND rc.cptcode IS NOT NULL THEN rc.cptcode
+
+        END, ', ') AS subsequent_cptcodes,
+
+        STRING_AGG(DISTINCT CASE
+
+        WHEN TRIM(rc.ruvcode) NOT IN ('0', ' ', '') AND rc.ruvcode IS NOT NULL THEN rc.ruvcode
+
+        END, ', ') AS subsequent_ruvcodes
+
+        
     FROM
         {{ref('subsequent_claims')}} s
     INNER JOIN
@@ -102,7 +193,16 @@ merged_table AS (
         s.subsequent_coverage,
         s.subsequent_bill,
         s.subsequent_approved,
-        s.subsequent_philhealth
+        s.subsequent_philhealth,
+
+        -- cpt code & ruv codes
+        s.subsequent_count_of_cptcode,
+        s.subsequent_sum_of_util_cptcode,
+        s.subsequent_count_of_ruvcode,
+        s.subsequent_sum_of_util_ruvcode,
+        s.subsequent_cptcodes,
+        s.subsequent_ruvcodes
+         
     FROM
         first_claim_details fc
     INNER JOIN
