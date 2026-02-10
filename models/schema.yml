@@ -99,7 +99,7 @@ models:
       - name: subsequent_philhealth
         tests:
           - not_null
-  - name: ocr_012126   # replace with your model name
+  - name: ocr_cleaned_012126   # replace with your model name
     description: "Combined OCR line items with cleaned claimno and physiciancode"
     columns:
       - name: item_name

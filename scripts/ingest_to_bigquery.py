@@ -37,6 +37,7 @@ def run_ingestion():
         pg_engine = create_engine(f'postgresql://{PG_USER}:{PG_PASS}@{PG_HOST}:{PG_PORT}/{PG_DB}')
         
         # 3. Extract
+
         print(f"\n[1/3] Extracting {source_table} from Postgres...")
         df = pd.read_sql(f'SELECT * FROM {source_table}', pg_engine)
         
@@ -64,5 +65,5 @@ if __name__ == "__main__":
         run_ingestion()
         cont = input("\nIngest another table? (y/n): ").lower()
         if cont != 'y':
-            print("Goodbye!")
+            print("Exiting ...")
             break
