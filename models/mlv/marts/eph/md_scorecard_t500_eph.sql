@@ -225,7 +225,7 @@ SELECT
 
     -- 8. PHILHEALTH METRICS
     total_philhealth,
-    ave_philhealth_claim
+    ave_philhealth_claim,
 
     total_overall_cptcode_count,
     total_overall_cptcode_util,

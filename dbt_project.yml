@@ -40,8 +40,11 @@ models:
     # sandbox:
     models:
       prism_dbt:
-        +schema: "{{ target.schema }}"  # automatically dev or prism_mlv
         mlv:
+          # =====================================================
+          # RAW MODELS
+          # =====================================================
+          +schema: "{{ target.schema }}"
           raw:
             +materialized: view
           staging:
@@ -50,6 +53,7 @@ models:
             +materialized: view
           marts:
             +materialized: table
+
 seeds:
 
   prism_dbt: # Replace with the name in your dbt_project.yml
