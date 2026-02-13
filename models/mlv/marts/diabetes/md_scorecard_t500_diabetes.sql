@@ -1,5 +1,4 @@
 
-
 {{config(materialized = 'table')}}
 
 WITH physician_provider_agg AS (
@@ -99,14 +98,68 @@ WITH physician_provider_agg AS (
         SUM(sum_philhealth) AS total_philhealth,
 
         CAST(SUM(sum_philhealth) AS NUMERIC)
-        / CAST(COUNT(DISTINCT maskedcardno) AS NUMERIC) AS ave_philhealth_claim
+        / CAST(COUNT(DISTINCT maskedcardno) AS NUMERIC) AS ave_philhealth_claim,
+
+        -- =============================================
+        -- CPTCODE/RUVCODE METRICS
+        -- =============================================
+
+        -- SUM of count of CPT codes
+        CAST(SUM(overall_cptcode_coc) AS NUMERIC) AS total_overall_cptcode_count,
+        CAST(SUM(opl_cptcode_coc) AS NUMERIC) AS total_opl_cptcode_count,
+        CAST(SUM(inp_cptcode_coc) AS NUMERIC) AS total_inp_cptcode_count,
+        CAST(SUM(emg_cptcode_coc) AS NUMERIC) AS total_emg_cptcode_count,
+
+        -- SUM of utilization of CPT codes
+        CAST(SUM(overall_cptcode_util) AS NUMERIC) AS total_overall_cptcode_util,
+        CAST(SUM(opl_cptcode_util) AS NUMERIC) AS total_opl_cptcode_util,
+        CAST(SUM(inp_cptcode_util) AS NUMERIC) AS total_inp_cptcode_util,
+        CAST(SUM(emg_cptcode_util) AS NUMERIC) AS total_emg_cptcode_util,
+
+        -- AVG count of CPT codes per patient
+        CAST(SUM(overall_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_cptcode_avg_count_per_px,
+        CAST(SUM(opl_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_cptcode_avg_count_per_px,
+        CAST(SUM(inp_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_cptcode_avg_count_per_px,
+        CAST(SUM(emg_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_cptcode_avg_count_per_px,
+
+        -- AVG utilization of CPT codes per patient
+        CAST(SUM(overall_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_cptcode_avg_util_per_px,
+        CAST(SUM(opl_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_cptcode_avg_util_per_px,
+        CAST(SUM(inp_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_cptcode_avg_util_per_px,
+        CAST(SUM(emg_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_cptcode_avg_util_per_px,
+
+        -- SUM of count of RUV codes
+        CAST(SUM(overall_ruvcode_coc) AS NUMERIC) AS total_overall_ruvcode_count,
+        CAST(SUM(opl_ruvcode_coc) AS NUMERIC) AS total_opl_ruvcode_count,
+        CAST(SUM(inp_ruvcode_coc) AS NUMERIC) AS total_inp_ruvcode_count,
+        CAST(SUM(emg_ruvcode_coc) AS NUMERIC) AS total_emg_ruvcode_count,
+
+        -- SUM of utilization of RUV codes
+        CAST(SUM(overall_ruvcode_util) AS NUMERIC) AS total_overall_ruvcode_util,
+        CAST(SUM(opl_ruvcode_util) AS NUMERIC) AS total_opl_ruvcode_util,
+        CAST(SUM(inp_ruvcode_util) AS NUMERIC) AS total_inp_ruvcode_util,
+        CAST(SUM(emg_ruvcode_util) AS NUMERIC) AS total_emg_ruvcode_util,
+
+        -- AVG count of RUV codes per patient
+        CAST(SUM(overall_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_ruvcode_avg_count_per_px,
+        CAST(SUM(opl_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_ruvcode_avg_count_per_px,
+        CAST(SUM(inp_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_ruvcode_avg_count_per_px,
+        CAST(SUM(emg_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_avg_count_per_px,
+
+        -- AVG utilization of RUV codes per patient
+        CAST(SUM(overall_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_ruvcode_avg_util_per_px,
+        CAST(SUM(opl_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_ruvcode_avg_util_per_px,
+        CAST(SUM(inp_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_ruvcode_avg_util_per_px,
+        CAST(SUM(emg_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_avg_util_per_px
+
+
+        -- RUVCODE
 
     FROM {{ ref('px_engine') }} pe
     LEFT JOIN (SELECT DISTINCT physiciancode, providername, physicianname, specialization FROM {{ ref('physicianinfo') }}) pi
     ON pe.starting_physiciancode = pi.physiciancode
     AND pe.starting_providername = pi.providername
-    WHERE pe.starting_primaryicdgroup = 'NON-INSULIN-DEPENDENT DIABETES MELLITUS'
-
+    WHERE pe.starting_primaryicdgroup IN ('NON-INSULIN-DEPENDENT DIABETES MELLITUS','INSULIN-DEPENDENT DIABETES MELLITUS')
     GROUP BY starting_physiciancode, starting_providername
 )
 SELECT
@@ -171,16 +224,32 @@ SELECT
 
     -- 8. PHILHEALTH METRICS
     total_philhealth,
-    ave_philhealth_claim
+    ave_philhealth_claim,
+
+    total_overall_cptcode_count,
+    total_overall_cptcode_util,
+    overall_cptcode_avg_count_per_px,
+    overall_cptcode_avg_util_per_px,
+
+    
+    total_overall_ruvcode_count,
+    total_overall_ruvcode_util,
+    overall_ruvcode_avg_count_per_px,
+    overall_ruvcode_avg_util_per_px
 
 FROM physician_provider_agg
 
     WHERE providername IN (
-        SELECT starting_providername AS providername 
-        FROM {{ref('provider_engine')}}
-        WHERE starting_primaryicdgroup = 'NON-INSULIN-DEPENDENT DIABETES MELLITUS'
-        ORDER BY total_util DESC 
-        LIMIT 20
+        SELECT providername FROM (
+            SELECT 
+            starting_providername AS providername,
+            SUM(total_util) AS total_util_for_diabetes
+            FROM {{ref('provider_engine')}}
+            WHERE starting_primaryicdgroup IN ('NON-INSULIN-DEPENDENT DIABETES MELLITUS','INSULIN-DEPENDENT DIABETES MELLITUS')
+            GROUP BY 1
+            ORDER BY total_util_for_diabetes DESC 
+            LIMIT 20
+        ) t 
     )
     AND total_unique_patient_cnt > 6
 ORDER BY ave_12_month_util_per_patient DESC

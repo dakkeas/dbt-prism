@@ -36,83 +36,95 @@ models:
     +schema: "{{ target.schema }}"
     mlv:
       raw:
+        +schema: raw
         +materialized: view
       staging:
+        +schema: staging
         +materialized: table
       sandbox:
+        +schema: sandbox
         +materialized: view
       marts:
+        +schema: marts
         +materialized: table
+      prod:
+        +schema: prod
+        +materialized: table
+
 
 seeds:
   prism_dbt: # Replace with the name in your dbt_project.yml
-    bl_unmaskedcardno:
-      +column_types:
-        maskedcardno: varchar(255)
-        cardno: varchar(255)
-        blp_cardno: varchar(255)
-    blp_icdcodes_v2:
-      +column_types:
-        icdcode: varchar(255)
-        description: text
-        final_tagging: text
-    physiciannames:
-      +column_types:
-        physicianname: varchar(255)
-        physiciancode: varchar(255)
-    t500_md:
-      +column_types:
+    sandbox: 
+      +schema: seed_sandbox
+      bl_unmaskedcardno:
+        +column_types:
+          maskedcardno: varchar(255)
+          cardno: varchar(255)
+          blp_cardno: varchar(255)
+      blp_icdcodes_v2:
+        +column_type:
+          icdcode: varchar(255)
+          description: text
+          final_tagging: text
+      physiciannames:
+        +column_types:
+          physicianname: varchar(255)
+          physiciancode: varchar(255)
+      t500_md:
+        +column_types:
 
-        physiciancode: text
-        providercode: text
-        physicianname: text
-        specialization: text
-        total_unique_patient_cnt: numeric
-        total_claim_count: numeric
-        all_claims_sum_of_util: numeric
-        ave_12_month_util_per_patient: numeric
-        
-        # OPL (Outpatient) Metrics
-        opl_unique_px_cnt_at_least_one: numeric
-        opl_unique_px_count_at_least_one_pct: numeric
-        opl_ave_claims_per_px_at_least_one: numeric
-        opl_total_claims: numeric
-        opl_ave_cost_per_claim_per_px_at_least_one: numeric
-        opl_sum_of_util: numeric
-        opl_ave_twelve_month_util_per_px: numeric
-        
-        # INP (Inpatient) Metrics
-        inp_unique_px_count_at_least_one: numeric
-        inp_unique_px_count_at_least_one_pct: numeric
-        inp_ave_claims_per_px_at_least_one: numeric
-        inp_total_claims: numeric
-        inp_ave_cost_per_claim_per_px_at_least_one: numeric
-        inp_sum_of_util: numeric
-        inp_ave_twelve_month_util_per_px: numeric
-        
-        # Others Metrics
-        others_unique_px_count_at_least_one: numeric
-        others_unique_px_count_at_least_one_pct: numeric
-        others_ave_claims_per_px_at_least_one: numeric
-        others_total_claims: numeric
-        others_ave_cost_per_claim_per_px_at_least_one: numeric
-        others_sum_of_util: numeric
-        others_ave_twelve_month_util_per_px: numeric
-        
-        # Philhealth Metrics
-        total_philhealth: numeric
-        ave_philhealth_claim: numeric
-    OCR_012126:
-      +column_types:
-        item_name: text
-        item_name_simple_clean: text
-        item_name_hard_clean: text
-        item_quantity: numeric
-        item_unit_gross_price: numeric
-        total_price: numeric
-        loe_folder: text
-        source_file: text
-        file_name: text
-        claimno: varchar(255)
-        physiciancode: varchar(255)
-        icdcode: varchar(255)
+          physiciancode: text
+          providercode: text
+          physicianname: text
+          specialization: text
+          total_unique_patient_cnt: numeric
+          total_claim_count: numeric
+          all_claims_sum_of_util: numeric
+          ave_12_month_util_per_patient: numeric
+          
+          # OPL (Outpatient) Metrics
+          opl_unique_px_cnt_at_least_one: numeric
+          opl_unique_px_count_at_least_one_pct: numeric
+          opl_ave_claims_per_px_at_least_one: numeric
+          opl_total_claims: numeric
+          opl_ave_cost_per_claim_per_px_at_least_one: numeric
+          opl_sum_of_util: numeric
+          opl_ave_twelve_month_util_per_px: numeric
+          
+          # INP (Inpatient) Metrics
+          inp_unique_px_count_at_least_one: numeric
+          inp_unique_px_count_at_least_one_pct: numeric
+          inp_ave_claims_per_px_at_least_one: numeric
+          inp_total_claims: numeric
+          inp_ave_cost_per_claim_per_px_at_least_one: numeric
+          inp_sum_of_util: numeric
+          inp_ave_twelve_month_util_per_px: numeric
+          
+          # Others Metrics
+          others_unique_px_count_at_least_one: numeric
+          others_unique_px_count_at_least_one_pct: numeric
+          others_ave_claims_per_px_at_least_one: numeric
+          others_total_claims: numeric
+          others_ave_cost_per_claim_per_px_at_least_one: numeric
+          others_sum_of_util: numeric
+          others_ave_twelve_month_util_per_px: numeric
+          
+          # Philhealth Metrics
+          total_philhealth: numeric
+          ave_philhealth_claim: numeric
+    ocr:
+      +schema: seed_ocr
+      ocr_012126:
+        +column_types:
+          item_name: text
+          item_name_simple_clean: text
+          item_name_hard_clean: text
+          item_quantity: numeric
+          item_unit_gross_price: numeric
+          total_price: numeric
+          loe_folder: text
+          source_file: text
+          file_name: text
+          claimno: varchar(255)
+          physiciancode: varchar(255)
+          icdcode: varchar(255)

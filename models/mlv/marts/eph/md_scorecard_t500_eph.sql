@@ -106,51 +106,51 @@ WITH physician_provider_agg AS (
 
         -- SUM of count of CPT codes
         CAST(SUM(overall_cptcode_coc) AS NUMERIC) AS total_overall_cptcode_count,
-        CAST(SUM(opl_cptcode_coc) AS NUMERIC) AS opl_cptcode_count,
-        CAST(SUM(inp_cptcode_coc) AS NUMERIC) AS inp_cptcode_count,
-        CAST(SUM(emg_cptcode_coc) AS NUMERIC) AS emg_cptcode_count,
+        CAST(SUM(opl_cptcode_coc) AS NUMERIC) AS total_opl_cptcode_count,
+        CAST(SUM(inp_cptcode_coc) AS NUMERIC) AS total_inp_cptcode_count,
+        CAST(SUM(emg_cptcode_coc) AS NUMERIC) AS total_emg_cptcode_count,
 
         -- SUM of utilization of CPT codes
         CAST(SUM(overall_cptcode_util) AS NUMERIC) AS total_overall_cptcode_util,
-        CAST(SUM(opl_cptcode_util) AS NUMERIC) AS opl_cptcode_util,
-        CAST(SUM(inp_cptcode_util) AS NUMERIC) AS inp_cptcode_util,
-        CAST(SUM(emg_cptcode_util) AS NUMERIC) AS emg_cptcode_util,
+        CAST(SUM(opl_cptcode_util) AS NUMERIC) AS total_opl_cptcode_util,
+        CAST(SUM(inp_cptcode_util) AS NUMERIC) AS total_inp_cptcode_util,
+        CAST(SUM(emg_cptcode_util) AS NUMERIC) AS total_emg_cptcode_util,
 
         -- AVG count of CPT codes per patient
-        CAST(SUM(overall_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_cptcode_avg_per_px,
-        CAST(SUM(opl_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_cptcode_avg_per_px,
-        CAST(SUM(inp_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_cptcode_avg_per_px,
-        CAST(SUM(emg_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_cptcode_avg_per_px,
+        CAST(SUM(overall_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_cptcode_avg_count_per_px,
+        CAST(SUM(opl_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_cptcode_avg_count_per_px,
+        CAST(SUM(inp_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_cptcode_avg_count_per_px,
+        CAST(SUM(emg_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_cptcode_avg_count_per_px,
 
         -- AVG utilization of CPT codes per patient
-        CAST(SUM(overall_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_cptcode_util_avg_per_px,
-        CAST(SUM(opl_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_cptcode_util_avg_per_px,
-        CAST(SUM(inp_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_cptcode_util_avg_per_px,
-        CAST(SUM(emg_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_cptcode_util_avg_per_px,
+        CAST(SUM(overall_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_cptcode_avg_util_per_px,
+        CAST(SUM(opl_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_cptcode_avg_util_per_px,
+        CAST(SUM(inp_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_cptcode_avg_util_per_px,
+        CAST(SUM(emg_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_cptcode_avg_util_per_px,
 
         -- SUM of count of RUV codes
         CAST(SUM(overall_ruvcode_coc) AS NUMERIC) AS total_overall_ruvcode_count,
-        CAST(SUM(opl_ruvcode_coc) AS NUMERIC) AS opl_ruvcode_count,
-        CAST(SUM(inp_ruvcode_coc) AS NUMERIC) AS inp_ruvcode_count,
-        CAST(SUM(emg_ruvcode_coc) AS NUMERIC) AS emg_ruvcode_count,
+        CAST(SUM(opl_ruvcode_coc) AS NUMERIC) AS total_opl_ruvcode_count,
+        CAST(SUM(inp_ruvcode_coc) AS NUMERIC) AS total_inp_ruvcode_count,
+        CAST(SUM(emg_ruvcode_coc) AS NUMERIC) AS total_emg_ruvcode_count,
 
         -- SUM of utilization of RUV codes
         CAST(SUM(overall_ruvcode_util) AS NUMERIC) AS total_overall_ruvcode_util,
-        CAST(SUM(opl_ruvcode_util) AS NUMERIC) AS opl_ruvcode_util,
-        CAST(SUM(inp_ruvcode_util) AS NUMERIC) AS inp_ruvcode_util,
-        CAST(SUM(emg_ruvcode_util) AS NUMERIC) AS emg_ruvcode_util,
+        CAST(SUM(opl_ruvcode_util) AS NUMERIC) AS total_opl_ruvcode_util,
+        CAST(SUM(inp_ruvcode_util) AS NUMERIC) AS total_inp_ruvcode_util,
+        CAST(SUM(emg_ruvcode_util) AS NUMERIC) AS total_emg_ruvcode_util,
 
         -- AVG count of RUV codes per patient
-        CAST(SUM(overall_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_ruvcode_avg_per_px,
-        CAST(SUM(opl_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_ruvcode_avg_per_px,
-        CAST(SUM(inp_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_ruvcode_avg_per_px,
-        CAST(SUM(emg_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_avg_per_px,
+        CAST(SUM(overall_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_ruvcode_avg_count_per_px,
+        CAST(SUM(opl_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_ruvcode_avg_count_per_px,
+        CAST(SUM(inp_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_ruvcode_avg_count_per_px,
+        CAST(SUM(emg_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_avg_count_per_px,
 
         -- AVG utilization of RUV codes per patient
-        CAST(SUM(overall_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_ruvcode_util_avg_per_px,
-        CAST(SUM(opl_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_ruvcode_util_avg_per_px,
-        CAST(SUM(inp_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_ruvcode_util_avg_per_px,
-        CAST(SUM(emg_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_util_avg_per_px
+        CAST(SUM(overall_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_ruvcode_avg_util_per_px,
+        CAST(SUM(opl_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_ruvcode_avg_util_per_px,
+        CAST(SUM(inp_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_ruvcode_avg_util_per_px,
+        CAST(SUM(emg_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_avg_util_per_px
 
 
         -- RUVCODE
@@ -229,14 +229,14 @@ SELECT
 
     total_overall_cptcode_count,
     total_overall_cptcode_util,
-    overall_cptcode_avg_per_px,
-    overall_cptcode_util_avg_per_px,
+    overall_cptcode_avg_count_per_px,
+    overall_cptcode_avg_util_per_px,
 
     
     total_overall_ruvcode_count,
     total_overall_ruvcode_util,
-    overall_ruvcode_avg_per_px,
-    overall_ruvcode_util_avg_per_px
+    overall_ruvcode_avg_count_per_px,
+    overall_ruvcode_avg_util_per_px
 
 FROM physician_provider_agg
 
