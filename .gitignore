@@ -3,3 +3,7 @@ target/
 dbt_packages/
 logs/
 dbt_internal_packages/
+secret/justine-prism-mg-service-account.json
+secret/justine-prism-personal-service-account.json
+secret/
+env/
