@@ -1,0 +1,7 @@
+version: 2
+
+sources:
+  - name: public_data # This can be whatever you want to name your source system
+    schema: public    # The actual schema in Postgres
+    tables:
+      - name: raw_claims_2023_2025

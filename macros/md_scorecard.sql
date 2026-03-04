@@ -250,8 +250,14 @@ WITH physician_engine AS (
 
     FROM {{ ref('px_engine') }} pe
     LEFT JOIN (SELECT DISTINCT physiciancode, providername, physicianname, specialization FROM {{ ref('physicianinfo') }}) pi
-    ON pe.starting_physiciancode = pi.physiciancode
+    ON TRIM(UPPER(pe.starting_physiciancode)) = 
+        {% if target.type == 'bigquery' %}
+            CAST(pi.physiciancode AS STRING)
+        {% else %}
+            pi.physiciancode::TEXT
+        {% endif %}
     AND pe.starting_providername = pi.providername
+
 
     WHERE pe.starting_primaryicdgroup IN (
     {% for icd in primaryicdgroup_list %}

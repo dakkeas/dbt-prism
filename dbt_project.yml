@@ -47,9 +47,9 @@ models:
       marts:
         +schema: marts
         +materialized: table
-      prod:
-        +schema: prod
-        +materialized: table
+      # prod:
+      #   +schema: prod
+      #   +materialized: table
 
 
 seeds:
@@ -66,6 +66,12 @@ seeds:
           icdcode: varchar(255)
           description: text
           final_tagging: text
+      crf_cptcodes:
+        +column_type:
+          status_group: varchar(255)
+          subcategory: varchar(255)
+          cptcode: varchar(255)
+          description: text
       physiciannames:
         +column_types:
           physicianname: varchar(255)

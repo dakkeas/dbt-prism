@@ -194,8 +194,9 @@ merged_table AS (
         s.subsequent_bill,
         s.subsequent_approved,
         s.subsequent_philhealth,
-
+        
         -- cpt code & ruv codes
+
         s.subsequent_count_of_cptcode,
         s.subsequent_sum_of_util_cptcode,
         s.subsequent_count_of_ruvcode,

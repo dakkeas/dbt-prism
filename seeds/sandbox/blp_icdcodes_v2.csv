@@ -1,4 +1,4 @@
-"icdcode","description","final_tagging"
+icdcode,description,final_tagging
 E10.0,INSULIN-DEPENDENT DIABETES MELLITUS: Insulin-dependent diabetes mellitus with coma,Diabetes Mellitus
 E10.1,INSULIN-DEPENDENT DIABETES MELLITUS: Insulin-dependent diabetes mellitus with ketoacidosis,Diabetes Mellitus
 E10.2,INSULIN-DEPENDENT DIABETES MELLITUS: Insulin-dependent diabetes mellitus with renal complications,Diabetes Mellitus
@@ -140,6 +140,7 @@ I73.0,OTHER PERIPHERAL VASCULAR DISEASES: Raynaud's syndrome,Raynaud's Syndrome
 I73.1,OTHER PERIPHERAL VASCULAR DISEASES: Thromboangiitis obliterans [Buerger],Thromboangitis Obliterans
 I73.8,OTHER PERIPHERAL VASCULAR DISEASES: Other specified peripheral vascular diseases,Peripheral Vascular Disease
 I73.9,"OTHER PERIPHERAL VASCULAR DISEASES: Peripheral vascular disease, unspecified",Peripheral Vascular Disease
+N18.5,"CHRONIC KIDNEY DISEASE, STAGE 5 CHRONIC URAEMIA END STAGE KIDNEY DISEASE: IN ALLOGRAFT FAILURE, NOS, ON DIALYSIS, WITHOUT DIALYSIS OR TRANSPLANT RENAL RETINITIS+(H32.8*) URAEMIC: APOPLEXIA+(I68.8*), DEMENTIA+(F02.8*), NEUROPATHY+(G63.8*), PARALYSIS+(...",Renal Failure
 N18.0,CHRONIC RENAL FAILURE: End-stage renal disease,Renal Failure
 N18.8,CHRONIC RENAL FAILURE: Other chronic renal failure,Renal Failure
 N18.9,"CHRONIC RENAL FAILURE: Chronic renal failure, unspecified",Renal Failure
@@ -153,31 +154,31 @@ H35.6,OTHER RETINAL DISORDERS: Retinal haemorrhage,Retinal Hemorrhage
 H35.7,OTHER RETINAL DISORDERS: Separation of retinal layers,Retinal Separation
 H35.8,OTHER RETINAL DISORDERS: Other specified retinal disorders,Retinal Disorders
 H35.9,"OTHER RETINAL DISORDERS: Retinal disorder, unspecified",Retinal Disorders
-I50.0,HEART FAILURE: Congestive heart failure,""
-I50.00,ADVANCED CONGESTIVE HEART FAILURE GRAVE CONGESTIVE HEART FAILURE SEVERE CONGESTIVE HEART FAILURE,""
-I50.1,HEART FAILURE: Left ventricular failure,""
-I50.9,"HEART FAILURE: Heart failure, unspecified",""
-I63.0,CEREBRAL INFARCTION: Cerebral infarction due to thrombosis of precerebral arteries,""
-I63.1,CEREBRAL INFARCTION: Cerebral infarction due to embolism of precerebral arteries,""
-I63.2,CEREBRAL INFARCTION: Cerebral infarction due to unspecified occlusion or stenosis of precerebral arteries,""
-I63.3,CEREBRAL INFARCTION: Cerebral infarction due to thrombosis of cerebral arteries,""
-I63.4,CEREBRAL INFARCTION: Cerebral infarction due to embolism of cerebral arteries,""
-I63.5,CEREBRAL INFARCTION: Cerebral infarction due to unspecified occlusion or stenosis of cerebral arteries,""
-I63.6,"CEREBRAL INFARCTION: Cerebral infarction due to cerebral venous thrombosis, nonpyogenic",""
-I63.8,CEREBRAL INFARCTION: Other cerebral infarction,""
-I63.9,"CEREBRAL INFARCTION: Cerebral infarction, unspecified",""
-J18.0,"PNEUMONIA, ORGANISM UNSPECIFIED: Bronchopneumonia, unspecified",""
-J18.02,"BRONCHOPNEUMONIA, MODERATE RISK",""
-J18.1,"PNEUMONIA, ORGANISM UNSPECIFIED: Lobar pneumonia, unspecified",""
-J18.12,"LOBAR PNEUMONIA, MODERATE RISK",""
-J18.2,"PNEUMONIA, ORGANISM UNSPECIFIED: Hypostatic pneumonia, unspecified",""
-J18.8,"PNEUMONIA, ORGANISM UNSPECIFIED: Other pneumonia, organism unspecified",""
-J18.9,"PNEUMONIA, ORGANISM UNSPECIFIED: Pneumonia, unspecified",""
-J18.92,"COMMUNITY-ACQUIRED PNEUMONIA III (THIS CLASSIFICATION UTILIZED THE AMERICAN THORACIC SOCIETY RECOMMENDATION. THIS IS EQUIVALENT TO CAP, MODERATE RISK IN THE PHILIPPINE CLINICAL PRACTICE GUIDELINES ON THE DIAGNOSIS, EMPIRIC MANAGEMENT, AND PREVENTION OF C",""
-K80.0,CHOLELITHIASIS: Calculus of gallbladder with acute cholecystitis,""
-K80.1,CHOLELITHIASIS: Calculus of gallbladder with other cholecystitis,""
-K80.2,CHOLELITHIASIS: Calculus of gallbladder without cholecystitis,""
-K80.3,CHOLELITHIASIS: Calculus of bile duct with cholangitis,""
-K80.4,CHOLELITHIASIS: Calculus of bile duct with cholecystitis,""
-K80.5,CHOLELITHIASIS: Calculus of bile duct without cholangitis or cholecystitis,""
-K80.8,CHOLELITHIASIS: Other cholelithiasis,""
+I50.0,HEART FAILURE: Congestive heart failure,
+I50.00,ADVANCED CONGESTIVE HEART FAILURE GRAVE CONGESTIVE HEART FAILURE SEVERE CONGESTIVE HEART FAILURE,
+I50.1,HEART FAILURE: Left ventricular failure,
+I50.9,"HEART FAILURE: Heart failure, unspecified",
+I63.0,CEREBRAL INFARCTION: Cerebral infarction due to thrombosis of precerebral arteries,
+I63.1,CEREBRAL INFARCTION: Cerebral infarction due to embolism of precerebral arteries,
+I63.2,CEREBRAL INFARCTION: Cerebral infarction due to unspecified occlusion or stenosis of precerebral arteries,
+I63.3,CEREBRAL INFARCTION: Cerebral infarction due to thrombosis of cerebral arteries,
+I63.4,CEREBRAL INFARCTION: Cerebral infarction due to embolism of cerebral arteries,
+I63.5,CEREBRAL INFARCTION: Cerebral infarction due to unspecified occlusion or stenosis of cerebral arteries,
+I63.6,"CEREBRAL INFARCTION: Cerebral infarction due to cerebral venous thrombosis, nonpyogenic",
+I63.8,CEREBRAL INFARCTION: Other cerebral infarction,
+I63.9,"CEREBRAL INFARCTION: Cerebral infarction, unspecified",
+J18.0,"PNEUMONIA, ORGANISM UNSPECIFIED: Bronchopneumonia, unspecified",
+J18.02,"BRONCHOPNEUMONIA, MODERATE RISK",
+J18.1,"PNEUMONIA, ORGANISM UNSPECIFIED: Lobar pneumonia, unspecified",
+J18.12,"LOBAR PNEUMONIA, MODERATE RISK",
+J18.2,"PNEUMONIA, ORGANISM UNSPECIFIED: Hypostatic pneumonia, unspecified",
+J18.8,"PNEUMONIA, ORGANISM UNSPECIFIED: Other pneumonia, organism unspecified",
+J18.9,"PNEUMONIA, ORGANISM UNSPECIFIED: Pneumonia, unspecified",
+J18.92,"COMMUNITY-ACQUIRED PNEUMONIA III (THIS CLASSIFICATION UTILIZED THE AMERICAN THORACIC SOCIETY RECOMMENDATION. THIS IS EQUIVALENT TO CAP, MODERATE RISK IN THE PHILIPPINE CLINICAL PRACTICE GUIDELINES ON THE DIAGNOSIS, EMPIRIC MANAGEMENT, AND PREVENTION OF C",
+K80.0,CHOLELITHIASIS: Calculus of gallbladder with acute cholecystitis,
+K80.1,CHOLELITHIASIS: Calculus of gallbladder with other cholecystitis,
+K80.2,CHOLELITHIASIS: Calculus of gallbladder without cholecystitis,
+K80.3,CHOLELITHIASIS: Calculus of bile duct with cholangitis,
+K80.4,CHOLELITHIASIS: Calculus of bile duct with cholecystitis,
+K80.5,CHOLELITHIASIS: Calculus of bile duct without cholangitis or cholecystitis,
+K80.8,CHOLELITHIASIS: Other cholelithiasis,
