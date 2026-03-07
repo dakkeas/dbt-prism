@@ -165,6 +165,12 @@ merged_table AS (
         fc.starting_dischargedate,
         fc.starting_physiciancode,
         fc.starting_primaryicdgroup,
+        CASE
+            WHEN fc.starting_primaryicdgroup IN ('NON-INSULIN-DEPENDENT DIABETES MELLITUS','INSULIN-DEPENDENT DIABETES MELLITUS', 'UNSPECIFIED DIABETES MELLITUS') THEN 'DIABETES'
+            ELSE fc.starting_primaryicdgroup
+        END AS grouped_starting_primaryicdgroup,
+        -- fc.starting_primaryicdgroup,
+        
         fc.starting_primaryicdcode,
         fc.starting_primaryicddesc,
         fc.starting_providername,
