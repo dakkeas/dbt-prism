@@ -3,8 +3,8 @@
 {{config(materialized = 'table')}}
 
 {{
-    md_scorecard_crf_deepdive(
-        ['NON-INSULIN-DEPENDENT DIABETES MELLITUS', 'INSULIN-DEPENDENT DIABETES MELLITUS', 'ESSENTIAL (PRIMARY) HYPERTENSION', 'CHRONIC RENAL FAILURE', 'UNSPECIFIED DIABETES MELLITUS'],
+    md_scorecard(
+        ['CHRONIC RENAL FAILURE'],
         20, 
         500, 
         7 
