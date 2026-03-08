@@ -8,6 +8,7 @@ WITH patient_engine AS (
         MIN(starting_providername) AS starting_providername,
         MIN(starting_physiciancode) AS starting_physiciancode,
         MIN(starting_primaryicdgroup) AS starting_primaryicdgroup,
+        MIN(grouped_starting_primaryicdgroup) AS grouped_starting_primaryicdgroup,
         
         COUNT(DISTINCT subsequent_claimno) AS overall_count_of_claims,
         SUM(subsequent_approved) AS overall_util,
@@ -52,7 +53,43 @@ WITH patient_engine AS (
         ROUND(CAST(SUM(CASE WHEN subsequent_loatype = 'INPATIENT' THEN subsequent_sum_of_util_ruvcode ELSE 0 END) AS NUMERIC), 2) AS inp_ruvcode_util,
 
         SUM(CASE WHEN subsequent_loatype = 'EMERGENCY' THEN subsequent_count_of_ruvcode ELSE 0 END) AS emg_ruvcode_coc,
-        ROUND(CAST(SUM(CASE WHEN subsequent_loatype = 'EMERGENCY' THEN subsequent_sum_of_util_ruvcode ELSE 0 END) AS NUMERIC), 2) AS emg_ruvcode_util
+        ROUND(CAST(SUM(CASE WHEN subsequent_loatype = 'EMERGENCY' THEN subsequent_sum_of_util_ruvcode ELSE 0 END) AS NUMERIC), 2) AS emg_ruvcode_util,
+
+        CASE 
+            WHEN MAX(CASE WHEN subsequent_primaryicdgroup IN 
+                ('CHRONIC ISCHAEMIC HEART DISEASE', 
+                'HYPERTENSIVE HEART DISEASE', 
+                'HEART FAILURE', 
+                'CHRONIC RENAL FAILURE') THEN 1 ELSE 0 END) = 1 
+            THEN 'End-Stage Disease Patient'
+
+            WHEN MAX(CASE WHEN subsequent_primaryicdgroup IN 
+                ('CHRONIC ISCHAEMIC HEART DISEASE', 
+                'HYPERTENSIVE HEART DISEASE', 
+                'HEART FAILURE', 
+                'CHRONIC RENAL FAILURE') THEN 1 ELSE 0 END) = 0 
+                AND MIN(starting_primaryicdgroup) = 'ESSENTIAL (PRIMARY) HYPERTENSION' 
+            THEN 'Hypertension Patient Only'
+
+            WHEN MAX(CASE WHEN subsequent_primaryicdgroup IN 
+                ('CHRONIC ISCHAEMIC HEART DISEASE', 
+                'HYPERTENSIVE HEART DISEASE', 
+                'HEART FAILURE', 
+                'CHRONIC RENAL FAILURE') THEN 1 ELSE 0 END) = 0 
+                AND MIN(grouped_starting_primaryicdgroup) = 'DIABETES' 
+            THEN 'Diabetes Patient Only'
+
+            WHEN MAX(CASE WHEN subsequent_primaryicdgroup IN 
+                ('CHRONIC ISCHAEMIC HEART DISEASE', 
+                'HYPERTENSIVE HEART DISEASE', 
+                'HEART FAILURE', 
+                'CHRONIC RENAL FAILURE') THEN 1 ELSE 0 END) = 0 
+                AND MIN(starting_primaryicdgroup) = 'DISORDERS OF LIPOPROTEIN METABOLISM AND OTHER LIPIDAEMIAS' 
+            THEN 'Lipidaemias Patient Only'
+        END AS patient_journey_category
+
+
+
 
     FROM {{ ref('mlv') }}
     GROUP BY maskedcardno

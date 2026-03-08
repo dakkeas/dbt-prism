@@ -101,6 +101,7 @@ WITH physician_engine AS (
         CONCAT(starting_physiciancode, ' - ', starting_providername) AS physician_providername,
         starting_physiciancode AS physiciancode,
         starting_providername AS providername,
+        MIN(grouped_starting_primaryicdgroup) AS grouped_starting_primaryicdgroup,
         MIN(pi.physicianname) AS physicianname,
         MIN(pi.specialization) AS specialization,
         -- BASE
@@ -243,10 +244,24 @@ WITH physician_engine AS (
         CAST(SUM(overall_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_ruvcode_avg_util_per_px,
         CAST(SUM(opl_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_ruvcode_avg_util_per_px,
         CAST(SUM(inp_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_ruvcode_avg_util_per_px,
-        CAST(SUM(emg_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_avg_util_per_px
+        CAST(SUM(emg_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_avg_util_per_px,
 
+        COALESCE(SUM(CASE
+            WHEN patient_journey_category = 'End-Stage Disease Patient' THEN 1
+        END), 0) AS count_of_end_stage_disease_patient,
 
-        -- RUVCODE
+        COALESCE(SUM(CASE
+            WHEN patient_journey_category = 'Hypertension Patient Only' THEN 1
+        END), 0) AS count_of_hypertension_patient_only,
+
+        COALESCE(SUM(CASE
+            WHEN patient_journey_category = 'Diabetes Patient Only' THEN 1
+        END), 0) AS count_of_diabetes_patient_only,
+
+        COALESCE(SUM(CASE
+            WHEN patient_journey_category = 'Lipidaemias Patient Only' THEN 1
+        END), 0) AS count_of_lipidaemias_patient_only
+
 
     FROM {{ ref('px_engine') }} pe
     LEFT JOIN (SELECT DISTINCT physiciancode, providername, physicianname, specialization FROM {{ ref('physicianinfo') }}) pi
@@ -273,8 +288,8 @@ SELECT
     providername,
     physicianname,
     specialization,
-
-
+    grouped_starting_primaryicdgroup,
+    
     -- 2. BASE PATIENT METRICS
     total_unique_patient_cnt,
     
@@ -339,7 +354,14 @@ SELECT
     total_overall_ruvcode_count,
     total_overall_ruvcode_util,
     overall_ruvcode_avg_count_per_px,
-    overall_ruvcode_avg_util_per_px
+    overall_ruvcode_avg_util_per_px,
+
+    COALESCE(NULLIF(CAST(count_of_end_stage_disease_patient AS NUMERIC), 0) / NULLIF(CAST(total_unique_patient_cnt AS NUMERIC), 0), 0) AS percent_of_end_stage_disease_patients,
+
+    count_of_end_stage_disease_patient,
+    count_of_hypertension_patient_only,
+    count_of_diabetes_patient_only,
+    count_of_lipidaemias_patient_only
 
 FROM physician_engine
 
