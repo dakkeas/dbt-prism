@@ -82,7 +82,7 @@ WITH first_claim_details AS (
 ),
 subsequent_details AS (
     SELECT
-        MIN(rc.lengthofstay) AS subsequent_lengthofstay,
+        -- MIN(rc.lengthofstay) AS subsequent_lengthofstay,
         s.maskedcardno, 
         MIN(s.claim_sequence) AS claim_sequence,
         s.subsequent_claimno AS subsequent_claimno,
@@ -91,7 +91,6 @@ subsequent_details AS (
         NULLIF(MIN(rc.lengthofstay), 0) AS subsequent_lengthofstay,
         STRING_AGG(DISTINCT CASE
 
-        MIN(rc.lengthofstay) AS subsequent_lengthofstay,
         WHEN TRIM(rc.physiciancode) NOT IN ('0', ' ', '') AND rc.physiciancode IS NOT NULL THEN rc.physiciancode
 
         END, ', ') AS subsequent_physiciancodes,
@@ -159,6 +158,104 @@ subsequent_details AS (
         s.maskedcardno, 
         s.subsequent_claimno
 ),
+
+-- CUSTOM LOGICS
+target_cardiometabolic_primaryicdcodes AS (
+    SELECT
+        primaryicdcode
+    FROM {{ref('cardiometabolic_primaryicdcodes')}}
+    UNION ALL
+    SELECT
+        primaryicdcode
+    FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}
+),
+flagged_as_cardiometabolic AS (
+    -- Step 1 & 2: Get discharge and next admission dates per patient
+    SELECT 
+        maskedcardno,
+        subsequent_admissiondate,
+        MAX(subsequent_dischargedate) AS subsequent_dischargedate,
+        -- If ANY claim on this day matches the list, flag the whole stay as 1
+        MAX(CASE 
+            WHEN subsequent_primaryicdcode IN (SELECT primaryicdcode FROM target_cardiometabolic_primaryicdcodes) THEN 1 
+            ELSE 0 
+        END) AS is_cardiometabolic_stay
+    FROM subsequent_details
+    WHERE subsequent_loatype = 'INPATIENT'
+    GROUP BY maskedcardno, subsequent_admissiondate
+),
+inpatient_patient_journey AS (
+    -- Step 2: Use LEAD() to look at the NEXT stay's admission and flag
+    SELECT 
+        *,
+        LEAD(subsequent_admissiondate) OVER (
+            PARTITION BY maskedcardno
+            ORDER BY subsequent_admissiondate
+        ) AS next_admissiondate,
+        LEAD(is_cardiometabolic_stay) OVER (
+            PARTITION BY maskedcardno
+            ORDER BY subsequent_admissiondate
+        ) AS next_stay_is_cardiometabolic
+    FROM flagged_as_cardiometabolic 
+),
+readmission_logic AS (
+    -- Step 3 & 4: Flag the readmissions
+    SELECT 
+        *,
+        -- Date difference logic
+        {% if target.type == 'bigquery' %}
+            DATE_DIFF(next_admissiondate, subsequent_dischargedate, DAY) as days_to_readmit -- BigQuery syntax
+        {% else %}
+            (next_admissiondate - subsequent_dischargedate) as days_to_readmit -- PostgreSQL syntax
+        {% endif %}
+    FROM inpatient_patient_journey
+),
+er_inp_claims AS (
+    -- Step 1: Group by patient, date, AND type. 
+    -- This keeps ER and INPATIENT separate even if they happen on the same day.
+    SELECT 
+        maskedcardno,
+        subsequent_admissiondate,
+        MAX(subsequent_dischargedate) AS subsequent_dischargedate,
+        subsequent_loatype
+    FROM subsequent_details
+    WHERE subsequent_loatype IN ('EMERGENCY', 'INPATIENT')
+    GROUP BY 1, 2, 4
+),
+er_patient_journey AS (
+    -- Step 2: Now LEAD() can see the Inpatient row following an ER row
+    SELECT 
+        *,
+        LEAD(subsequent_loatype) OVER (
+            PARTITION BY maskedcardno 
+            ORDER BY subsequent_admissiondate, subsequent_loatype DESC -- ER usually comes before INPATIENT alphabetically
+        ) AS next_loatype,
+        LEAD(subsequent_admissiondate) OVER (
+            PARTITION BY maskedcardno 
+            ORDER BY subsequent_admissiondate, subsequent_loatype DESC
+        ) AS next_admissiondate
+    FROM er_inp_claims
+),
+panic_logic AS (
+    -- Step 3: Check the gap
+    SELECT 
+        *,
+        CASE 
+            WHEN subsequent_loatype = 'EMERGENCY' 
+            AND (
+                next_loatype = 'INPATIENT' 
+                {% if target.type == 'bigquery' %}
+                    AND DATE_DIFF(next_admissiondate, subsequent_admissiondate, DAY) <= 1 
+                {% else %}
+                    AND (next_admissiondate - subsequent_admissiondate) <= 1
+                {% endif %}
+            ) THEN 0 -- This is a VALID admission (NOT panic)
+            
+            WHEN subsequent_loatype = 'EMERGENCY' THEN 1 -- Everything else is Panic
+            ELSE 0 
+        END AS is_panic_visit
+    FROM er_patient_journey
+),
 merged_table AS (
     SELECT
         fc.maskedcardno,
@@ -186,6 +283,15 @@ merged_table AS (
         s.claim_sequence,
         s.subsequent_claimno,
         s.subsequent_admissiondate,
+
+        CASE 
+            WHEN s.subsequent_loatype = 'EMERGENCY' THEN pl.is_panic_visit ELSE NULL
+        END AS is_panic_visit,
+
+        rl.next_admissiondate,
+        rl.next_stay_is_cardiometabolic,
+        rl.days_to_readmit,
+        
         s.subsequent_dischargedate,
         s.subsequent_lengthofstay,
         s.subsequent_physiciancodes,
@@ -220,6 +326,11 @@ merged_table AS (
         subsequent_details s ON fc.maskedcardno = s.maskedcardno
     LEFT JOIN
         {{ref('bl_unmaskedcardno')}} bl ON bl.maskedcardno = fc.maskedcardno
+    LEFT JOIN 
+        readmission_logic rl ON rl.maskedcardno = fc.maskedcardno AND rl.subsequent_admissiondate = s.subsequent_admissiondate
+    LEFT JOIN 
+        panic_logic pl ON pl.maskedcardno = fc.maskedcardno AND pl.subsequent_admissiondate = s.subsequent_admissiondate AND pl.subsequent_loatype = s.subsequent_loatype
+
     ORDER BY
         fc.maskedcardno,
         s.claim_sequence

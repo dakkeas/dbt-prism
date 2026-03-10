@@ -106,35 +106,45 @@ WITH physician_engine AS (
         MIN(pi.specialization) AS specialization,
         -- BASE
         COUNT(DISTINCT maskedcardno) AS total_unique_patient_cnt,
+        COUNT(DISTINCT CASE WHEN total_lengthofstay > 0 THEN maskedcardno END) AS total_patient_cnt_with_stay,
         SUM(overall_count_of_claims) AS total_claim_count,
+
         SUM(total_lengthofstay) AS total_patient_lengthofstay,
-        SUM(overall_util) AS total_util,
-        SUM(overall_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS ave_12_month_util_per_patient,
         
+        SUM(overall_util) AS total_util,
+        COALESCE(SUM(overall_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 0) AS ave_12_month_util_per_patient,
 
         -- =============================================
         -- OP LAB METRICS
         -- =============================================
         COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END) AS opl_unique_px_cnt_at_least_one,
 
-        (CAST(COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END) AS NUMERIC)
-         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        COALESCE(
+            (CAST(COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END) AS NUMERIC)
+             / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+            ), 0
         ) AS opl_unique_px_count_at_least_one_pct,
 
-        (CAST(SUM(opl_coc) AS NUMERIC)
-         / NULLIF(COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END), 0)
+        COALESCE(
+            (CAST(SUM(opl_coc) AS NUMERIC)
+             / NULLIF(COUNT(DISTINCT CASE WHEN opl_coc > 0 THEN maskedcardno END), 0)
+            ), 0
         ) AS opl_ave_claims_per_px_at_least_one,
 
         SUM(opl_coc) AS opl_total_claims,
 
-        (CAST(SUM(opl_util) AS NUMERIC)
-         / NULLIF(SUM(opl_coc), 0)
+        COALESCE(
+            (CAST(SUM(opl_util) AS NUMERIC)
+             / NULLIF(SUM(opl_coc), 0)
+            ), 0
         ) AS opl_ave_cost_per_claim_per_px_at_least_one,
 
         SUM(opl_util) AS opl_sum_of_util,
 
-        (CAST(SUM(opl_util) AS NUMERIC)
-         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        COALESCE(
+            (CAST(SUM(opl_util) AS NUMERIC)
+             / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+            ), 0
         ) AS opl_ave_twelve_month_util_per_px,
 
         -- =============================================
@@ -142,24 +152,32 @@ WITH physician_engine AS (
         -- =============================================
         COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END) AS inp_unique_px_count_at_least_one,
 
-        (CAST(COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END) AS NUMERIC)
-         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        COALESCE(
+            (CAST(COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END) AS NUMERIC)
+             / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+            ), 0
         ) AS inp_unique_px_count_at_least_one_pct,
 
-        (CAST(SUM(inp_coc) AS NUMERIC)
-         / NULLIF(COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END), 0)
+        COALESCE(
+            (CAST(SUM(inp_coc) AS NUMERIC)
+             / NULLIF(COUNT(DISTINCT CASE WHEN inp_coc > 0 THEN maskedcardno END), 0)
+            ), 0
         ) AS inp_ave_claims_per_px_at_least_one,
 
         SUM(inp_coc) AS inp_total_claims,
 
-        (CAST(SUM(inp_util) AS NUMERIC)
-         / NULLIF(SUM(inp_coc), 0)
+        COALESCE(
+            (CAST(SUM(inp_util) AS NUMERIC)
+             / NULLIF(SUM(inp_coc), 0)
+            ), 0
         ) AS inp_ave_cost_per_claim_per_px_at_least_one,
 
         SUM(inp_util) AS inp_sum_of_util,
 
-        (CAST(SUM(inp_util) AS NUMERIC)
-         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        COALESCE(
+            (CAST(SUM(inp_util) AS NUMERIC)
+             / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+            ), 0
         ) AS inp_ave_twelve_month_util_per_px,
 
         -- =============================================
@@ -167,33 +185,44 @@ WITH physician_engine AS (
         -- =============================================
         COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END) AS others_unique_px_count_at_least_one,
 
-        (CAST(COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END) AS NUMERIC)
-         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        COALESCE(
+            (CAST(COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END) AS NUMERIC)
+             / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+            ), 0
         ) AS others_unique_px_count_at_least_one_pct,
 
-        (CAST(SUM(others_coc) AS NUMERIC)
-         / NULLIF(COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END), 0)
+        COALESCE(
+            (CAST(SUM(others_coc) AS NUMERIC)
+             / NULLIF(COUNT(DISTINCT CASE WHEN others_coc > 0 THEN maskedcardno END), 0)
+            ), 0
         ) AS others_ave_claims_per_px_at_least_one,
 
         SUM(others_coc) AS others_total_claims,
 
-        (CAST(SUM(others_util) AS NUMERIC)
-         / NULLIF(SUM(others_coc), 0)
+        COALESCE(
+            (CAST(SUM(others_util) AS NUMERIC)
+             / NULLIF(SUM(others_coc), 0)
+            ), 0
         ) AS others_ave_cost_per_claim_per_px_at_least_one,
 
         SUM(others_util) AS others_sum_of_util,
 
-        (CAST(SUM(others_util) AS NUMERIC)
-         / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+        COALESCE(
+            (CAST(SUM(others_util) AS NUMERIC)
+             / NULLIF(COUNT(DISTINCT maskedcardno), 0)
+            ), 0
         ) AS others_ave_twelve_month_util_per_px,
 
         -- =============================================
         -- PHILHEALTH METRICS
         -- =============================================
         SUM(sum_philhealth) AS total_philhealth,
+        COALESCE(CAST(SUM(sum_philhealth) AS NUMERIC) / NULLIF(CAST(SUM(overall_util) AS NUMERIC), 0), 0) AS percent_of_philhealth_util,
 
-        CAST(SUM(sum_philhealth) AS NUMERIC)
-        / CAST(COUNT(DISTINCT maskedcardno) AS NUMERIC) AS ave_philhealth_claim,
+        COALESCE(
+            CAST(SUM(sum_philhealth) AS NUMERIC)
+            / NULLIF(CAST(COUNT(DISTINCT maskedcardno) AS NUMERIC), 0), 0
+        ) AS ave_philhealth_claim_per_patient,
 
         -- =============================================
         -- CPTCODE/RUVCODE METRICS
@@ -212,16 +241,16 @@ WITH physician_engine AS (
         CAST(SUM(emg_cptcode_util) AS NUMERIC) AS total_emg_cptcode_util,
 
         -- AVG count of CPT codes per patient
-        CAST(SUM(overall_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_cptcode_avg_count_per_px,
-        CAST(SUM(opl_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_cptcode_avg_count_per_px,
-        CAST(SUM(inp_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_cptcode_avg_count_per_px,
-        CAST(SUM(emg_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_cptcode_avg_count_per_px,
+        COALESCE(CAST(SUM(overall_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS overall_cptcode_avg_count_per_px,
+        COALESCE(CAST(SUM(opl_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS opl_cptcode_avg_count_per_px,
+        COALESCE(CAST(SUM(inp_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS inp_cptcode_avg_count_per_px,
+        COALESCE(CAST(SUM(emg_cptcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS emg_cptcode_avg_count_per_px,
 
         -- AVG utilization of CPT codes per patient
-        CAST(SUM(overall_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_cptcode_avg_util_per_px,
-        CAST(SUM(opl_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_cptcode_avg_util_per_px,
-        CAST(SUM(inp_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_cptcode_avg_util_per_px,
-        CAST(SUM(emg_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_cptcode_avg_util_per_px,
+        COALESCE(CAST(SUM(overall_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS overall_cptcode_avg_util_per_px,
+        COALESCE(CAST(SUM(opl_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS opl_cptcode_avg_util_per_px,
+        COALESCE(CAST(SUM(inp_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS inp_cptcode_avg_util_per_px,
+        COALESCE(CAST(SUM(emg_cptcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS emg_cptcode_avg_util_per_px,
 
         -- SUM of count of RUV codes
         CAST(SUM(overall_ruvcode_coc) AS NUMERIC) AS total_overall_ruvcode_count,
@@ -236,16 +265,16 @@ WITH physician_engine AS (
         CAST(SUM(emg_ruvcode_util) AS NUMERIC) AS total_emg_ruvcode_util,
 
         -- AVG count of RUV codes per patient
-        CAST(SUM(overall_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_ruvcode_avg_count_per_px,
-        CAST(SUM(opl_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_ruvcode_avg_count_per_px,
-        CAST(SUM(inp_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_ruvcode_avg_count_per_px,
-        CAST(SUM(emg_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_avg_count_per_px,
+        COALESCE(CAST(SUM(overall_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS overall_ruvcode_avg_count_per_px,
+        COALESCE(CAST(SUM(opl_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS opl_ruvcode_avg_count_per_px,
+        COALESCE(CAST(SUM(inp_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS inp_ruvcode_avg_count_per_px,
+        COALESCE(CAST(SUM(emg_ruvcode_coc) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS emg_ruvcode_avg_count_per_px,
 
         -- AVG utilization of RUV codes per patient
-        CAST(SUM(overall_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS overall_ruvcode_avg_util_per_px,
-        CAST(SUM(opl_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS opl_ruvcode_avg_util_per_px,
-        CAST(SUM(inp_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_ruvcode_avg_util_per_px,
-        CAST(SUM(emg_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_avg_util_per_px,
+        COALESCE(CAST(SUM(overall_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS overall_ruvcode_avg_util_per_px,
+        COALESCE(CAST(SUM(opl_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS opl_ruvcode_avg_util_per_px,
+        COALESCE(CAST(SUM(inp_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS inp_ruvcode_avg_util_per_px,
+        COALESCE(CAST(SUM(emg_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC), 0) AS emg_ruvcode_avg_util_per_px,
 
         -- end stage patients count & total util
 
@@ -320,7 +349,12 @@ SELECT
 
     -- total length of stay for all tagged patients under MD
     total_patient_lengthofstay,
-    COALESCE((total_patient_lengthofstay) AS NUMERIC / CAST(total_unique_patient_cnt) AS NUMERIC, 0)AS ave_length_of_stay_per_patient,
+    -- COALESCE(CAST(total_patient_lengthofstay AS NUMERIC) / NULLIF(CAST(total_unique_patient_cnt AS NUMERIC), 0), 0) AS ave_length_of_stay_per_patient,
+
+    -- avg length of stay per patient (only patients with length of stay > 0)
+    -- count_px_multi_stay,
+
+    COALESCE(CAST(total_patient_lengthofstay AS NUMERIC) / NULLIF(CAST(total_patient_cnt_with_stay AS NUMERIC), 0), 0) AS avg_lengthofstay_per_patient_with_stay,
 
     -- 4. ALL CLAIMS METRICS
     total_claim_count,
