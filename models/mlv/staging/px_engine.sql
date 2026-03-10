@@ -8,10 +8,11 @@ WITH patient_engine AS (
         MIN(starting_providername) AS starting_providername,
         MIN(starting_physiciancode) AS starting_physiciancode,
         MIN(starting_primaryicdgroup) AS starting_primaryicdgroup,
-        MIN(grouped_starting_primaryicdgroup) AS grouped_starting_primaryicdgroup,
+        MIN(combined_starting_primaryicdgroup) AS combined_starting_primaryicdgroup,
         
         COUNT(DISTINCT subsequent_claimno) AS overall_count_of_claims,
         SUM(subsequent_approved) AS overall_util,
+        SUM(subsequent_lengthofstay) AS total_lengthofstay,
 
         -- OP LAB
         COUNT(DISTINCT CASE WHEN subsequent_loatype = 'OP LAB' THEN subsequent_claimno END) AS opl_coc,
@@ -57,37 +58,25 @@ WITH patient_engine AS (
 
         CASE 
             WHEN MAX(CASE WHEN subsequent_primaryicdgroup IN 
-                ('CHRONIC ISCHAEMIC HEART DISEASE', 
-                'HYPERTENSIVE HEART DISEASE', 
-                'HEART FAILURE', 
-                'CHRONIC RENAL FAILURE') THEN 1 ELSE 0 END) = 1 
-            THEN 'End-Stage Disease Patient'
+                (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 1 
+            THEN 'End-Stage Cardiometabolic Disease Patient'
 
             WHEN MAX(CASE WHEN subsequent_primaryicdgroup IN 
-                ('CHRONIC ISCHAEMIC HEART DISEASE', 
-                'HYPERTENSIVE HEART DISEASE', 
-                'HEART FAILURE', 
-                'CHRONIC RENAL FAILURE') THEN 1 ELSE 0 END) = 0 
+                (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 0 
                 AND MIN(starting_primaryicdgroup) = 'ESSENTIAL (PRIMARY) HYPERTENSION' 
-            THEN 'Hypertension Patient Only'
+            THEN 'Essential (Primary) Hypertension Patient Only'
 
             WHEN MAX(CASE WHEN subsequent_primaryicdgroup IN 
-                ('CHRONIC ISCHAEMIC HEART DISEASE', 
-                'HYPERTENSIVE HEART DISEASE', 
-                'HEART FAILURE', 
-                'CHRONIC RENAL FAILURE') THEN 1 ELSE 0 END) = 0 
-                AND MIN(grouped_starting_primaryicdgroup) = 'DIABETES' 
-            THEN 'Diabetes Patient Only'
+                (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 0 
+                AND MIN(combined_starting_primaryicdgroup) = 'DIABETES MELLITUS' 
+            THEN 'Diabetes Mellitus Patient Only'
 
             WHEN MAX(CASE WHEN subsequent_primaryicdgroup IN 
-                ('CHRONIC ISCHAEMIC HEART DISEASE', 
-                'HYPERTENSIVE HEART DISEASE', 
-                'HEART FAILURE', 
-                'CHRONIC RENAL FAILURE') THEN 1 ELSE 0 END) = 0 
+                (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 0 
                 AND MIN(starting_primaryicdgroup) = 'DISORDERS OF LIPOPROTEIN METABOLISM AND OTHER LIPIDAEMIAS' 
-            THEN 'Lipidaemias Patient Only'
+            THEN 'Dyslipidaemia Patient Only'
+            ELSE 'Invalid'
         END AS patient_journey_category
-
 
 
 

@@ -101,12 +101,13 @@ WITH physician_engine AS (
         CONCAT(starting_physiciancode, ' - ', starting_providername) AS physician_providername,
         starting_physiciancode AS physiciancode,
         starting_providername AS providername,
-        MIN(grouped_starting_primaryicdgroup) AS grouped_starting_primaryicdgroup,
+        MIN(combined_starting_primaryicdgroup) AS combined_starting_primaryicdgroup,
         MIN(pi.physicianname) AS physicianname,
         MIN(pi.specialization) AS specialization,
         -- BASE
         COUNT(DISTINCT maskedcardno) AS total_unique_patient_cnt,
         SUM(overall_count_of_claims) AS total_claim_count,
+        SUM(total_lengthofstay) AS total_patient_lengthofstay,
         SUM(overall_util) AS total_util,
         SUM(overall_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS ave_12_month_util_per_patient,
         
@@ -246,21 +247,45 @@ WITH physician_engine AS (
         CAST(SUM(inp_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS inp_ruvcode_avg_util_per_px,
         CAST(SUM(emg_ruvcode_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0) AS NUMERIC) AS emg_ruvcode_avg_util_per_px,
 
-        COALESCE(SUM(CASE
-            WHEN patient_journey_category = 'End-Stage Disease Patient' THEN 1
-        END), 0) AS count_of_end_stage_disease_patient,
+        -- end stage patients count & total util
 
         COALESCE(SUM(CASE
-            WHEN patient_journey_category = 'Hypertension Patient Only' THEN 1
-        END), 0) AS count_of_hypertension_patient_only,
+            WHEN patient_journey_category = 'End-Stage Cardiometabolic Disease Patient' THEN 1
+        END), 0) AS count_of_end_stage_cardiometabolic_disease_patient,
 
         COALESCE(SUM(CASE
-            WHEN patient_journey_category = 'Diabetes Patient Only' THEN 1
+            WHEN patient_journey_category = 'End-Stage Cardiometabolic Disease Patient' THEN overall_util
+        END), 0) AS sum_of_util_of_end_stage_cardiometabolic_disease_patient,
+
+        -- essential hypertension patients count & total util
+
+        COALESCE(SUM(CASE
+            WHEN patient_journey_category = 'Essential (Primary) Hypertension Patient Only' THEN 1
+        END), 0) AS count_of_eph_patient_only,
+
+        COALESCE(SUM(CASE
+            WHEN patient_journey_category = 'Essential (Primary) Hypertension Patient Only' THEN overall_util
+        END), 0) AS sum_of_util_of_eph_patient_only,
+
+        -- diabetes patients count & total util
+
+        COALESCE(SUM(CASE
+            WHEN patient_journey_category = 'Diabetes Mellitus Patient Only' THEN 1
         END), 0) AS count_of_diabetes_patient_only,
 
         COALESCE(SUM(CASE
-            WHEN patient_journey_category = 'Lipidaemias Patient Only' THEN 1
-        END), 0) AS count_of_lipidaemias_patient_only
+            WHEN patient_journey_category = 'Diabetes Mellitus Patient Only' THEN overall_util
+        END), 0) AS sum_of_util_of_diabetes_patient_only,
+
+        -- dyslipidaemia patients count & total util
+
+        COALESCE(SUM(CASE
+            WHEN patient_journey_category = 'Dyslipidaemia Patient Only' THEN 1
+        END), 0) AS count_of_dyslipidaemia_patient_only,
+
+        COALESCE(SUM(CASE
+            WHEN patient_journey_category = 'Dyslipidaemia Patient Only' THEN overall_util
+        END), 0) AS sum_of_util_of_dyslipidaemia_patient_only,
 
 
     FROM {{ ref('px_engine') }} pe
@@ -288,11 +313,14 @@ SELECT
     providername,
     physicianname,
     specialization,
-    grouped_starting_primaryicdgroup,
+    combined_starting_primaryicdgroup,
     
     -- 2. BASE PATIENT METRICS
     total_unique_patient_cnt,
-    
+
+    -- total length of stay for all tagged patients under MD
+    total_patient_lengthofstay,
+    COALESCE((total_patient_lengthofstay) AS NUMERIC / CAST(total_unique_patient_cnt) AS NUMERIC, 0)AS ave_length_of_stay_per_patient,
 
     -- 4. ALL CLAIMS METRICS
     total_claim_count,
@@ -307,9 +335,9 @@ SELECT
     opl_ave_cost_per_claim_per_px_at_least_one,
     opl_sum_of_util,
 
-    opl_unique_px_count_at_least_one_pct * 
-    opl_ave_claims_per_px_at_least_one * 
-    opl_ave_cost_per_claim_per_px_at_least_one AS opl_per_capita,
+    -- opl_unique_px_count_at_least_one_pct * 
+    -- opl_ave_claims_per_px_at_least_one * 
+    -- opl_ave_cost_per_claim_per_px_at_least_one AS opl_per_capita,
 
     opl_ave_twelve_month_util_per_px,
 
@@ -321,9 +349,9 @@ SELECT
     inp_ave_cost_per_claim_per_px_at_least_one,
     inp_sum_of_util,
 
-    inp_unique_px_count_at_least_one_pct * 
-    inp_ave_claims_per_px_at_least_one * 
-    inp_ave_cost_per_claim_per_px_at_least_one AS inp_per_capita,
+    -- inp_unique_px_count_at_least_one_pct * 
+    -- inp_ave_claims_per_px_at_least_one * 
+    -- inp_ave_cost_per_claim_per_px_at_least_one AS inp_per_capita,
 
     inp_ave_twelve_month_util_per_px,
 
@@ -335,9 +363,9 @@ SELECT
     others_ave_cost_per_claim_per_px_at_least_one,
     others_sum_of_util,
 
-    others_unique_px_count_at_least_one_pct * 
-    others_ave_claims_per_px_at_least_one * 
-    others_ave_cost_per_claim_per_px_at_least_one AS others_per_capita,
+    -- others_unique_px_count_at_least_one_pct * 
+    -- others_ave_claims_per_px_at_least_one * 
+    -- others_ave_cost_per_claim_per_px_at_least_one AS others_per_capita,
 
     others_ave_twelve_month_util_per_px,
 
@@ -351,17 +379,24 @@ SELECT
     overall_cptcode_avg_util_per_px,
 
     
-    total_overall_ruvcode_count,
-    total_overall_ruvcode_util,
-    overall_ruvcode_avg_count_per_px,
-    overall_ruvcode_avg_util_per_px,
+    -- total_overall_ruvcode_count,
+    -- total_overall_ruvcode_util,
+    -- overall_ruvcode_avg_count_per_px,
+    -- overall_ruvcode_avg_util_per_px,
 
-    COALESCE(NULLIF(CAST(count_of_end_stage_disease_patient AS NUMERIC), 0) / NULLIF(CAST(total_unique_patient_cnt AS NUMERIC), 0), 0) AS percent_of_end_stage_disease_patients,
+    COALESCE(NULLIF(CAST(count_of_end_stage_cardiometabolic_disease_patient AS NUMERIC), 0) / NULLIF(CAST(total_unique_patient_cnt AS NUMERIC), 0), 0) AS percent_of_end_stage_cardiometabolic_disease_patients,
 
-    count_of_end_stage_disease_patient,
-    count_of_hypertension_patient_only,
+    count_of_end_stage_cardiometabolic_disease_patient,
+    sum_of_util_of_end_stage_cardiometabolic_disease_patient,
+
+    count_of_eph_patient_only,
+    sum_of_util_of_eph_patient_only,
+
     count_of_diabetes_patient_only,
-    count_of_lipidaemias_patient_only
+    sum_of_util_of_diabetes_patient_only,
+
+    count_of_dyslipidaemia_patient_only,
+    sum_of_util_of_dyslipidaemia_patient_only
 
 FROM physician_engine
 

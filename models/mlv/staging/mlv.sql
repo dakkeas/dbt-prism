@@ -82,13 +82,16 @@ WITH first_claim_details AS (
 ),
 subsequent_details AS (
     SELECT
+        MIN(rc.lengthofstay) AS subsequent_lengthofstay,
         s.maskedcardno, 
         MIN(s.claim_sequence) AS claim_sequence,
         s.subsequent_claimno AS subsequent_claimno,
         MIN(rc.admissiondate) AS subsequent_admissiondate,
         MIN(rc.dischargedate) AS subsequent_dischargedate,
+        NULLIF(MIN(rc.lengthofstay), 0) AS subsequent_lengthofstay,
         STRING_AGG(DISTINCT CASE
 
+        MIN(rc.lengthofstay) AS subsequent_lengthofstay,
         WHEN TRIM(rc.physiciancode) NOT IN ('0', ' ', '') AND rc.physiciancode IS NOT NULL THEN rc.physiciancode
 
         END, ', ') AS subsequent_physiciancodes,
@@ -166,9 +169,9 @@ merged_table AS (
         fc.starting_physiciancode,
         fc.starting_primaryicdgroup,
         CASE
-            WHEN fc.starting_primaryicdgroup IN ('NON-INSULIN-DEPENDENT DIABETES MELLITUS','INSULIN-DEPENDENT DIABETES MELLITUS', 'UNSPECIFIED DIABETES MELLITUS') THEN 'DIABETES'
+            WHEN fc.starting_primaryicdgroup IN ('NON-INSULIN-DEPENDENT DIABETES MELLITUS','INSULIN-DEPENDENT DIABETES MELLITUS', 'UNSPECIFIED DIABETES MELLITUS') THEN 'DIABETES MELLITUS'
             ELSE fc.starting_primaryicdgroup
-        END AS grouped_starting_primaryicdgroup,
+        END AS combined_starting_primaryicdgroup,
         -- fc.starting_primaryicdgroup,
         
         fc.starting_primaryicdcode,
@@ -184,6 +187,7 @@ merged_table AS (
         s.subsequent_claimno,
         s.subsequent_admissiondate,
         s.subsequent_dischargedate,
+        s.subsequent_lengthofstay,
         s.subsequent_physiciancodes,
         s.subsequent_primary_physiciancode_by_rank,
         s.subsequent_primary_physiciancode_by_approved_amount,

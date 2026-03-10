@@ -9,7 +9,7 @@ WITH t10_list AS (
         
     FROM {{ref('mlv')}}
 
-    WHERE grouped_starting_primaryicdgroup IN (
+    WHERE combined_starting_primaryicdgroup IN (
     {% for icd in primaryicdgroup_list %}
         '{{ icd }}'{% if not loop.last %}, {% endif %}
         {% endfor %}
@@ -79,11 +79,11 @@ SELECT
 
 FROM {{ref('mlv')}} m
 LEFT JOIN {{ref('icd_summary')}} s
-ON m.grouped_starting_primaryicdgroup = s.grouped_starting_primaryicdgroup
+ON m.combined_starting_primaryicdgroup = s.combined_starting_primaryicdgroup
 WHERE
     m.starting_providername IN (SELECT starting_providername from t10_list)
     and
-    m.grouped_starting_primaryicdgroup IN (
+    m.combined_starting_primaryicdgroup IN (
         {% for icd in primaryicdgroup_list %}
         '{{ icd }}'{% if not loop.last %}, {% endif %}
         {% endfor %}
@@ -153,12 +153,12 @@ SELECT
 
 FROM {{ref('mlv')}} m
 LEFT JOIN {{ref('icd_summary')}} s
-ON m.grouped_starting_primaryicdgroup = s.grouped_starting_primaryicdgroup
+ON m.combined_starting_primaryicdgroup = s.combined_starting_primaryicdgroup
 
 WHERE
     m.starting_providername NOT IN (SELECT starting_providername from t10_list)
     and
-    m.grouped_starting_primaryicdgroup IN (
+    m.combined_starting_primaryicdgroup IN (
         {% for icd in primaryicdgroup_list %}
         '{{ icd }}'{% if not loop.last %}, {% endif %}
         {% endfor %}

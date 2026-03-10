@@ -2,7 +2,7 @@
 
 
 SELECT
-    starting_primaryicdgroup,
+    combined_starting_primaryicdgroup,
     starting_providername,
     COUNT(DISTINCT maskedcardno) AS count_of_patients,
     SUM(overall_util) AS total_util
