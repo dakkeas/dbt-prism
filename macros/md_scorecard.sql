@@ -316,6 +316,40 @@ WITH physician_engine AS (
             WHEN patient_journey_category = 'Dyslipidaemia Patient Only' THEN overall_util
         END), 0) AS sum_of_util_of_dyslipidaemia_patient_only,
 
+        -- =============================================
+        -- READMISSION AND ER METRICS
+        -- =============================================
+        COALESCE(SUM(count_of_rapid_readmissions), 0) AS count_of_rapid_readmissions,
+        COALESCE(SUM(count_of_unique_inpatient_stays), 0) AS count_of_unique_inpatient_stays,
+        COALESCE(SUM(count_of_rapid_cardiometabolic_readmissions), 0) AS count_of_rapid_cardiometabolic_readmissions,
+        COALESCE(SUM(count_of_unique_cardiometabolic_inpatient_stays), 0) AS count_of_unique_cardiometabolic_inpatient_stays,
+        COALESCE(SUM(count_of_non_panic_visits), 0) AS count_of_non_panic_visits,
+        COALESCE(SUM(count_of_panic_visits), 0) AS count_of_panic_visits,
+        COALESCE(SUM(count_of_unique_emergencies), 0) AS count_of_unique_emergencies,
+
+        COALESCE(
+            CAST(SUM(count_of_rapid_readmissions) AS NUMERIC) 
+            / NULLIF(SUM(count_of_unique_inpatient_stays), 0), 0
+        ) AS readmission_rate,
+
+        COALESCE(
+            CAST(SUM(count_of_rapid_cardiometabolic_readmissions) AS NUMERIC) 
+            / NULLIF(SUM(count_of_unique_cardiometabolic_inpatient_stays), 0), 0
+        ) AS cardiometabolic_readmission_rate,
+
+        COALESCE(
+            CAST(SUM(count_of_panic_visits) AS NUMERIC) 
+            / NULLIF(SUM(count_of_unique_emergencies), 0), 0
+        ) AS panic_visit_rate,
+
+        COALESCE(
+            CAST(SUM(count_of_non_panic_visits) AS NUMERIC) 
+            / NULLIF(SUM(count_of_unique_emergencies), 0), 0
+        ) AS non_panic_visit_rate
+
+
+        
+
 
     FROM {{ ref('px_engine') }} pe
     LEFT JOIN (SELECT DISTINCT physiciancode, providername, physicianname, specialization FROM {{ ref('physicianinfo') }}) pi
@@ -328,7 +362,7 @@ WITH physician_engine AS (
     AND pe.starting_providername = pi.providername
 
 
-    WHERE pe.starting_primaryicdgroup IN (
+    WHERE pe.combined_starting_primaryicdgroup IN (
     {% for icd in primaryicdgroup_list %}
         '{{ icd }}'{% if not loop.last %}, {% endif %}
     {% endfor %}
@@ -405,14 +439,13 @@ SELECT
 
     -- 8. PHILHEALTH METRICS
     total_philhealth,
-    ave_philhealth_claim,
+    percent_of_philhealth_util,
+    ave_philhealth_claim_per_patient,
 
     total_overall_cptcode_count,
     total_overall_cptcode_util,
     overall_cptcode_avg_count_per_px,
     overall_cptcode_avg_util_per_px,
-
-    
     -- total_overall_ruvcode_count,
     -- total_overall_ruvcode_util,
     -- overall_ruvcode_avg_count_per_px,
@@ -430,7 +463,32 @@ SELECT
     sum_of_util_of_diabetes_patient_only,
 
     count_of_dyslipidaemia_patient_only,
-    sum_of_util_of_dyslipidaemia_patient_only
+    sum_of_util_of_dyslipidaemia_patient_only,
+
+
+
+    -- readmissionn and panic rates
+
+    
+
+
+    count_of_rapid_readmissions,
+    count_of_unique_inpatient_stays,
+    readmission_rate,
+
+
+    count_of_rapid_cardiometabolic_readmissions,
+    count_of_unique_cardiometabolic_inpatient_stays,
+    cardiometabolic_readmission_rate,
+
+    count_of_unique_emergencies,        
+
+    count_of_panic_visits,
+    panic_visit_rate,
+
+    count_of_non_panic_visits,
+    non_panic_visit_rate
+
 
 FROM physician_engine
 
@@ -441,7 +499,7 @@ FROM physician_engine
             SUM(total_util) AS total_util
             FROM {{ref('provider_engine')}}
             -- WHERE starting_primaryicdgroup = 'ESSENTIAL (PRIMARY) HYPERTENSION'
-            WHERE starting_primaryicdgroup IN (
+            WHERE combined_starting_primaryicdgroup IN (
             {% for icd in primaryicdgroup_list %}
                 '{{ icd }}'{% if not loop.last %}, {% endif %}
             {% endfor %}

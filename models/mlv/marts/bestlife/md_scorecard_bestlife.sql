@@ -2,14 +2,10 @@
 {{config(materialized = 'table')}}
 
 {{
-    icd_summary_per_provider(
+    md_scorecard(
         ['DIABETES MELLITUS'],
+        100000000,
+        100000000,
+        6
     ) 
 }}
-
-
-
-
-
-
-

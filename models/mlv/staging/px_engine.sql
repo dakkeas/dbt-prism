@@ -7,14 +7,15 @@ WITH unique_admissions AS (
     SELECT
         maskedcardno,
         subsequent_admissiondate,
-        MAX(subsequent_loatype) AS subsequent_loatype,
+        subsequent_loatype,
         MAX(subsequent_lengthofstay) AS max_lengthofstay,
         MAX(days_to_readmit) AS days_to_readmit,
-        MAX(next_stay_is_cardio_metabolic) AS next_stay_is_cardio_metabolic
+        MAX(next_stay_is_cardiometabolic) AS next_stay_is_cardiometabolic,
+        MAX(is_panic_visit) AS is_panic_visit
 
     FROM {{ ref('mlv') }}
-    WHERE subsequent_loatype = 'INPATIENT'
-    GROUP BY maskedcardno, subsequent_admissiondate
+    -- WHERE subsequent_loatype = 'INPATIENT'
+    GROUP BY maskedcardno, subsequent_admissiondate, subsequent_loatype
 ),
 los_agg AS (
     SELECT 
@@ -22,9 +23,47 @@ los_agg AS (
         maskedcardno,
         SUM(max_lengthofstay) AS total_lengthofstay
     FROM unique_admissions
+    WHERE subsequent_loatype = 'INPATIENT'
     GROUP BY maskedcardno
 ),
-patient_engine AS 
+readmission_agg AS (
+    SELECT
+        maskedcardno,
+        COALESCE(SUM(CASE 
+            WHEN days_to_readmit <= 30 
+            AND days_to_readmit IS NOT NULL THEN 1 ELSE 0
+            END), 0) AS count_of_rapid_readmissions,
+
+        COALESCE(COUNT(*), 0) AS count_of_unique_inpatient_stays,
+
+        COALESCE(SUM(CASE 
+            WHEN days_to_readmit <= 30 AND 
+             days_to_readmit IS NOT NULL AND
+             next_stay_is_cardiometabolic = 1 THEN 1 ELSE 0
+            END), 0) AS count_of_rapid_cardiometabolic_readmissions,
+
+        COALESCE(COUNT(CASE WHEN next_stay_is_cardiometabolic = 1 THEN 1 ELSE NULL END), 0) AS count_of_unique_cardiometabolic_inpatient_stays
+
+    FROM
+        unique_admissions
+    WHERE subsequent_loatype = 'INPATIENT'
+    GROUP BY maskedcardno
+),
+er_agg AS (
+    SELECT
+        maskedcardno,
+        
+        COALESCE(COUNT(CASE WHEN is_panic_visit = 1 THEN 1 ELSE NULL END),0) AS count_of_panic_visits,
+
+        COALESCE(COUNT(CASE WHEN is_panic_visit = 0 THEN 1 ELSE NULL END),0) AS count_of_non_panic_visits,
+
+        COALESCE(COUNT(*), 0) AS count_of_unique_emergencies
+    
+    FROM unique_admissions
+    WHERE subsequent_loatype = 'EMERGENCY'
+    GROUP BY maskedcardno
+),
+patient_engine AS (
     SELECT
         mlv.maskedcardno,
         MIN(mlv.bl_cardno) AS bl_cardno,
@@ -35,28 +74,6 @@ patient_engine AS
         
         COUNT(DISTINCT mlv.subsequent_claimno) AS overall_count_of_claims,
         SUM(mlv.subsequent_approved) AS overall_util,
-        MAX(l.total_lengthofstay) AS total_lengthofstay, -- sums only the max lengthofstay per admissiondate
-
-        -- readmission rates
-        SUM(CASE 
-            WHEN ua.subsequent_loatype = 'INPATIENT' AND l.days_to_readmit <= 30 THEN 1 ELSE 0
-            END
-        ) AS count_of_rapid_readmissions,
-
-
-        
-
-        SUM(CASE 
-            WHEN ua.subsequent_loatype = 'INPATIENT' AND
-             ua.days_to_readmit <= 30 AND 
-             ua.days_to_readmit IS NOT NULL AND
-             ua.next_stay_is_cardio_metabolic = 1 THEN 1 ELSE 0
-            END
-        ) AS count_of_rapid_cardiometabolic_readmissions,
-
-        -- panic logic
-
-
 
         -- OP LAB
         COUNT(DISTINCT CASE WHEN mlv.subsequent_loatype = 'OP LAB' THEN mlv.subsequent_claimno END) AS opl_coc,
@@ -72,7 +89,7 @@ patient_engine AS
 
         -- PhilHealth
         SUM(ABS(mlv.subsequent_philhealth)) AS sum_philhealth,
-        CAST(SUM(ABS(mlv.subsequent_philhealth))) AS NUMERIC / CAST(SUM(mlv.subsequent_approved) AS NUMERIC) AS percent_of_philhealth_util,
+        CAST(SUM(ABS(mlv.subsequent_philhealth)) AS NUMERIC) / NULLIF(CAST(SUM(mlv.subsequent_approved) AS NUMERIC), 0) AS percent_of_philhealth_util,
         COUNT(DISTINCT CASE WHEN mlv.subsequent_philhealth > 0 THEN mlv.subsequent_claimno END) AS philhealth_claim_count,
 
         -- CPT Code
@@ -102,30 +119,38 @@ patient_engine AS
         ROUND(CAST(SUM(CASE WHEN mlv.subsequent_loatype = 'EMERGENCY' THEN mlv.subsequent_sum_of_util_ruvcode ELSE 0 END) AS NUMERIC), 2) AS emg_ruvcode_util,
 
         CASE 
-            WHEN MAX(CASE WHEN mlv.subsequent_primaryicdgroup IN 
-                (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 1 
+            WHEN MAX(CASE WHEN mlv.subsequent_primaryicdcode IN (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) OR mlv.starting_primaryicdcode IN (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 1 
             THEN 'End-Stage Cardiometabolic Disease Patient'
 
-            WHEN MAX(CASE WHEN mlv.subsequent_primaryicdgroup IN 
-                (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 0 
+            WHEN MAX(CASE WHEN mlv.subsequent_primaryicdcode IN (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) OR mlv.starting_primaryicdcode IN (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 0 
                 AND MIN(mlv.starting_primaryicdgroup) = 'ESSENTIAL (PRIMARY) HYPERTENSION' 
             THEN 'Essential (Primary) Hypertension Patient Only'
 
-            WHEN MAX(CASE WHEN mlv.subsequent_primaryicdgroup IN 
-                (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 0 
+            WHEN MAX(CASE WHEN mlv.subsequent_primaryicdcode IN (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) OR mlv.starting_primaryicdcode IN (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 0 
                 AND MIN(mlv.combined_starting_primaryicdgroup) = 'DIABETES MELLITUS' 
             THEN 'Diabetes Mellitus Patient Only'
 
-            WHEN MAX(CASE WHEN mlv.subsequent_primaryicdgroup IN 
-                (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 0 
+            WHEN MAX(CASE WHEN mlv.subsequent_primaryicdcode IN (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) OR mlv.starting_primaryicdcode IN (SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}) THEN 1 ELSE 0 END) = 0 
                 AND MIN(mlv.starting_primaryicdgroup) = 'DISORDERS OF LIPOPROTEIN METABOLISM AND OTHER LIPIDAEMIAS' 
             THEN 'Dyslipidaemia Patient Only'
             ELSE 'Invalid'
         END AS patient_journey_category
+
     FROM {{ ref('mlv') }}
-    LEFT JOIN los_agg l ON mlv.maskedcardno = l.maskedcardno
-    LEFT JOIN unique_admissions ua ON mlv.maskedcardno = ua.maskedcardno AND mlv.subsequent_admissiondate = ua.subsequent_admissiondate
     GROUP BY mlv.maskedcardno
+)
+SELECT 
+    p.*
+    ,COALESCE(l.total_lengthofstay, 0) AS total_lengthofstay
+    ,COALESCE(r.count_of_rapid_readmissions, 0) AS count_of_rapid_readmissions
+    ,COALESCE(r.count_of_unique_inpatient_stays, 0) AS count_of_unique_inpatient_stays
+    ,COALESCE(r.count_of_rapid_cardiometabolic_readmissions, 0) AS count_of_rapid_cardiometabolic_readmissions
+    ,COALESCE(r.count_of_unique_cardiometabolic_inpatient_stays, 0) AS count_of_unique_cardiometabolic_inpatient_stays
+    ,COALESCE(e.count_of_non_panic_visits, 0) AS count_of_non_panic_visits
+    ,COALESCE(e.count_of_panic_visits, 0) AS count_of_panic_visits
+    ,COALESCE(e.count_of_unique_emergencies, 0) AS count_of_unique_emergencies
 
-
-SELECT * FROM patient_engine
+FROM patient_engine p
+LEFT JOIN los_agg l ON p.maskedcardno = l.maskedcardno
+LEFT JOIN readmission_agg r ON p.maskedcardno = r.maskedcardno
+LEFT JOIN er_agg e ON p.maskedcardno = e.maskedcardno

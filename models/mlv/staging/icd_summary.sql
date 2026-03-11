@@ -4,7 +4,7 @@
 
 
 SELECT
-    grouped_starting_primaryicdgroup
+    combined_starting_primaryicdgroup
     ,sum(subsequent_approved) as total_util
     ,avg(subsequent_approved) as avg_util
     ,count(distinct maskedcardno) as total_patients
