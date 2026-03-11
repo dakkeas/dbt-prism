@@ -106,10 +106,10 @@ WITH physician_engine AS (
         MIN(pi.specialization) AS specialization,
         -- BASE
         COUNT(DISTINCT maskedcardno) AS total_unique_patient_cnt,
-        COUNT(DISTINCT CASE WHEN total_lengthofstay > 0 THEN maskedcardno END) AS total_patient_cnt_with_stay,
+        COUNT(DISTINCT CASE WHEN COALESCE(total_lengthofstay, 0) > 0 THEN maskedcardno END) AS total_patient_cnt_with_stay,
         SUM(overall_count_of_claims) AS total_claim_count,
 
-        SUM(total_lengthofstay) AS total_patient_lengthofstay,
+        COALESCE(SUM(total_lengthofstay), 0) AS total_patient_lengthofstay,
         
         SUM(overall_util) AS total_util,
         COALESCE(SUM(overall_util) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 0) AS ave_12_month_util_per_patient,
@@ -382,7 +382,7 @@ SELECT
     total_unique_patient_cnt,
 
     -- total length of stay for all tagged patients under MD
-    total_patient_lengthofstay,
+    COALESCE(total_patient_lengthofstay, 0) AS total_patient_lengthofstay,
     -- COALESCE(CAST(total_patient_lengthofstay AS NUMERIC) / NULLIF(CAST(total_unique_patient_cnt AS NUMERIC), 0), 0) AS ave_length_of_stay_per_patient,
 
     -- avg length of stay per patient (only patients with length of stay > 0)

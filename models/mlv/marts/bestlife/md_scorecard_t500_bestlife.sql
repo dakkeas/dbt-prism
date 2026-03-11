@@ -4,8 +4,8 @@
 {{
     md_scorecard(
         ['DIABETES MELLITUS', 'ESSENTIAL (PRIMARY) HYPERTENSION','DISORDERS OF LIPOPROTEIN METABOLISM AND OTHER LIPIDAEMIAS'],
-        100000000,
-        100000000,
+        20,
+        500,
         6
     ) 
 }}

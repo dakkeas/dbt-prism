@@ -8,7 +8,7 @@ WITH unique_admissions AS (
         maskedcardno,
         subsequent_admissiondate,
         subsequent_loatype,
-        MAX(subsequent_lengthofstay) AS max_lengthofstay,
+        COALESCE(MAX(subsequent_lengthofstay), 0) AS max_lengthofstay,
         MAX(days_to_readmit) AS days_to_readmit,
         MAX(next_stay_is_cardiometabolic) AS next_stay_is_cardiometabolic,
         MAX(is_panic_visit) AS is_panic_visit
@@ -21,7 +21,7 @@ los_agg AS (
     SELECT 
         -- sums only the max lengthofstay per unique admissiondates
         maskedcardno,
-        SUM(max_lengthofstay) AS total_lengthofstay
+        COALESCE(SUM(max_lengthofstay), 0) AS total_lengthofstay
     FROM unique_admissions
     WHERE subsequent_loatype = 'INPATIENT'
     GROUP BY maskedcardno
