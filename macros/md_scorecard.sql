@@ -101,7 +101,13 @@ WITH physician_engine AS (
         CONCAT(starting_physiciancode, ' - ', starting_providername) AS physician_providername,
         starting_physiciancode AS physiciancode,
         starting_providername AS providername,
-        MIN(combined_starting_primaryicdgroup) AS combined_starting_primaryicdgroup,
+
+        STRING_AGG(DISTINCT CASE
+
+        WHEN TRIM(combined_starting_primaryicdgroup) NOT IN (' ', '') AND combined_starting_primaryicdgroup IS NOT NULL THEN combined_starting_primaryicdgroup
+
+        END, ', ') AS combined_starting_primaryicdgroup,
+
         MIN(pi.physicianname) AS physicianname,
         MIN(pi.specialization) AS specialization,
         -- BASE
