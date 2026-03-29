@@ -1,10 +1,41 @@
-
+# ==========================
+# DBT
+# ==========================
 target/
 dbt_packages/
-logs/
 dbt_internal_packages/
-secret/justine-prism-mg-service-account.json
-secret/justine-prism-personal-service-account.json
-secret/
-env/
+logs/
+
+# ==========================
+# Python
+# ==========================
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ==========================
+# Local data
+# ==========================
 data/
+
+# ==========================
+# Secrets
+# ==========================
+secret/*
+!secret/.env.example
+
+# Service account JSONs
+*.json
+
+# ==========================
+# Environment variables
+# ==========================
+.env
+secret/.env
+
+# ==========================
+# OS files
+# ==========================
+.DS_Store

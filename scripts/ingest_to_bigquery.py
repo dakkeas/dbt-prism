@@ -1,18 +1,27 @@
+import os 
+from dotenv import load_dotenv
+
+# specify the full path
+load_dotenv(dotenv_path="secret/.env")
+
 import pandas as pd
 from sqlalchemy import create_engine
 from google.oauth2 import service_account
-import sys
+
+
 
 # --- CONSTANTS (Defaults) ---
-PG_USER = 'postgres'
-PG_PASS = 'prism'
-PG_HOST = 'localhost'
-PG_PORT = '5432'
-PG_DB   = 'prism_db'
 
-PROJECT_ID = 'zinc-anvil-486507-v3'
-DEFAULT_DATASET_ID = 'prism_mlv'
-SERVICE_ACCOUNT_FILE = r'C:\Users\justi\Documents\coding-projects\medgrocer\prism_dbt\secret\justine-prism-mg-service-account.json'
+PG_USER = os.getenv("PG_USER")
+PG_PASS = os.getenv("PG_PASS")
+PG_HOST = os.getenv("PG_HOST")
+PG_PORT = os.getenv("PG_PORT")
+PG_DB   = os.getenv("PG_DB")
+
+PROJECT_ID = os.getenv("BQ_PROJECT_ID")
+DEFAULT_DATASET_ID = os.getenv("BQ_DATASET_ID")
+SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE")
+
 
 
 def run_ingestion():
@@ -57,6 +66,8 @@ def run_ingestion():
             if_exists='replace',
             progress_bar=True
         )
+
+        
 
         print(f"[3/3] Success! {dest_table} is now updated in BigQuery.")
 

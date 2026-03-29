@@ -5,15 +5,20 @@ import hdbscan
 import jellyfish
 from collections import Counter
 import re
+import os 
+from datenv import load_dotenv
+
+load_dotenv(dotenv_path="secret/.env")
 
 # ------------------------
 # Postgres connection
 # ------------------------
-PG_USER = 'postgres'
-PG_PASS = 'prism'
-PG_HOST = 'localhost'
-PG_PORT = '5432'
-PG_DB   = 'prism_db'
+PG_USER = os.getenv("PG_USER")
+PG_PASS = os.getenv("PG_PASS")
+PG_HOST = os.getenv("PG_HOST")
+PG_PORT = os.getenv("PG_PORT")
+PG_DB   = os.getenv("PG_DB")
+
 
 pg_engine = create_engine(f'postgresql://{PG_USER}:{PG_PASS}@{PG_HOST}:{PG_PORT}/{PG_DB}')
 

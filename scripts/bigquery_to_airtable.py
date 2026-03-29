@@ -1,14 +1,17 @@
+import os 
+from dotenv import load_dotenv
 import pandas as pd
 import requests
 from google.cloud import bigquery
 from google.oauth2 import service_account
-from secret import config  # your AIRTABLE_API_KEY
 
+load_dotenv(dotenv_path="secret/.env")
 # ==========================
 # BIGQUERY SETTINGS
 # ==========================
-PROJECT_ID = config.PRISM_BQ_PROJECT_ID
-SERVICE_ACCOUNT_FILE = r"C:\Users\justi\Documents\coding-projects\medgrocer\prism_dbt\secret\justine-prism-mg-service-account.json"
+PROJECT_ID = os.getenv("PRISM_BQ_PROJECT_ID")
+SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE")
+
 
 
 def prompt_user_inputs():
