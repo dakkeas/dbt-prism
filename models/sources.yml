@@ -1,7 +1,26 @@
 version: 2
 
 sources:
-  - name: public_data # This can be whatever you want to name your source system
-    schema: public    # The actual schema in Postgres
+  - name: public_data
+    database: prism_db
+    schema: public
     tables:
       - name: raw_claims_2023_2025
+
+  - name: mxc_raw_claims
+    database: prism_db
+    schema: mxc_raw_claims
+    tables:
+      - name: prism_2019_jan_to_jun
+      - name: prism_2019_july_to_dec
+      - name: prism_2020_jan_to_jun
+      - name: prism_2020_july_to_dec
+      - name: prism_2021_jan_to_jun
+      - name: prism_2021_july_to_dec
+      - name: prism_2022_jan_to_jun
+      - name: prism_2022_july_to_dec
+      - name: prism_2023_jan_to_jun
+      - name: prism_2023_july_to_dec
+      - name: prism_2024_jan_to_jun
+      - name: prism_2024_july_to_dec
+      - name: prism_2025_jan_to_mar
