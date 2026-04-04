@@ -13,7 +13,7 @@ WITH unique_admissions AS (
         MAX(next_stay_is_cardiometabolic) AS next_stay_is_cardiometabolic,
         MAX(is_panic_visit) AS is_panic_visit
 
-    FROM {{ ref('mlv') }}
+    FROM {{ ref('vetting_mlv') }}
     -- WHERE subsequent_loatype = 'INPATIENT'
     GROUP BY maskedcardno, subsequent_admissiondate, subsequent_loatype
 ),
@@ -136,7 +136,7 @@ patient_engine AS (
             ELSE 'Invalid'
         END AS patient_journey_category
 
-    FROM {{ ref('mlv') }} mlv
+    FROM {{ ref('vetting_mlv') }} mlv
     GROUP BY mlv.maskedcardno
 )
 SELECT 
