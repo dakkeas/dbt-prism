@@ -2,6 +2,9 @@
 {{ config(materialized='table')}}
 
 
+WITH raw_claims_2023_2025 AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year >= 2023
+)
 SELECT
     s.subsequent_claimno AS claimno,
     COUNT(DISTINCT CASE 

@@ -1,7 +1,10 @@
 {{ config(materialized='table')}}
 
 
-WITH unique_doctors_per_claim AS (
+WITH raw_claims_2023_2025 AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year >= 2023
+),
+unique_doctors_per_claim AS (
     -- Step 1: Calculate Total Approved & Primary Role per Doctor
     SELECT
         rc.claimno,

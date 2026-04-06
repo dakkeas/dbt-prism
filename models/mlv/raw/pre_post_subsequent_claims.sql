@@ -1,6 +1,8 @@
 {{config(materialized = 'table') }}
 
-
+WITH raw_claims_2023_2025 AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year >= 2023
+)
 SELECT
     fc.maskedcardno,
     fc.starting_claimno AS starting_claimno, -- starting claim number
@@ -17,7 +19,7 @@ INNER JOIN raw_claims_2023_2025 rc2325
     ON fc.maskedcardno = rc2325.maskedcardno
     AND (
         (rc2325.admissiondate >= fc.starting_admissiondate - INTERVAL '12 months'
-         AND rc2325.admissiondate <= fc.starting_admissiondate + INTERVAL '12 months')
+        AND rc2325.admissiondate <= fc.starting_admissiondate + INTERVAL '12 months')
         OR rc2325.claimno = fc.starting_claimno
     )
 GROUP BY

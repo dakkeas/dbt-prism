@@ -1,6 +1,9 @@
-{{config(materialized='table')}}
+{{ config(materialized='table') }}
 -- selecting all end-stage icdcodes
 
+WITH raw_claims_2023_2025 AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year >= 2023
+)
 SELECT DISTINCT 
     primaryicdcode
     ,primaryicddesc
@@ -20,19 +23,19 @@ WHERE
     primaryicdcode LIKE 'I11%' OR
     primaryicdcode LIKE 'I50%' OR
     primaryicdcode LIKE 'N18%'
-union all
-select DISTINCT
+UNION ALL
+SELECT DISTINCT
 	r.primaryicdcode
 	,r.primaryicddesc
 	,r.primaryicdgroup
-from raw_claims_2023_2025 r
-left join {{ref('blp_icdcodes_v2')}} b on r.primaryicdcode = b.icdcode
+FROM raw_claims_2023_2025 r
+LEFT JOIN {{ref('blp_icdcodes_v2')}} b on r.primaryicdcode = b.icdcode
 
-where r.primaryicdgroup in ('CHRONIC ISCHAEMIC HEART DISEASE', 
+WHERE r.primaryicdgroup in ('CHRONIC ISCHAEMIC HEART DISEASE', 
                 'HYPERTENSIVE HEART DISEASE', 
                 'HEART FAILURE', 
                 'CHRONIC RENAL FAILURE')
-and b.icdcode is not null
+AND b.icdcode IS NOT NULL
 
 
 

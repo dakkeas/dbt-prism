@@ -1,8 +1,14 @@
 
 {{ config(materialized='table')}}
 
+-- VETTING VERSION: Uses mxc_raw_claims source tables instead of raw_claims_2023_2025
+-- Purpose: to check dataset integrity
+
+WITH raw_claims_2023_2025 AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year >= 2023
+),
 -- CREATE TABLE mlv_primary_doctor_per_claim_01272026 AS
-WITH base_data AS (
+base_data AS (
     -- 1. Deduplication & Standardization (1 Pass)
     -- We group by claim and doctor to remove duplicate lines immediately.
     SELECT

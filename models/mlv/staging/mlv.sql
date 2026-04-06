@@ -1,8 +1,13 @@
 
 {{ config(materialized='table')}}
 
+-- VETTING VERSION: Uses vetting models and mxc_raw_claims source tables
+-- Purpose: to check dataset integrity
 
-WITH first_claim_details AS (
+WITH raw_claims_2023_2025 AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year >= 2023
+),
+first_claim_details AS (
     SELECT
         fc.maskedcardno,
         MIN(rc.claimno) AS starting_claimno,

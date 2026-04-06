@@ -1,5 +1,8 @@
 {{ config(materialized='table') }}
 
+-- model to get the unique length of stay per patient as there can be multiple INP claims on the same
+-- adissiondate, but have differeing dischargedates. 
+
 WITH ranked_claims AS (
     SELECT
         maskedcardno,

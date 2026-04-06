@@ -1,7 +1,12 @@
 
 {{config(materialized = 'table') }}
 
+-- VETTING VERSION: Uses mxc_raw_claims source tables instead of raw_claims_2023_2025
+-- Purpose: to check dataset integrity
 
+WITH raw_claims_2023_2025 AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year >= 2023
+)
 SELECT
     fc.maskedcardno,
     fc.starting_claimno AS starting_claimno, -- starting claim number
@@ -18,7 +23,6 @@ INNER JOIN raw_claims_2023_2025 rc2325
     ON fc.maskedcardno = rc2325.maskedcardno
     AND rc2325.admissiondate >= fc.starting_admissiondate
     AND rc2325.admissiondate <= fc.starting_admissiondate + INTERVAL '12 months'
--- GROUP BY fc.maskedcardno, rc2325.claimno, rc2325.admissiondate, rc2325.primaryicdgroup, fc.claimno, fc.admissiondate, fc.starting_physiciancode
 GROUP BY
     fc.maskedcardno,
     rc2325.admissiondate,

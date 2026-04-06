@@ -1,8 +1,16 @@
 
 {{ config(materialized = 'table')}} -- creates a table
 
+-- VETTING VERSION: Uses mxc_raw_claims source tables instead of raw_claims_2023_2025 / raw_claims_2022
+-- Purpose: to check dataset integrity
 
-WITH cool_off_period AS ( -- produces unique patients
+WITH raw_claims_2022 AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year = 2022
+),
+raw_claims_2023_2025 AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year >= 2023
+),
+cool_off_period AS ( -- produces unique patients
     SELECT
         rc.claimno AS claimno,
         rc.physiciancode AS physiciancode,
@@ -37,42 +45,6 @@ aggregate_starting_claim AS (
         t.claimno AS starting_claimno,
         MIN(rc.admissiondate) AS starting_admissiondate, 
         MIN(rc.dischargedate) AS starting_dischargedate, 
-        -- COALESCE(
-        --     MAX(rc.physiciancode) FILTER (
-        --         WHERE rc.coverageitemdesc ILIKE '%DOCTOR%' 
-        --         AND TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
-        --         AND rc.physiciancode IS NOT NULL
-        --     ),
-        --     MAX(rc.physiciancode) FILTER (
-        --         WHERE rc.coverageitemdesc ILIKE '%CONSULT%' 
-        --         AND TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
-        --         AND rc.physiciancode IS NOT NULL
-        --     ),
-        --     MAX(rc.physiciancode) FILTER (
-        --         WHERE TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
-        --         AND rc.physiciancode IS NOT NULL
-        --     )
-        -- ) AS starting_physiciancode,
-        
-        -- COALESCE(
-        --     MAX(CASE
-        --         WHEN rc.coverageitemdesc ILIKE '%DOCTOR%' 
-        --         AND TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
-        --         AND rc.physiciancode IS NOT NULL
-        --         THEN rc.physiciancode
-        --     END),
-        --     MAX(CASE
-        --         WHEN rc.coverageitemdesc ILIKE '%CONSULT%' 
-        --         AND TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
-        --         AND rc.physiciancode IS NOT NULL
-        --         THEN rc.physiciancode
-        --     END),
-        --     MAX(CASE
-        --         WHEN TRIM(rc.physiciancode) NOT IN ('0', '0,', '')
-        --         AND rc.physiciancode IS NOT NULL
-        --         THEN rc.physiciancode
-        --     END)
-        -- ) AS starting_physiciancode,
 
         COALESCE(
             MAX(CASE
@@ -97,7 +69,6 @@ aggregate_starting_claim AS (
         MIN(rc.primaryicdcode) AS starting_primaryicdcode,
         MIN(rc.primaryicdgroup) AS starting_primaryicdgroup,
         MIN(rc.providername) AS starting_providername,
-        -- MIN(rc.providercode) AS starting_providercode,
         MIN(rc.loatype) AS starting_loatype
     FROM (
         -- selects first consults only from cool off table that has a single doctor services doctor OR a single doctor. 
