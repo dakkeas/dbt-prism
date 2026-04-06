@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+{{ config(materialized='view') }}
 
 -- model to get the unique length of stay per patient as there can be multiple INP claims on the same
 -- adissiondate, but have differeing dischargedates. 

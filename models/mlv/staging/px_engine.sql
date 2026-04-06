@@ -1,5 +1,5 @@
 
-{{ config(materialized='table') }}
+{{ config(materialized='view') }}
 
 WITH unique_admissions AS (
     -- CONTEXT: There can be different claim numbers with the same admissiondate yet have different dischargedates

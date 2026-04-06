@@ -1,5 +1,5 @@
 
-{{ config(materialized='table')}}
+{{ config(materialized='view')}}
 
 -- VETTING VERSION: Uses mxc_raw_claims source tables instead of raw_claims_2023_2025
 -- Purpose: to check dataset integrity
@@ -101,6 +101,6 @@ SELECT
         ELSE 'NO PRIMARY DOCTOR'
     END AS subsequent_primary_physiciancode_by_approved_amount
 
-FROM {{ref('subsequent_claims')}} s
+FROM {{ref('pre_post_subsequent_claims')}} s
 LEFT JOIN claim_stats stats ON s.subsequent_claimno = stats.claimno
 

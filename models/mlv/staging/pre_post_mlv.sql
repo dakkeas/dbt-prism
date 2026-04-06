@@ -73,7 +73,7 @@ first_claim_details AS (
         END, ', ') AS starting_ruvcodes
 
     FROM
-        {{ ref('first_consults')}} fc
+        {{ ref('end_stage_diseases_first_consults')}} fc
     INNER JOIN
         raw_claims_2023_2025 rc
         ON fc.starting_claimno = rc.claimno
@@ -155,7 +155,7 @@ subsequent_details AS (
     INNER JOIN
         raw_claims_2023_2025 rc ON s.subsequent_claimno = rc.claimno
     LEFT JOIN
-        {{ref('prim_physician')}} pd ON s.subsequent_claimno = pd.subsequent_claimno
+        {{ref('pre_post_prim_physician')}} pd ON s.subsequent_claimno = pd.subsequent_claimno
     GROUP BY
         s.maskedcardno, 
         s.subsequent_claimno

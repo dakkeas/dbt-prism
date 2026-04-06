@@ -1,5 +1,5 @@
 
-{{ config(materialized='table')}}
+{{ config(materialized='view')}}
 
 
 WITH raw_claims_2023_2025 AS (

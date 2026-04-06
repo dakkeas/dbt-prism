@@ -1,5 +1,5 @@
 
-{{ config(materialized = 'table')}} -- creates a table
+{{ config(materialized = 'view')}} -- creates a table
 
 -- VETTING VERSION: Uses mxc_raw_claims source tables instead of raw_claims_2023_2025 / raw_claims_2022
 -- Purpose: to check dataset integrity
@@ -35,7 +35,12 @@ cool_off_period AS ( -- produces unique patients
         ON c.maskedcardno = rc.maskedcardno
         WHERE
             rc.primaryicdcode IN (SELECT icdcode FROM {{ref('blp_icdcodes_v2')}}) -- primaryicdcode has to be in best life  
-            AND rc.loatype IN ('OP LAB', 'OP_CONSULT') -- has to be the ff loatypes
+            
+            -- remove this to include all first claim regardless of loatype
+            -- for branch: analysis/end-stage-diseases-pre-post april 6, 2026
+
+            -- AND rc.loatype IN ('OP LAB', 'OP_CONSULT') -- has to be the ff loatypes
+
 ),
 aggregate_starting_claim AS (
     -- aggregating by into a single row 
@@ -72,15 +77,19 @@ aggregate_starting_claim AS (
         MIN(rc.loatype) AS starting_loatype
     FROM (
         -- selects first consults only from cool off table that has a single doctor services doctor OR a single doctor. 
+
+        -- for branch: analysis/end-stage-diseases-pre-post april 6, 2026
+        -- removing single doctor filter, grabs any first claim regardless of doctor availability in claim
+
         SELECT claimno FROM cool_off_period WHERE claim_sequence = 1
-        AND TRIM(physiciancode) NOT IN ('0', '0,', '')
-        AND physiciancode IS NOT NULL
-        GROUP BY claimno
-        HAVING
-            COUNT(DISTINCT physiciancode) = 1
-            OR COUNT(DISTINCT CASE 
-            WHEN coverageitemdesc = 'DOCTOR SERVICES' THEN physiciancode 
-            END) = 1
+        -- AND TRIM(physiciancode) NOT IN ('0', '0,', '')
+        -- AND physiciancode IS NOT NULL
+        -- GROUP BY claimno
+        -- HAVING
+        --     COUNT(DISTINCT physiciancode) = 1
+        --     OR COUNT(DISTINCT CASE 
+        --     WHEN coverageitemdesc = 'DOCTOR SERVICES' THEN physiciancode 
+        --     END) = 1
     ) t
     INNER JOIN raw_claims_2023_2025 rc
     ON t.claimno = rc.claimno
