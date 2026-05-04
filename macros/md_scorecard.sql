@@ -230,6 +230,18 @@ WITH physician_engine AS (
             / NULLIF(CAST(COUNT(DISTINCT maskedcardno) AS NUMERIC), 0), 0
         ) AS ave_philhealth_claim_per_patient,
 
+
+        -- =============================================
+        -- PHILHEALTH METRICS
+        -- =============================================
+
+
+        SUM(sum_professional_fees) AS total_professional_fees,
+        COALESCE(
+            CAST(SUM(sum_professional_fees) AS NUMERIC)
+            / NULLIF(CAST(COUNT(DISTINCT maskedcardno) AS NUMERIC), 0), 0
+        ) AS ave_professional_fees_per_patient,
+
         -- =============================================
         -- CPTCODE/RUVCODE METRICS
         -- =============================================
@@ -351,10 +363,14 @@ WITH physician_engine AS (
         COALESCE(
             CAST(SUM(count_of_non_panic_visits) AS NUMERIC) 
             / NULLIF(SUM(count_of_unique_emergencies), 0), 0
-        ) AS non_panic_visit_rate
+        ) AS non_panic_visit_rate,
 
+        -- pcc related metrics
+        COALESCE(SUM(total_availment_cost), 0) AS total_availment_cost,
+        COALESCE(SUM(total_availment_count), 0) AS total_availment_count,
 
-        
+        COALESCE(SUM(total_availment_cost) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 0) AS ave_12_month_availment_cost_per_patient,
+        COALESCE(SUM(total_availment_count) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 0) AS ave_12_month_availment_count_per_patient
 
 
     FROM {{ ref('px_engine') }} pe
@@ -442,6 +458,10 @@ SELECT
     -- others_ave_cost_per_claim_per_px_at_least_one AS others_per_capita,
 
     others_ave_twelve_month_util_per_px,
+
+    -- PF metrics
+    total_professional_fees,
+    ave_professional_fees_per_patient,
 
     -- 8. PHILHEALTH METRICS
     total_philhealth,

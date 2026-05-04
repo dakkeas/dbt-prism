@@ -54,8 +54,58 @@ models:
 
 seeds:
   prism_dbt: # Replace with the name in your dbt_project.yml
+    pcc_data:
+      seed_pcc_availments_raw_data:
+        +schema: seed_pcc
+        +column_types:
+          card_number: text
+          transaction_id: text
+          availment_type: text
+          icd_code: text
+          icd_description: text
+          pcc_branch_name: text
+          physiciancode: text
+          physicianname: text
+          service_price: text
+          availment_date: date
+      seed_pcc_availments_shortlisted_card_numbers:
+        +schema: seed_pcc
+        +column_types:
+          maskedcardno: text
+          maxicare_cardno: text
+          cardno_trimmed: text
+          total_availment_cost: integer 
+          total_availment_count: integer
+          earliest_availment_date: date
+          latest_availment_date: date
+      seed_pcc_physician_codes:
+        +schema: seed_pcc
+        +column_types:
+          physiciancode: text
+          physicianname: text
+          specialization: text
+          sub_specialization: text
+      seed_per_pcc_branch_specialization:
+        +schema: seed_pcc
+        +column_types:
+          branch: text
+          specialization: text
+          count: integer
+      seed_per_pcc_branch_specialization_summary:
+        +schema: seed_pcc
+        +column_types:
+          branch: text
+          specialization: integer
+          total_physicians: integer
+
     sandbox: 
       +schema: seed_sandbox
+      physiciancode_with_bills:
+        +column_types:
+          physiciancode: varchar(255) 
+      source_claims_with_bills:
+        +column_types:
+          claimno: varchar(255)
       bl_unmaskedcardno:
         +column_types:
           maskedcardno: varchar(255)
