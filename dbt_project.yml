@@ -47,6 +47,9 @@ models:
       marts:
         +schema: marts
         +materialized: table
+      acn:
+        +schema: acn
+        +materialized: table
       # prod:
       #   +schema: prod
       #   +materialized: table
@@ -85,6 +88,8 @@ seeds:
           physicianname: text
           specialization: text
           sub_specialization: text
+          is_coordinator: boolean
+          practices_in_pcc: boolean
       seed_per_pcc_branch_specialization:
         +schema: seed_pcc
         +column_types:

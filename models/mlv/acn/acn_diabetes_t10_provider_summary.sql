@@ -1,0 +1,15 @@
+
+{{config(materialized = 'table')}}
+
+{{
+    acn_icd_summary_per_provider(
+        ['DIABETES MELLITUS'],
+    ) 
+}}
+
+
+
+
+
+
+

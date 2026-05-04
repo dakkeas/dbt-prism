@@ -1,5 +1,5 @@
 
-{{ config(materialized='view') }}
+{{ config(materialized='table') }}
 
 WITH unique_admissions AS (
     -- CONTEXT: There can be different claim numbers with the same admissiondate yet have different dischargedates
@@ -66,6 +66,7 @@ er_agg AS (
 patient_engine AS (
     SELECT
         mlv.maskedcardno,
+        MIN(mlv.starting_corpname) AS starting_corpname,
         MIN(mlv.bl_cardno) AS bl_cardno,
         MIN(mlv.starting_providername) AS starting_providername,
         MIN(mlv.starting_physiciancode) AS starting_physiciancode,
@@ -135,7 +136,11 @@ patient_engine AS (
                 AND MIN(mlv.starting_primaryicdgroup) = 'DISORDERS OF LIPOPROTEIN METABOLISM AND OTHER LIPIDAEMIAS' 
             THEN 'Dyslipidaemia Patient Only'
             ELSE 'Invalid'
-        END AS patient_journey_category
+        END AS patient_journey_category,
+        MIN(total_pcc_availment_cost) AS total_pcc_availment_cost,
+        MIN(total_pcc_availment_count) AS total_pcc_availment_count,
+        MIN(earliest_pcc_availment_date) AS earliest_pcc_availment_date,
+        MIN(latest_pcc_availment_date) AS latest_pcc_availment_date
 
 
     FROM {{ ref('mlv') }} mlv
@@ -151,13 +156,8 @@ SELECT
     ,COALESCE(e.count_of_non_panic_visits, 0) AS count_of_non_panic_visits
     ,COALESCE(e.count_of_panic_visits, 0) AS count_of_panic_visits
     ,COALESCE(e.count_of_unique_emergencies, 0) AS count_of_unique_emergencies
-    ,COALESCE(CAST(pcc.total_availment_cost AS NUMERIC), 0) AS total_availment_cost
-    ,COALESCE(CAST(pcc.total_availment_count AS NUMERIC), 0) AS total_availment_count
-    ,pcc.earliest_availment_date
-    ,pcc.latest_availment_date
-
+    
 FROM patient_engine p
 LEFT JOIN los_agg l ON p.maskedcardno = l.maskedcardno
 LEFT JOIN readmission_agg r ON p.maskedcardno = r.maskedcardno
 LEFT JOIN er_agg e ON p.maskedcardno = e.maskedcardno
-LEFT JOIN (SELECT * FROM {{ref('pcc_availments_shortlisted_card_numbers')}} ) pcc ON p.maskedcardno = pcc.maskedcardno

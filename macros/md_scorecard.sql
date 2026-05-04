@@ -110,6 +110,15 @@ WITH physician_engine AS (
 
         MIN(pi.physicianname) AS physicianname,
         MIN(pi.specialization) AS specialization,
+        MIN(pi.sub_specialization) AS sub_specialization,
+        {% if target.type == 'bigquery' %}
+        CAST(MIN(CAST(pi.is_pcc_coordinator AS INT64)) AS BOOL) AS is_pcc_coordinator,
+        CAST(MIN(CAST(pi.practices_in_pcc AS INT64)) AS BOOL) AS practices_in_pcc,
+        {% else %}
+        MIN(pi.is_pcc_coordinator::int)::boolean AS is_pcc_coordinator,
+        MIN(pi.practices_in_pcc::int)::boolean AS practices_in_pcc,
+        {% endif %}
+
         -- BASE
         COUNT(DISTINCT maskedcardno) AS total_unique_patient_cnt,
         COUNT(DISTINCT CASE WHEN COALESCE(total_lengthofstay, 0) > 0 THEN maskedcardno END) AS total_patient_cnt_with_stay,
@@ -366,22 +375,30 @@ WITH physician_engine AS (
         ) AS non_panic_visit_rate,
 
         -- pcc related metrics
-        COALESCE(SUM(total_availment_cost), 0) AS total_availment_cost,
-        COALESCE(SUM(total_availment_count), 0) AS total_availment_count,
+        COALESCE(SUM(total_pcc_availment_cost), 0) AS total_pcc_availment_cost,
+        COALESCE(SUM(total_pcc_availment_count), 0) AS total_pcc_availment_count,
 
-        COALESCE(SUM(total_availment_cost) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 0) AS ave_12_month_availment_cost_per_patient,
-        COALESCE(SUM(total_availment_count) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 0) AS ave_12_month_availment_count_per_patient
+        COALESCE(SUM(total_pcc_availment_cost) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 0) AS ave_12_month_pcc_availment_cost_per_patient,
+        COALESCE(SUM(total_pcc_availment_count) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 0) AS ave_12_month_pcc_availment_count_per_patient
 
 
     FROM {{ ref('px_engine') }} pe
-    LEFT JOIN (SELECT DISTINCT physiciancode, providername, physicianname, specialization FROM {{ ref('physicianinfo') }}) pi
+
+    LEFT JOIN (SELECT DISTINCT 
+    physiciancode, 
+    physicianname, 
+    specialization, 
+    sub_specialization,
+    is_pcc_coordinator,
+    practices_in_pcc
+    FROM {{ ref('physicianinfo') }}) pi
+
     ON TRIM(UPPER(pe.starting_physiciancode)) = 
         {% if target.type == 'bigquery' %}
             CAST(pi.physiciancode AS STRING)
         {% else %}
             pi.physiciancode::TEXT
         {% endif %}
-    AND pe.starting_providername = pi.providername
 
 
     WHERE pe.combined_starting_primaryicdgroup IN (
@@ -398,6 +415,9 @@ SELECT
     providername,
     physicianname,
     specialization,
+    sub_specialization,
+    is_pcc_coordinator,
+    practices_in_pcc,
     combined_starting_primaryicdgroup,
     
     -- 2. BASE PATIENT METRICS
@@ -408,6 +428,7 @@ SELECT
     -- COALESCE(CAST(total_patient_lengthofstay AS NUMERIC) / NULLIF(CAST(total_unique_patient_cnt AS NUMERIC), 0), 0) AS ave_length_of_stay_per_patient,
 
     -- avg length of stay per patient (only patients with length of stay > 0)
+
     -- count_px_multi_stay,
 
     COALESCE(CAST(total_patient_lengthofstay AS NUMERIC) / NULLIF(CAST(total_patient_cnt_with_stay AS NUMERIC), 0), 0) AS avg_lengthofstay_per_patient_with_stay,
@@ -513,7 +534,18 @@ SELECT
     panic_visit_rate,
 
     count_of_non_panic_visits,
-    non_panic_visit_rate
+    non_panic_visit_rate,
+
+    -- pcc metrics
+
+
+    total_pcc_availment_count,
+    total_pcc_availment_cost,
+
+    ave_12_month_pcc_availment_cost_per_patient,
+    ave_12_month_pcc_availment_count_per_patient
+
+
 
 
 FROM physician_engine
