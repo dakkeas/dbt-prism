@@ -50,6 +50,9 @@ models:
       acn:
         +schema: acn
         +materialized: table
+      blhc:
+        +schema: blhc
+        +materialized: table
       # prod:
       #   +schema: prod
       #   +materialized: table
@@ -57,6 +60,58 @@ models:
 
 seeds:
   prism_dbt: # Replace with the name in your dbt_project.yml
+    bestlife_health_outcomes:
+
+      seed_blhc_labs_raw:
+        +schema: seed_blhc
+        +column_types:
+          reference_number: text
+          final_patient_code: text
+          result_date: text
+          list_of_tests: text
+          hba1c_ngsp: text
+          glucose_fastingfbs_mgdl: text
+          creatinine_mgdl: text
+          ldl_cholesterol_mgdl: text
+          record_url: text
+          earliest_hba1c: text
+          latest_hba1c: text
+          within_hba1c_cutoff: text
+          earliest_lipid_profile: text
+          latest_lipid_profile: text
+          within_lipid_profile_cutoff: text
+          earliest_fbs: text
+          latest_fbs: text
+          within_fbs_cutoff: text
+          
+      seed_blhc_bp_raw:
+        +schema: seed_blhc
+        +column_types:
+          reference_number: text
+          final_patient_code: text
+          maxicare_card_number: text
+          result_date: text
+          systolic_blood_pressure: text
+          diastolic_blood_pressure: text
+          source: text
+          earliest_sbp: text
+          latest_sbp: text
+          within_sbp_cutoff: text
+          earliest_dbp: text
+          latest_dbp: text
+          within_dbp_cutoff: text
+
+      seed_reference_member_base:
+        +schema: seed_blhc
+        +column_types:
+          Patient Code-Full Name: text
+          Final Patient Code: text
+          Card Number Final: text
+          Processing Date - Final: date 
+          Baseline Test Date - Final: date
+          Dropout Date: date
+
+
     pcc_data:
       seed_pcc_availments_raw_data:
         +schema: seed_pcc
@@ -77,8 +132,8 @@ seeds:
           maskedcardno: text
           maxicare_cardno: text
           cardno_trimmed: text
-          total_availment_cost: integer 
-          total_availment_count: integer
+          total_availment_cost: text
+          total_availment_count: text
           earliest_availment_date: date
           latest_availment_date: date
       seed_pcc_physician_codes:
