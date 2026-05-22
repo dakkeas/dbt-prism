@@ -1,16 +1,11 @@
 
-
-
 {{config(materialized = 'table')}}
 
 {{
-    acn_icd_summary_per_provider(
+    md_scorecard_acn(
         ['ESSENTIAL (PRIMARY) HYPERTENSION'],
+        10000000,
+        10000000,
+        0
     ) 
 }}
-
-
-
-
-
-

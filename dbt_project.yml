@@ -60,7 +60,27 @@ models:
 
 seeds:
   prism_dbt: # Replace with the name in your dbt_project.yml
-    bestlife_health_outcomes:
+    acn:
+      masked_acn_consolidated_raw_data_fy2324_fy4525:
+        +schema: dev_acn
+        +column_types:
+          corpcode: text
+          branchdesc: text
+          claimno: text
+          admissiondate: date
+          gender: text
+          membershiptype: text
+          mainspecialization: text
+          loatype: text
+          icdcode: text
+          approved: numeric
+          age: numeric
+          benefitid: text
+          ruvcode: text
+          cptdesc: text
+          physicianname: text
+          physiciancode: text
+          maskedcardno: text
 
       seed_blhc_labs_raw:
         +schema: seed_blhc

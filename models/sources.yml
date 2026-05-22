@@ -1,6 +1,22 @@
 version: 2
 
 sources:
+  - name: acn_raw_data
+    schema: dev_acn
+    tables:
+      - name: masked_acn_raw_2425
+
+  - name: md_fuzzy_from_physicianinfo
+    schema: dev_acn   # CHANGE THIS if Step 1 shows different schema
+    tables:
+      - name: physician_name_matching_results
+
+  - name: masked_acn_consolidated_raw_data
+    schema: dev_acn   # CHANGE THIS if Step 1 shows different schema
+    tables:
+      - name: masked_acn_consolidated_raw_data_fy2324_fy2425
+      - name: updated_masked_acn_consolidated_raw_data_fy2324_fy2425
+
   - name: public_data
     database: prism_db
     schema: public

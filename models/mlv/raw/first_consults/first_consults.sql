@@ -4,6 +4,8 @@
 -- VETTING VERSION: Uses mxc_raw_claims source tables instead of raw_claims_2023_2025 / raw_claims_2022
 -- Purpose: to check dataset integrity
 
+
+
 WITH raw_claims_2022 AS (
     SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year = 2022
 ),
