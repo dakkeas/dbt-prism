@@ -6,11 +6,13 @@ WITH acn_clean AS (
         CONCAT(
             UPPER(TRIM(cptdesc)), '-',
             icdcode, '-',
-            UPPER(TRIM(providername))
+            UPPER(TRIM(providername)), '-',
+            UPPER(TRIM(membershiptype))
         ) AS cpt_icd_provider,
 
         UPPER(TRIM(providername)) AS providername_clean,
         providername,
+        UPPER(TRIM(membershiptype)) AS membershiptype,
 
         cptdesc AS cpt,
         UPPER(TRIM(cptdesc)) AS cpt_cleaned,
@@ -42,7 +44,8 @@ WITH acn_clean AS (
     GROUP BY
         cptdesc,
         icdcode,
-        providername
+        providername,
+        UPPER(TRIM(membershiptype))
 ),
 
 pcc_clean AS (
@@ -69,6 +72,7 @@ SELECT
     acn.primaryicddesc,
     acn.primaryicdgroup,
     acn.providername,
+    acn.membershiptype,
     CASE
         WHEN pcc.pccbranchname IS NULL THEN 0
         ELSE 1
