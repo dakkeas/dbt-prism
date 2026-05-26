@@ -49,12 +49,22 @@ pcc_clean AS (
     SELECT DISTINCT
         TRIM(UPPER(pccbranchname)) AS pccbranchname  
     FROM {{ ref('pcc_availments_raw_data') }}
+),
+cpt_standardized AS (
+    SELECT DISTINCT
+        cpt_cleaned,
+        test_type,
+        test_classification,
+        cpt_cleaned_standard
+    FROM {{ ref('cpt_standardized') }}
 )
-
 SELECT
     acn.cpt_icd_provider,
     acn.cpt,
     acn.cpt_cleaned,
+    cs.cpt_cleaned_standard,
+    cs.test_type,
+    cs.test_classification,
     acn.icd,
     acn.primaryicddesc,
     acn.primaryicdgroup,
@@ -78,6 +88,8 @@ FROM acn_clean acn
 
 LEFT JOIN pcc_clean pcc
     ON acn.providername_clean = pcc.pccbranchname  
+LEFT JOIN cpt_standardized cs
+    ON acn.cpt_cleaned = cs.cpt_cleaned
 WHERE total_utilization IS NOT NULL
 AND total_utilization <> 0
 

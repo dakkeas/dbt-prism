@@ -61,6 +61,16 @@ models:
 seeds:
   prism_dbt: # Replace with the name in your dbt_project.yml
     acn:
+
+      acn_cpt_info_standardized:
+        +schema: dev_acn
+        +column_types:
+          cpt_cleaned: text
+          test_type: text
+          cpt_cleaned_standard: text
+          test_type: text
+          test_classification: text
+
       masked_acn_consolidated_raw_data_fy2324_fy4525:
         +schema: dev_acn
         +column_types:
