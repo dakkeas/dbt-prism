@@ -1,4 +1,5 @@
-import os 
+import os
+import argparse
 from dotenv import load_dotenv
 
 # specify the full path
@@ -7,8 +8,6 @@ load_dotenv(dotenv_path="secret/.env")
 import pandas as pd
 from sqlalchemy import create_engine
 from google.oauth2 import service_account
-
-
 
 # --- CONSTANTS (Defaults) ---
 
@@ -22,34 +21,15 @@ PROJECT_ID = os.getenv("BQ_PROJECT_ID")
 DEFAULT_DATASET_ID = os.getenv("BQ_DATASET_ID")
 SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE")
 
-
-
-def run_ingestion():
+def run_ingestion(source_table, dataset_id, dest_table):
     print("\n=== Postgres to BigQuery Ingestor ===")
 
-    # 1. Ask for user input
-    source_table = input("Enter source Postgres table (e.g., dev_mlv.physicianinfo): ").strip()
-    if not source_table:
-        print("Error: Source table cannot be empty.")
-        return
-
-    # Ask for BigQuery dataset
-    dataset_id = input(f"Enter destination BigQuery dataset [Default: {DEFAULT_DATASET_ID}]: ").strip()
-    if not dataset_id:
-        dataset_id = DEFAULT_DATASET_ID
-
-    # Suggest a BQ table name
-    suggested_bq_name = source_table.split('.')[-1]
-    dest_table = input(f"Enter destination BQ table name [Default: {suggested_bq_name}]: ").strip()
-    if not dest_table:
-        dest_table = suggested_bq_name
-
     try:
-        # 2. Authenticate
+        # 1. Authenticate
         credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
         pg_engine = create_engine(f'postgresql://{PG_USER}:{PG_PASS}@{PG_HOST}:{PG_PORT}/{PG_DB}')
 
-        # 3. Extract
+        # 2. Extract
         print(f"\n[1/3] Extracting {source_table} from Postgres...")
         df = pd.read_sql(f"SELECT * FROM {source_table}", pg_engine)
 
@@ -57,7 +37,7 @@ def run_ingestion():
             print("Warning: The source table is empty. Nothing to ingest.")
             return
 
-        # 4. Load
+        # 3. Load
         print(f"[2/3] Ingesting {len(df)} rows into BigQuery ({dataset_id}.{dest_table})...")
         df.to_gbq(
             destination_table=f"{dataset_id}.{dest_table}",
@@ -67,8 +47,6 @@ def run_ingestion():
             progress_bar=True
         )
 
-        
-
         print(f"[3/3] Success! {dest_table} is now updated in BigQuery.")
 
     except Exception as e:
@@ -76,9 +54,15 @@ def run_ingestion():
 
 
 if __name__ == "__main__":
-    while True:
-        run_ingestion()
-        cont = input("\nIngest another table? (y/n): ").lower()
-        if cont != 'y':
-            print("Exiting ...")
-            break
+    parser = argparse.ArgumentParser(description="Ingest table from Postgres to BigQuery")
+    parser.add_argument("source_table", help="Source Postgres table (e.g., dev_mlv.physicianinfo)")
+    parser.add_argument("--dataset_id", "-d", default=DEFAULT_DATASET_ID, help=f"Destination BigQuery dataset [Default: {DEFAULT_DATASET_ID}]")
+    parser.add_argument("--dest_table", "-t", help="Destination BQ table name [Default: last part of source table]")
+    
+    args = parser.parse_args()
+    
+    dest_table = args.dest_table
+    if not dest_table:
+        dest_table = args.source_table.split('.')[-1]
+        
+    run_ingestion(args.source_table, args.dataset_id, dest_table)

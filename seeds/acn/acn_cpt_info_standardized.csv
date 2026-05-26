@@ -11,7 +11,7 @@ CREATININE (SERUM/BLOOD),Creatinine,Laboratory,01 Clinic+
 (BUA) BLOOD URIC ACID,Blood Uric Acid (BUA),Laboratory,01 Clinic+
 (CBC) COMPLETE BLOOD COUNT W/O PLATELET COUNT,Complete Blood Count (CBC),Laboratory,01 Clinic+
 SERUM GLUTAMIC PYRUVIC TRANSMINASE / ALANINE TRANSMINASE (SGPT/ALT),SGPT/ALT,Laboratory,01 Clinic+
-SERUM GLUTAMIC-OXALOACETIC TRANSAMINASE /Â ASPARTATE AMINOTRANSFERASEÂ (SGOT/AST),SGOT/AST,Laboratory,01 Clinic+
+SERUM GLUTAMIC-OXALOACETIC TRANSAMINASE / ASPARTATE AMINOTRANSFERASE (SGOT/AST),SGOT/AST,Laboratory,01 Clinic+
 SERUM POTASSIUM (K),Potassium (K),Laboratory,01 Clinic+
 (FBS) FASTING BLOOD SUGAR,Fasting Blood Sugar (FBS),Laboratory,01 Clinic+
 SPEEDA,Speeda,Laboratory,01 Clinic+
@@ -19,11 +19,11 @@ SODIUM (NA) - SERUM/BLOOD,Sodium (Na),Laboratory,01 Clinic+
 ROUTINE URINALYSIS,Urinalysis,Laboratory,01 Clinic+
 12-LEAD ECG,Electrocardiogram (ECG),Cardiology,02 PCC+
 BLOOD UREA NITROGEN (BUN),Blood Urea Nitrogen (BUN),Laboratory,01 Clinic+
-MTB/RIF (GENEXPERT),Mtb/Rif (Genexpert,Laboratory,01 Clinic+
+MTB/RIF (GENEXPERT),Mtb/Rif (Genexpert),Laboratory,01 Clinic+
 CT SCAN - STONOGRAM PLAIN,CT Scan - Stonogram Plain,Imaging,03 Hospital Only
 ESWL - EXTRACORPEAL SHOCK WAVE LITHOTRIPSY (PF INCLUDED/NET OF PHIC),Eswl - Extracorpeal Shock Wave Lithotripsy (Pf Included/Net Of Phic,Urology,03 Hospital Only
 IONIZED CALCIUM,Calcium (Ca),Laboratory,01 Clinic+
-TOTAL PROTEIN AG RATIO (TPAG),Total Protein Ag Ratio (Tpag,Laboratory,01 Clinic+
+TOTAL PROTEIN AG RATIO (TPAG),Total Protein Ag Ratio (Tpag),Laboratory,01 Clinic+
 DENGUE TEST NS1,Dengue Test,Laboratory,01 Clinic+
 PHYSICAL THERAPY - SINGLE SESSION,Physical Therapy - Single Session,Physical Therapy,02 PCC+
 XRAY-CHEST PA 11X14 (ADULT),X-Ray - Chest Pa 11X14 (Adult),Imaging,02 PCC+
@@ -46,7 +46,7 @@ PROSTATE SPECIFIC ANTIGEN (PSA),Prostate Specific Antigen (PSA),Laboratory,01 Cl
 ULTRASOUND - KUB W/ PROSTATE,Ultrasound - Kub,Imaging,02 PCC+
 MRI-LUMBOSACRAL SPINE PLAIN,MRI - Lumbosacral Spine Plain,Imaging,03 Hospital Only
 TREADMILL STRESS TEST,Treadmill Exercise Test,Cardiology,02 PCC+
-VITAMIN D TOTAL (25-OH),Vitamin D Total (25-Oh,Uncategorized,02 PCC+
+VITAMIN D TOTAL (25-OH),Vitamin D Total (25-Oh),Uncategorized,02 PCC+
 FREE TRIIODOTHYRONINE (FT3),Free T3 (FT3),Uncategorized,02 PCC+
 CT SCAN - WHOLE ABDOMEN,CT Scan - Whole Abdomen,Imaging,03 Hospital Only
 BREAST ULTRASOUND - UNILATERAL,Ultrasound - Unilateral,Imaging,02 PCC+
@@ -78,7 +78,7 @@ FIBROSCAN,Fibroscan,Uncategorized,02 PCC+
 DENGUE DUO (DENGUE NS1 AG + IGG/IGM),Dengue Test,Laboratory,01 Clinic+
 CT-STONOGRAM,Ct-Stonogram,Imaging,02 PCC+
 ULTRASOUND-CONGENITAL ANOMALY SCAN,Ultrasound - Congenital Anomaly Scan,Imaging,02 PCC+
-"LIVER FUNCTION TEST (ALT, ALP,TPA/G,TB,B1,B2,GGT)","Liver Function Test (Alt, Alp,Tpa/G,Tb,B1,B2,Ggt",Laboratory,01 Clinic+
+"LIVER FUNCTION TEST (ALT, ALP,TPA/G,TB,B1,B2,GGT)","Liver Function Test (Alt), Alp,Tpa/G,Tb,B1,B2,Ggt",Laboratory,01 Clinic+
 VITAMIN B-12,Vitamin B-12,Uncategorized,02 PCC+
 MAGNESIUM,Magnesium (Mg),Laboratory,01 Clinic+
 THYROID STIMULATING HORMONE (TSH) ECLIA,Thyroid Stimulating Hormone (TSH),Laboratory,01 Clinic+
@@ -88,7 +88,7 @@ CREATININE WITH EGFR,Creatinine,Laboratory,01 Clinic+
 THYROID STIMULATING HORMONE (TSH (IMMUNORADIOMETRIC ASSAY) (IRMA),Thyroid Stimulating Hormone (TSH),Laboratory,01 Clinic+
 MRI-SHOULDER UNILATERAL,MRI - Shoulder Unilateral,Imaging,03 Hospital Only
 PAP SMEAR,Pap Smear,Gynecology,02 PCC+
-MRI - HEAD/BRAIN (WITH CONTRAST),MRI - Head/Brain (,Imaging,03 Hospital Only
+MRI - HEAD/BRAIN (WITH CONTRAST),MRI - Head/Brain,Imaging,03 Hospital Only
 PET CT SCAN WITH CONTRAST,CT Scan,Imaging,03 Hospital Only
 CT SCAN-FDG PET SCAN WITH CONTRAST,CT Scan - Fdg Pet Scan,Imaging,03 Hospital Only
 HIV AG/AB,Hiv Ag/Ab,Laboratory,01 Clinic+
@@ -103,7 +103,7 @@ CT SCAN-F18 FDG WHOLE BODY PET/CT DIAGNOSTIC,CT Scan - F18 Fdg Whole Body Pet/Ct
 (HBV-DNA) HEPATITIS B VIRUS DNA TEST,Hbv-Dna) Hepatitis B Virus Dna Test,Laboratory,01 Clinic+
 PET/CT WITH CONTRAST,Pet/Ct Contrast,Laboratory,01 Clinic+
 FT4 (ECLIA),Free T4 (FT4),Laboratory,01 Clinic+
-(ANA) ANTINUCLEAR ANTIBODIES (QUANTI),Ana) Antinuclear Antibodies (Quanti,Uncategorized,02 PCC+
+(ANA) ANTINUCLEAR ANTIBODIES (QUANTI),Ana) Antinuclear Antibodies (Quanti),Uncategorized,02 PCC+
 UPCR (URINE PROTEIN CREATININE RATIO),Creatinine,Laboratory,01 Clinic+
 PROLACTIN,Prolactin,Uncategorized,02 PCC+
 CT SCAN WHOLE ABDOMEN (PLAIN),CT Scan - Whole Abdomen (Plain),Imaging,03 Hospital Only
@@ -114,8 +114,8 @@ DENGUE IGG BLOT,Dengue Test,Laboratory,01 Clinic+
 XRAY LUMBOSACRAL APL,X-Ray - Lumbosacral Apl,Imaging,02 PCC+
 CALCIUM / TOTAL CALCIUM (SERUM),Calcium (Ca),Laboratory,01 Clinic+
 URIC ACID (URINE),Uric Acid,Laboratory,01 Clinic+
-TIBC (TOTAL IRON BINDING CAPACITY),Tibc (Total Iron Binding Capacity,Uncategorized,02 PCC+
-PERIMETRY/VISUAL FIELD TEST (BOTH EYES),Perimetry/Visual Field Test (Both Eyes,Ophthalmology,02 PCC+
+TIBC (TOTAL IRON BINDING CAPACITY),Tibc (Total Iron Binding Capacity),Uncategorized,02 PCC+
+PERIMETRY/VISUAL FIELD TEST (BOTH EYES),Perimetry/Visual Field Test (Both Eyes),Ophthalmology,02 PCC+
 CT SCAN-UROGRAM,CT Scan - Urogram,Imaging,03 Hospital Only
 UROFLOWMETRY,Uroflowmetry,Uncategorized,02 PCC+
 CAROTID DUPLEX SCAN,Carotid Duplex Scan,Uncategorized,02 PCC+
@@ -337,12 +337,12 @@ LIPASE,Lipase,Uncategorized,02 PCC+
 BICARBONATE (HCO3),Bicarbonate (Hco3,Uncategorized,02 PCC+
 ARTERIAL & VENOUS DUPLEX SCAN BOTH LOWER EXTREMITIES,Arterial & Venous Duplex Scan Both Lower Extremities,Uncategorized,02 PCC+
 CT SCAN-WHOLE ABDOMEN (TRI-PHASE) WITH CONTRAST,CT Scan - Whole Abdomen (Tri-Phase),Imaging,03 Hospital Only
-RNAÂ VIRALÂ LOAD,RnaÃ¢ ViralÃ¢ Load,Uncategorized,02 PCC+
+RNA VIRAL LOAD,Rna Viral Load,Uncategorized,02 PCC+
 (LH) LUTEINIZING HORMONE,Lh) Luteinizing Hormone,Uncategorized,02 PCC+
 "CHEM 12 ( FBS, K, BUA, BUN, CHLORIDE , CREA, NA , TRI, HDL, LDL )",Fasting Blood Sugar (FBS),Laboratory,01 Clinic+
 CT SCAN -WHOLE ABDOMEN W/IV CONTRAST,CT Scan - Whole Abdomen,Imaging,03 Hospital Only
 INSULIN,Insulin,Uncategorized,02 PCC+
-EXTRACORPOREAL SHOCK WAVE LITHOTRIPSYÂ (ESWL)Â -BILATERAL (NET OF PHIC AND PF INCLUSIVE),Extracorporeal Shock Wave LithotripsyÃ¢ (Eswl)Ã‚ -Bilateral (Net Of Phic And Pf Inclusive,Urology,03 Hospital Only
+EXTRACORPOREAL SHOCK WAVE LITHOTRIPSY (ESWL) -BILATERAL (NET OF PHIC AND PF INCLUSIVE),Extracorporeal Shock Wave Lithotripsy (Eswl) -Bilateral (Net Of Phic And Pf Inclusive),Urology,03 Hospital Only
 ULTRASOUND-AXILLARY (UNILATERAL),Ultrasound - Axillary (Unilateral),Imaging,02 PCC+
 LIVER ELASTOGRAPHY,Liver Elastography,Laboratory,01 Clinic+
 PAPS SMEAR (READING),Paps Smear (Reading,Uncategorized,02 PCC+
@@ -359,7 +359,7 @@ CT SCAN -ABDOMINAL,CT Scan - Abdominal,Imaging,03 Hospital Only
 MICROALBUMIN CREATININE RATIO,Creatinine,Laboratory,01 Clinic+
 OCT ( OPTICAL COHERENCE TOMOGRAPHY ) - GLAUCOMA BOTH EYES,Oct ( Optical Coherence Tomography ) - Glaucoma Both Eyes,Ophthalmology,02 PCC+
 SPLIT NIGHT NOCTURNAL POLYSOMNOGRAM,Split Night Nocturnal Polysomnogram,Uncategorized,02 PCC+
-CHEST PA (ACU)Â Â Â Â Â Â Â Â Â  Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â,Chest Pa (Acu)Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚ Ã‚,Uncategorized,02 PCC+
+CHEST PA (ACU),Chest Pa (Acu),Uncategorized,02 PCC+
 FECAL IMMUNOCHEMICAL TEST (FIT),Fecal Immunochemical Test (Fit,Laboratory,01 Clinic+
 SLEEP TEST (COMBINED),Sleep Test (Combined,Laboratory,01 Clinic+
 AMYLASE,Amylase,Uncategorized,02 PCC+
@@ -902,7 +902,7 @@ CT SCAN-CHEST AND WHOLE ABDOMEN WITH IV AND ORAL CONTRAST,CT Scan - Chest And Wh
 ACCENTURE-XRAY HAND AP-O BILATERAL,X-Ray - Hand Ap-O Bilateral,Imaging,02 PCC+
 MRI - ABDOMEN W/ MRCP (PLAIN),MRI - Abdomen,Imaging,03 Hospital Only
 AVASTIN CATEGORY 3 ONE EYE (FACILITY FEE + PF INCLUDED),Avastin Category 3 One Eye (Facility Fee + Pf Included,Ophthalmology,02 PCC+
-VLDLÂ (VERY LOW DENSITY LIPOPROTEIN),VldlÃ¢ (Very Low Density Lipoprotein,Laboratory,01 Clinic+
+VLDL (VERY LOW DENSITY LIPOPROTEIN),Vldl (Very Low Density Lipoprotein),Laboratory,01 Clinic+
 CROSS MATCHING,Cross Matching,Uncategorized,02 PCC+
 MICROALBUMIN,Microalbumin,Uncategorized,02 PCC+
 VITAMIN B12 (ECLA),Vitamin B12 (Ecla,Uncategorized,02 PCC+
@@ -1036,7 +1036,7 @@ MRI CRANIAL W/ DWI AND MRA CRANIAL PLAIN (PACKAGE),MRI - Cranial,Imaging,03 Hosp
 CT SCAN TRIPHASIC LIVER,CT Scan - Triphasic Liver,Imaging,03 Hospital Only
 XRAY-KNEE AP 11X14,X-Ray - Knee Ap 11X14,Imaging,02 PCC+
 ESWL PACKAGE WITH PHILHEALTH,Eswl Package Philhealth,Urology,03 Hospital Only
-HISTOPATH Â€“ MEDIUM/ LEVEL 2 AND 3,Histopath Ã‚â‚¬â€œ Medium/ Level 2 And 3,Uncategorized,02 PCC+
+HISTOPATH - MEDIUM/ LEVEL 2 AND 3,Histopath - Medium/ Level 2 And 3,Uncategorized,02 PCC+
 MAGIC 8,Magic 8,Laboratory,01 Clinic+
 CT SCAN - BRAIN/CRANIAL W/O CONTRAST,CT Scan - Brain/Cranial,Imaging,03 Hospital Only
 FLEXIBLE LARYNGOSCOPY,Flexible Laryngoscopy,Uncategorized,02 PCC+
@@ -1045,8 +1045,8 @@ INTERFERON GAMMA RELEASE ASSAY (IGRA)/TB QUANTIFERON TEST (SEND OUT),Interferon 
 MRI-SHOULDER/ELBOW/HIP MRNE,MRI - Shoulder/Elbo,Imaging,03 Hospital Only
 EYE - OCT (OPTICAL COHERENCE TOMOGRAPHY) BOTH EYE,Eye - Oct (Optical Coherence Tomography) Both Eye,Ophthalmology,02 PCC+
 PHACOEMULSIFICATION RIGHT EYE - GROSS OF PHIC (FACILITY FEE ONLY),Phacoemulsification Right Eye - Gross Of Phic (Facility Fee Only,Ophthalmology,02 PCC+
-ANGIOGRAM PACKAGE (PHILHEALTH EXCLUDING DOCTORÂ€™S PF),Angiogram Package (Philhealth Excluding DoctorÃ¢â‚¬â„¢S Pf,Laboratory,01 Clinic+
-LOWER EXTREMITY VENOUS DUPLEX SCAN/ULTRASOUND BILATIRALÂ€¢VLC,Ultrasound - BilatiralÃ¢â‚¬Â¢Vlc,Imaging,02 PCC+
+ANGIOGRAM PACKAGE (PHILHEALTH EXCLUDING DOCTOR'S PF),Angiogram Package (Philhealth Excluding Doctor's Pf),Laboratory,01 Clinic+
+LOWER EXTREMITY VENOUS DUPLEX SCAN/ULTRASOUND BILATIRALVLC,Ultrasound - Bilatiralvlc,Imaging,02 PCC+
 XRAY-ANKLE MORTISE,X-Ray - Ankle Mortise,Imaging,02 PCC+
 ERYTHROPOIETIN,Erythropoietin,Uncategorized,02 PCC+
 TSH (EIA),Thyroid Stimulating Hormone (TSH),Laboratory,01 Clinic+
@@ -1178,7 +1178,7 @@ LOWER EXTREMITY SCAN - ARTERIAL DUPLEX SCAN~CVUZ,Lower Extremity Scan - Arterial
 BLOOD TYPING / ABO BLOOD TYPING,Blood Typing / Abo Blood Typing,Laboratory,01 Clinic+
 LOWER EXTREMITY ARTERIAL DUPLEX SCAN,Lower Extremity Arterial Duplex Scan,Uncategorized,02 PCC+
 HOMOCYSTEIN LEVEL,Homocystein Level,Uncategorized,02 PCC+
-Â CT SCAN-BRAINÂ CRANIALÂ PLAIN,CT Scan - BrainÃ¢Â CranialÃ¢Â Plain,Imaging,03 Hospital Only
+CT SCAN-BRAIN CRANIAL PLAIN,CT Scan - Brain Cranial Plain,Imaging,03 Hospital Only
 QRT-PCR / BCR-ABL,RT-PCR,Uncategorized,02 PCC+
 FOOD ALLERGEN PANEL,Food Allergen Panel,Laboratory,01 Clinic+
 SMALL BIOPSY,Small Biopsy,Uncategorized,03 Hospital Only
@@ -1263,7 +1263,7 @@ HEMODIALYSIS PRIVATE ROOM AV FISTULA/GRAFT,Hemodialysis Private Room Av Fistula/
 GASTROSCOPY WITH SEDATION,Gastroscopy Sedation,Laboratory,01 Clinic+
 CT TRIPHASIC WHOLE ABDOMEN,Ct Triphasic Whole Abdomen,Uncategorized,02 PCC+
 UROGRAPHY W/ POWER INJECTOR CONTRAST 50-100KG,Urography Power Injector Contrast 50-100Kg,Laboratory,01 Clinic+
-WHOLE ABDOMEN (TRIPHASE & TRIPLE)Â W/ POWER INJECTOR CONTRAST 50-100KG,Whole Abdomen (Triphase & Triple)Ã‚ Power Injector Contrast 50-100Kg,Laboratory,01 Clinic+
+WHOLE ABDOMEN (TRIPHASE & TRIPLE) W/ POWER INJECTOR CONTRAST 50-100KG,Whole Abdomen (Triphase & Triple) W/ Power Injector Contrast 50-100Kg,Laboratory,01 Clinic+
 GLAUCOMA PLUS PACKAGE BOTH EYES,Glaucoma Plus Package Both Eyes,Ophthalmology,02 PCC+
 SPECIAL TEST IN-HOUSE_PROTEIN-S,Special Test In-House_Protein-S,Laboratory,01 Clinic+
 MRI OF BRAIN WITH MRA (PLAIN),MRI - Of Brain,Imaging,03 Hospital Only
@@ -1563,7 +1563,7 @@ SCL 70,Scl 70,Uncategorized,02 PCC+
 DOBUTAMINE STRESS ECHO,Dobutamine Stress Echo,Uncategorized,02 PCC+
 MRI-LEFT KNEE,MRI - Left Knee,Imaging,03 Hospital Only
 BIOPSY - SMALL~HPRE,Biopsy - Small,Uncategorized,03 Hospital Only
-ACCENTURE-BLOOD URIC ACIDÂ (BUA),Blood Uric Acid (BUA),Laboratory,01 Clinic+
+ACCENTURE-BLOOD URIC ACID (BUA),Blood Uric Acid (BUA),Laboratory,01 Clinic+
 MRI-PELVIS AND HIP,MRI - Pelvis And Hip,Imaging,03 Hospital Only
 CT SCAN-NECK PLAIN AND CONTRAST,CT Scan - Neck Plain And Contrast,Imaging,03 Hospital Only
 CT ANGIO - CORONARY WITH CALCIUM SCORING,Calcium (Ca),Laboratory,01 Clinic+
@@ -1899,7 +1899,7 @@ ELECTROMYOGRAPHY LOWER EXTREMITY (EMG LE),Electromyography Lower Extremity (Emg 
 "DENGUE IGG, IGM~ISRE",Dengue Test,Laboratory,01 Clinic+
 ULTRASOUND-GUIDED FINE NEEDLE ASPIRATION BIOPSY BREAST B,Ultrasound - Guided Fine Needle Aspiration Biopsy Breast B,Imaging,03 Hospital Only
 FFA (FUNDUS FLUORESCEIN ANGIOGRAM),Ffa (Fundus Fluorescein Angiogram,Uncategorized,02 PCC+
-XRAY-HIPSÂ  LAT .Â  11X14,X-Ray - HipsÃ¢Â  Lat .Ã‚Â  11X14,Imaging,02 PCC+
+XRAY-HIPS LAT . 11X14,X-Ray - Hips Lat . 11X14,Imaging,02 PCC+
 MRI-HEAD - INTERNAL ACOUSTIC CANAL (PLAIN),MRI - Head - Internal Acoustic Canal (Plain),Imaging,03 Hospital Only
 CT BRAIN/HEAD W/O CONTRAST,Ct Brain/Head Contrast,Laboratory,01 Clinic+
 ULTRASOUND - KUB,Ultrasound - Kub,Imaging,02 PCC+
@@ -1912,7 +1912,7 @@ CT SCAN-PNS PLAIN,CT Scan - Pns Plain,Imaging,03 Hospital Only
 (TSH) THYROID STIMULATING HORMONE ANTIBODY,Thyroid Stimulating Hormone (TSH),Laboratory,01 Clinic+
 ULTRASOUND HBT (HEPATO BILIARY TREE),Ultrasound - Hbt (Hepato Biliary Tree),Imaging,02 PCC+
 XRAY-CHEST PA AND APICOLORDOTIC VIEW,X-Ray - Chest Pa And Apicolordotic View,Imaging,02 PCC+
-MRI-HIP Â€“ PLAIN,MRI - Hip Ã‚â‚¬â€œ Plain,Imaging,03 Hospital Only
+MRI-HIP - PLAIN,MRI - Hip - Plain,Imaging,03 Hospital Only
 PHYSICAL THERAPY USE OF THERA MATTRESS,Physical Therapy Use Of Thera Mattress,Physical Therapy,02 PCC+
 CT/HRCT CHEST WITH CONTRAST,Ct/Hrct Chest Contrast,Laboratory,01 Clinic+
 MRI - SHOULDER /ARM/FOREARM W/ CONTRAST,MRI - Shoulder /Arm/Forearm,Imaging,03 Hospital Only
@@ -1985,7 +1985,7 @@ MRI-LUMBAR SPINE WITH SPINE SURVEY,MRI - Lumbar Spine,Imaging,03 Hospital Only
 EBER (S.O.),Eber (S.O.,Uncategorized,02 PCC+
 BRAIN NATRIURETIC PEPTIDE,Brain Natriuretic Peptide,Uncategorized,02 PCC+
 "CTSCAN - ABDOMEN, WHOLE DOUBLE/IV-ORAL ROUTINE~CTCT","Ctscan - Abdomen, Whole Double/Iv-Oral",Uncategorized,02 PCC+
-CT-SCAN Â€“ CHEST & MEDIASTINUM WITH CONTRAST,Ct-Scan Ã‚â‚¬â€œ Chest & Mediastinum Contrast,Laboratory,01 Clinic+
+CT-SCAN - CHEST & MEDIASTINUM WITH CONTRAST,Ct-Scan - Chest & Mediastinum With Contrast,Laboratory,01 Clinic+
 TREADMILL EXERCISE TEST,Treadmill Exercise Test,Cardiology,02 PCC+
 ARTERIAL DUPLEX SCAN OF LOWER EXTREMITIES,Arterial Duplex Scan Of Lower Extremities,Uncategorized,02 PCC+
 MRI -NASOPHARYNX,MRI - Nasopharynx,Imaging,03 Hospital Only
@@ -2086,7 +2086,7 @@ MRI-BRAIN INTERNAL AUDITORY CANAL W/ CONTRAST,MRI - Brain Internal Auditory Cana
 CEREBRAL ANGIOGRAM,Cerebral Angiogram,Uncategorized,02 PCC+
 CULTURE AND SENSITIVITY TEST,Culture And Sensitivity Test,Laboratory,01 Clinic+
 BIOPHYSICAL PROFILE SCORING,Biophysical Profile Scoring,Laboratory,01 Clinic+
-ARTERY & VEIN MAPPING Â·UPPER EXTREMITY (BILATERAL),Artery & Vein Mapping Ã‚Â·Upper Extremity (Bilateral,Uncategorized,02 PCC+
+ARTERY & VEIN MAPPING UPPER EXTREMITY (BILATERAL),Artery & Vein Mapping Upper Extremity (Bilateral),Uncategorized,02 PCC+
 RENAL SCAN TC99M-MAG3,Renal Scan Tc99M-Mag3,Laboratory,01 Clinic+
 CREATININE CLEARANCE - URINE,Creatinine,Laboratory,01 Clinic+
 ULTRASOUND-SHOULDER,Ultrasound - Shoulder,Imaging,02 PCC+
@@ -2303,7 +2303,7 @@ CALCIUM,Calcium (Ca),Laboratory,01 Clinic+
 EGD (EMSC),Egd (Emsc,Uncategorized,02 PCC+
 "CT SCAN-WHOLE ABDOMEN WITH ORAL, RECTAL CONTRAST",CT Scan - Whole Abdomen,Imaging,03 Hospital Only
 ULTRASOUND-WHOLE ABDOMEN WITH PRE AND POST VOID,Ultrasound - Whole Abdomen,Imaging,02 PCC+
-WHOLE ABDOMEN (TRIPHASE & TRIPLE)Â W/ POWER INJECTOR CONTRAST 50KG OR LESS,Whole Abdomen (Triphase & Triple)Ã‚ Power Injector Contrast 50Kg Or Less,Laboratory,01 Clinic+
+WHOLE ABDOMEN (TRIPHASE & TRIPLE) W/ POWER INJECTOR CONTRAST 50KG OR LESS,Whole Abdomen (Triphase & Triple) W/ Power Injector Contrast 50Kg Or Less,Laboratory,01 Clinic+
 TOTAL CALCIUM,Calcium (Ca),Laboratory,01 Clinic+
 DIGITAL MAMMOGRAPHY WITH TOMOSYNTHESIS,Digital Mammography Tomosynthesis,Uncategorized,02 PCC+
 WHOLE ABDOMEN CT-SCAN W/ CONTRAST - 50KG,Whole Abdomen Ct-Scan Contrast - 50Kg,Laboratory,01 Clinic+
@@ -2407,7 +2407,7 @@ ULTRASOUND-CHEST MAPPING,Ultrasound - Chest Mapping,Imaging,02 PCC+
 CT SCAN-BRAIN/HEAD/CRANIAL~CTCT,CT Scan - Brain/Head/Cranial~Ctct,Imaging,03 Hospital Only
 ULTRASOUND - BREAST WITH DOPPLER,Ultrasound - Breast,Imaging,02 PCC+
 CT SCAN-CRANIAL PLAIN AND CONTRAST,CT Scan - Cranial Plain And Contrast,Imaging,03 Hospital Only
-ELECTROENCEPHALOGRAMÂ (EEG) AWAKE,ElectroencephalogramÃ¢ (Eeg) Awake,Uncategorized,02 PCC+
+ELECTROENCEPHALOGRAM (EEG) AWAKE,Electroencephalogram (Eeg) Awake,Uncategorized,02 PCC+
 BUN/CREA (BLOOD UREA NITROGEN/CREATININE),Blood Urea Nitrogen (BUN),Laboratory,01 Clinic+
 TOTAL BILIRUBIN (DIRECT/INDIRECT),Bilirubin,Uncategorized,02 PCC+
 TOTAL VITAMIN D ASSAY,Total Vitamin D Assay,Uncategorized,02 PCC+
@@ -2477,9 +2477,9 @@ XRAY-ELBOW AP 11X14,X-Ray - Elbow Ap 11X14,Imaging,02 PCC+
 ESOPHAGOGRAM OR BARIUM SWALLOW,Esophagogram Or Barium Swallow,Laboratory,01 Clinic+
 IGE 20 FOOD ALLERGY PANEL,Ige 20 Food Allergy Panel,Laboratory,01 Clinic+
 ELECTROLYTES,Electrolytes,Laboratory,01 Clinic+
-DECAL HISTOPATH Â€“ MEDIUM/ LEVEL 2 AND 3,Decal Histopath Ã‚â‚¬â€œ Medium/ Level 2 And 3,Uncategorized,02 PCC+
+DECAL HISTOPATH - MEDIUM/ LEVEL 2 AND 3,Decal Histopath - Medium/ Level 2 And 3,Uncategorized,02 PCC+
 I-131 WHOLE BODY SCAN (5 MCI),I-131 Whole Body Scan (5 Mci,Uncategorized,02 PCC+
-RANDOM URINE PROTEIN/URINEÂ CREATININE RATIO,Creatinine,Laboratory,01 Clinic+
+RANDOM URINE PROTEIN/URINE CREATININE RATIO,Creatinine,Laboratory,01 Clinic+
 METANEPHRINE,Metanephrine,Uncategorized,02 PCC+
 XRAY-SACRUM AND COCCYX,X-Ray - Sacrum And Coccyx,Imaging,02 PCC+
 HISTOPATH LEVEL 3-WITH REQUEST,Histopath Level 3- Request,Uncategorized,02 PCC+
@@ -2832,7 +2832,7 @@ XRAY-FOOT AP 11X14,X-Ray - Foot Ap 11X14,Imaging,02 PCC+
 EGD & COLONOSCOPY UNDER SEDATION,Egd & Colonoscopy Under Sedation,Uncategorized,03 Hospital Only
 ULTRASOUND- BREAST ULTRASOUND~UZGN,Ultrasound - ~Uzgn,Imaging,02 PCC+
 "BASIC CHECK-UP (CBC, CREATININE, SGPT, FBS, URIC ACID, URINALYSIS, CHOLESTEROL, TRIGLYCERIDE, HDL/LDL, VLDL)",SGPT/ALT,Laboratory,01 Clinic+
-EGFR PANEL CREATININE AND CYSTATIN CÂ,Creatinine,Laboratory,01 Clinic+
+EGFR PANEL CREATININE AND CYSTATIN C,Creatinine,Laboratory,01 Clinic+
 CTSCAN - FACIAL BONE PLAIN,Ctscan - Facial Bone Plain,Uncategorized,02 PCC+
 ER/PR/HER2 IHC,Er/Pr/Her2 Ihc,Uncategorized,02 PCC+
 ULTRASOUND-DIGITAL MAMMOGRAPHY BILATERAL,Ultrasound - Digital Mammography Bilateral,Imaging,02 PCC+
@@ -2939,7 +2939,7 @@ UBT UREA BREATH TEST,Ubt Urea Breath Test,Laboratory,01 Clinic+
 ULTRASOUND-HEMODIALYSIS ACCESS OR AV FISTULA/GORTEX SCAN,Ultrasound - Hemodialysis Access Or Av Fistula/Gortex Scan,Imaging,02 PCC+
 TRANSCRANIAL DUPLEX SCAN,Transcranial Duplex Scan,Uncategorized,02 PCC+
 (SCT) SILICA CLOTTING TIME,Sct) Silica Clotting Time,Uncategorized,02 PCC+
-ULTRASOUNDÂ€“ARTERIES & VEINS LOWER EXTREMITIES (BILATERAL),Ultrasound - Ã‚â‚¬â€œArteries & Veins Lower Extremities (Bilateral),Imaging,02 PCC+
+ULTRASOUND-ARTERIES & VEINS LOWER EXTREMITIES (BILATERAL),Ultrasound - Arteries & Veins Lower Extremities (Bilateral),Imaging,02 PCC+
 EMG-NCV UPPER/LOWER EXTEMITIES-ALL 2 LIMBS,Emg-Ncv Upper/Lower Extemities-All 2 Limbs,Uncategorized,02 PCC+
 CT SCAN-FACIAL BONE WITH 3D (PLAIN),CT Scan - Facial Bone,Imaging,03 Hospital Only
 B-HCG (H MOLE) (W/ DILUTION),B-Hcg (H Mole) ( Dilution,Uncategorized,02 PCC+
@@ -2960,7 +2960,7 @@ LAB - CHEM 10,Lab - Chem 10,Uncategorized,02 PCC+
 TB QUANTIFERON ASSAY TEST (ELISA),Tb Quantiferon Assay Test (Elisa,Laboratory,01 Clinic+
 BCL2,Bcl2,Uncategorized,02 PCC+
 MRI THORACIC SPINE WITH CONTRAST,MRI - Thoracic Spine,Imaging,03 Hospital Only
-TREADMILL STRESS TEST Â€“ BRUCE,Treadmill Exercise Test,Cardiology,02 PCC+
+TREADMILL STRESS TEST - BRUCE,Treadmill Exercise Test,Cardiology,02 PCC+
 ULTRASOUND-ARTERIAL DOPPLER STUDY,Ultrasound - Arterial Doppler Study,Imaging,02 PCC+
 XRAY-CERVICAL APL-O 11X14,X-Ray - Cervical Apl-O 11X14,Imaging,02 PCC+
 MRI- KNEE (LEFT)~MRPN,MRI - Knee (Left)~Mrpn,Imaging,03 Hospital Only
@@ -3047,7 +3047,7 @@ CT SCAN-CHEST WITH CONTRAST - STAT,CT Scan - Chest,Imaging,03 Hospital Only
 GBS (XPERT),Gbs (Xpert,Uncategorized,02 PCC+
 OCT - MACULA(HMO),Oct - Macula(Hmo,Uncategorized,02 PCC+
 RANDOM URINE CHLORIDE,Chloride (Cl),Laboratory,01 Clinic+
-DIGITAL MAMMOGRAPHY 2 SLIDESÂ,Digital Mammography 2 SlidesÃ¢,Uncategorized,02 PCC+
+DIGITAL MAMMOGRAPHY 2 SLIDES,Digital Mammography 2 Slides,Uncategorized,02 PCC+
 XRAY - LUMBO SACRAL SPINE SERIES 4 VIEWS,X-Ray - Lumbo Sacral Spine Series 4 Views,Imaging,02 PCC+
 XRAY-THORACIC SPINE AP,X-Ray - Thoracic Spine Ap,Imaging,02 PCC+
 DENGUE NSI (QUALITATIVE),Dengue Test,Laboratory,01 Clinic+
@@ -3154,7 +3154,7 @@ HBA1C (CLOVER),HbA1c,Laboratory,01 Clinic+
 "CHEM 10 (FBS, BUN, CREA, URIC, CHOLES, TRIGLY, HDL/LDL, ALT, AST)",Fasting Blood Sugar (FBS),Laboratory,01 Clinic+
 DIGITAL LUMBOSACRAL SPINE (LS) (AP/L (R/L OBL),Digital Lumbosacral Spine (Ls) (Ap/L (R/L Obl,Uncategorized,02 PCC+
 SERUM ELECTROLYTES (SODIUM/POTASSIUM/CHLORIDE),Potassium (K),Laboratory,01 Clinic+
-C-REACTIVE PROTEINÂ  (CRP) QUALITATIVE,C-Reactive ProteinÃ¢ (Crp) Qualitative,Laboratory,01 Clinic+
+C-REACTIVE PROTEIN (CRP) QUALITATIVE,C-Reactive Protein (Crp) Qualitative,Laboratory,01 Clinic+
 JO 1,Jo 1,Uncategorized,02 PCC+
 "ALLERGIC FUNGAL SINUSITIS, TUBERCULOSIS, DEXAMETHASONE SUPPRESSION TEST (AFS, TBC & DST)","Allergic Fungal Sinusitis, Tuberculosis, Dexamethasone Suppression Test (Afs, Tbc & Dst",Laboratory,01 Clinic+
 CAROTID WITH VERT STUDY,Carotid Vert Study,Uncategorized,02 PCC+
@@ -3194,7 +3194,7 @@ HISTOPATH-LEVEL 5 (SURGICAL PATHOLOGY),Histopath-Level 5 (Surgical Pathology,Unc
 ROUTINE HISTOPATH (RADICAL 20-39- BLOCKS),Histopath (Radical 20-39- Blocks,Uncategorized,02 PCC+
 SEMEN ANALYSIS,Semen Analysis,Uncategorized,02 PCC+
 THYROID UPTAKE AND SCAN,Thyroid Uptake And Scan,Laboratory,01 Clinic+
-MAMMOGRAPHY WITH TOMOSYNTHESISÂ,Mammography TomosynthesisÃ¢,Uncategorized,02 PCC+
+MAMMOGRAPHY WITH TOMOSYNTHESIS,Mammography Tomosynthesis,Uncategorized,02 PCC+
 EMG-NCV (ALL EXTREMITIES),Emg-Ncv (All Extremities,Uncategorized,02 PCC+
 CT SCAN LUMBOSACRAL PLAIN,CT Scan - Lumbosacral Plain,Imaging,03 Hospital Only
 ELECTROLYTE- (SODIUM POTASSIUM CHLORIDE),Potassium (K),Laboratory,01 Clinic+
@@ -3277,7 +3277,7 @@ VARICELLA-ZOSTER IGG,Varicella-Zoster Igg,Laboratory,01 Clinic+
 TSH - CLIA,Thyroid Stimulating Hormone (TSH),Laboratory,01 Clinic+
 MAMMOGRAPHY (TWO SLIDE),Mammography (Two Slide,Uncategorized,02 PCC+
 ULTRASOUND- BREAST AND AXILLARY WITH CONTRAST,Ultrasound - Breast And Axillary,Imaging,02 PCC+
-LOWERÂ EXTREMITYÂ SCAN-VENOUSÂ DOPPLERÂ SCAN,LowerÃ¢ ExtremityÃ¢ Scan-VenousÃ¢ DopplerÃ¢ Scan,Uncategorized,02 PCC+
+LOWER EXTREMITY SCAN-VENOUS DOPPLER SCAN,Lower Extremity Scan-Venous Doppler Scan,Uncategorized,02 PCC+
 XRAY-HAND/WRIST APL (UNILATERAL),X-Ray - Hand/Wrist Apl (Unilateral),Imaging,02 PCC+
 CLOPIDOGREL RESPONSE MONITORING TEST,Clopidogrel Response Monitoring Test,Laboratory,01 Clinic+
 PERIPHERAL ARTERIAL DUPLEX SCAN UPPER EXTREMITIES BILATERAL,Peripheral Arterial Duplex Scan Upper Extremities Bilateral,Uncategorized,02 PCC+
@@ -3523,7 +3523,7 @@ HPV - PCR,Hpv - Pcr,Uncategorized,02 PCC+
 C REACTIVE PROTEIN HIGH SENSITIVITY,C Reactive Protein High Sensitivity,Laboratory,01 Clinic+
 RENIN RIA,Renin Ria,Uncategorized,02 PCC+
 "TSH-IRMA, FT4-RIA, FT3-RIA",Thyroid Stimulating Hormone (TSH),Laboratory,01 Clinic+
-ULTRASOUND-KUB PROSTATE WITH POST VOIDÂ RESIDUAL,Ultrasound - Kub Prostate,Imaging,02 PCC+
+ULTRASOUND-KUB PROSTATE WITH POST VOID RESIDUAL,Ultrasound - Kub Prostate,Imaging,02 PCC+
 SIMPLE SPIROMETRY (PRE/POST),Simple Spirometry (Pre/Post,Uncategorized,02 PCC+
 H-PYLORI TEST,H-Pylori Test,Laboratory,01 Clinic+
 COLONOSCOPY (W/ 40%),Colonoscopy ( 40%,Uncategorized,03 Hospital Only
@@ -3535,7 +3535,7 @@ EMG-UPPER AND LOWER EXTREMITIES,Emg-Upper And Lower Extremities,Uncategorized,02
 IGE 20 FOOD ALLERGY PANEL (METAMETRICS),Ige 20 Food Allergy Panel (Metametrics,Laboratory,01 Clinic+
 MAMMOGRAPHY W/ PF,Mammography Pf,Uncategorized,02 PCC+
 ANTI-JO1,Anti-Jo1,Uncategorized,02 PCC+
-HISTOPATH Â€“ LARGE/ LEVEL 4,Histopath Ã‚â‚¬â€œ Large/ Level 4,Uncategorized,02 PCC+
+HISTOPATH - LARGE/ LEVEL 4,Histopath - Large/ Level 4,Uncategorized,02 PCC+
 XRAY-CHEST PA LATERAL,X-Ray - Chest Pa Lateral,Imaging,02 PCC+
 TISSUE DESMIN,Tissue Desmin,Uncategorized,02 PCC+
 TREPONEMA PALLIDUM PARTICLE AGGLUTINATION ASSAY (TPPA) - QUALITATIVE,Treponema Pallidum Particle Agglutination Assay (Tppa) - Qualitative,Laboratory,01 Clinic+
@@ -3856,7 +3856,7 @@ SOMATOSENSORY EVOKED POTENTIAL (SSEP),Somatosensory Evoked Potential (Ssep,Uncat
 XRAY-FINGERS BILATERAL,X-Ray - Fingers Bilateral,Imaging,02 PCC+
 NAPSIN A,Napsin A,Uncategorized,02 PCC+
 SONOMAMMOGRAPHY-BILATERAL~MAMO,Sonomammography-Bilateral,Uncategorized,02 PCC+
-ULTRASOUND - MUSCULOSKELETALÂ (MSK) FOOT,Ultrasound - MusculoskeletalÃ¢Â (Msk) Foot,Imaging,02 PCC+
+ULTRASOUND - MUSCULOSKELETAL (MSK) FOOT,Ultrasound - Musculoskeletal (Msk) Foot,Imaging,02 PCC+
 XRAY-HIP APL 11X14,X-Ray - Hip Apl 11X14,Imaging,02 PCC+
 ULTRASOUND-LUNGS,Ultrasound - Lungs,Imaging,02 PCC+
 ANTI-MULLERIAN HORMONE (AMH),Anti-Mullerian Hormone (Amh,Uncategorized,02 PCC+
@@ -3896,7 +3896,7 @@ T3(ECLIA),T3(Eclia,Uncategorized,02 PCC+
 XRAY-CHEST LORDOTIC VIEW,X-Ray - Chest Lordotic View,Imaging,02 PCC+
 ANTI-SMITH AB,Anti-Smith Ab,Uncategorized,02 PCC+
 CT SCAN-BRAIN WITH BONE WINDOW,CT Scan - Brain,Imaging,03 Hospital Only
-ULTRASOUND - THIGH - MUSCULOSKELETALÂ  (MSK),Ultrasound - Thigh - MusculoskeletalÃ¢Â  (Msk),Imaging,02 PCC+
+ULTRASOUND - THIGH - MUSCULOSKELETAL (MSK),Ultrasound - Thigh - Musculoskeletal (Msk),Imaging,02 PCC+
 ULTRASOUND-ARM,Ultrasound - Arm,Imaging,02 PCC+
 ULTRASOUND-MUSCULOSKELETAL - LEG (ONE SIDE),Ultrasound - Musculoskeletal - Leg (One Side),Imaging,02 PCC+
 ULTRASOUND-MUSCULOSKELETAL FOOT AND ANKLE,Ultrasound - Musculoskeletal Foot And Ankle,Imaging,02 PCC+
@@ -3955,7 +3955,7 @@ SERUM FT3,Free T3 (FT3),Laboratory,01 Clinic+
 OCT (MACULA)~EYRE,Oct (Macula,Uncategorized,02 PCC+
 DHEA-S CHEMI,Dhea-S Chemi,Uncategorized,02 PCC+
 XRAY-KNEE APL 11X14 BILATERAL,X-Ray - Knee Apl 11X14 Bilateral,Imaging,02 PCC+
-(VER) VISUAL EVOKE RESPONSEÂ,Ver) Visual Evoke ResponseÃ¢,Uncategorized,02 PCC+
+(VER) VISUAL EVOKE RESPONSE,Ver) Visual Evoke Response,Uncategorized,02 PCC+
 ANTI - HCV - STAT,Anti - Hcv,Uncategorized,02 PCC+
 ULTRASOUND- KIDNEYS - URINARY BLADDER (KUB)~UZGN,Ultrasound - Kidneys - Urinary Bladder (Kub)~Uzgn,Imaging,02 PCC+
 ULTRASOUND-3D OBGYNE,Ultrasound - 3D Obgyne,Imaging,02 PCC+
@@ -4033,7 +4033,7 @@ ACCENTURE-ULTRASOUND-TRANSRECTAL,Ultrasound - Transrectal,Imaging,02 PCC+
 COLOR DOPPLER LOWER EXTREMITY BILATERAL ARTERIES,Color Doppler Lower Extremity Bilateral Arteries,Uncategorized,02 PCC+
 DIGI PARANASAL SINUSES,Digi Paranasal Sinuses,Uncategorized,02 PCC+
 "EMG-NCV, MYASTHENIA PROTOCOL OR RNS","Emg-Ncv, Myasthenia Protocol Or Rns",Laboratory,01 Clinic+
-FLEXIBLEÂ FIBER OPTICÂ LARYNGOSCOPY PACKAGE,FlexibleÃ¢ Fiber OpticÃ¢ Laryngoscopy Package,Laboratory,01 Clinic+
+FLEXIBLE FIBER OPTIC LARYNGOSCOPY PACKAGE,Flexible Fiber Optic Laryngoscopy Package,Laboratory,01 Clinic+
 HEARING TEST,Hearing Test,Laboratory,01 Clinic+
 SCHIMERS TEST (OS/OD),Schimers Test (Os/Od,Laboratory,01 Clinic+
 THYROID PACKAGE RIA,Thyroid Package Ria,Laboratory,01 Clinic+
@@ -4453,7 +4453,7 @@ XRAY-KNEE APL BILATERAL,X-Ray - Knee Apl Bilateral,Imaging,02 PCC+
 (CREA) CREATININE,Creatinine,Laboratory,01 Clinic+
 RUBELLA IGG (GERMAN MEASLES),Rubella Igg (German Measles,Laboratory,01 Clinic+
 "XRAY - SHOULDER SCAPULAR,TRUE AP,NEUTRAL AP TRAUMA (BOTH)","X-Ray - Shoulder Scapular,True Ap,Neutral Ap Trauma (Both)",Imaging,02 PCC+
-"BIOPSY Â POLYP, STOMACH/SMALL BOWEL","Biopsy Ã‚ Polyp, Stomach/Small Bowel",Uncategorized,03 Hospital Only
+"BIOPSY POLYP, STOMACH/SMALL BOWEL","Biopsy Polyp, Stomach/Small Bowel",Uncategorized,03 Hospital Only
 1ST 10 (FBS- SGPT) FASTING BLOOD SUGAR-SERUM GLUTAMIC-PYRUVIC TRANSAMINASE,SGPT/ALT,Laboratory,01 Clinic+
 "CHEMISTRY 10 (FBS, BUN, CREATININE, BUA, LIPID PROFILE, SGPT, SGOT)",Lipid Profile,Laboratory,01 Clinic+
 C4 COMPLEMENT,C4 Complement,Uncategorized,02 PCC+
@@ -4770,7 +4770,7 @@ PNS/NASO (PLAIN STUDIES) - PF,Pns/Naso (Plain Studies) - Pf,Uncategorized,02 PCC
 SPIROMETRY + LUNG VOLUME,Spirometry + Lung Volume,Uncategorized,02 PCC+
 STRESS TEST - TREADMILL EXERCISE TEST,Treadmill Exercise Test,Cardiology,02 PCC+
 URINE C/S WITH AUTO ID/MIC,Urine C/S Auto Id/Mic,Laboratory,01 Clinic+
-VISUAL EVOKE POTENTIAL (VEP),Visual Evoke Potential (Vep,Uncategorized,02 PCC+
+VISUAL EVOKE POTENTIAL (VEP),Visual Evoke Potential (Vep),Uncategorized,02 PCC+
 HAV IGG (HEPATITIS A),Hav Igg (Hepatitis A,Laboratory,01 Clinic+
 TROPONIN I 3IN1,Troponin,Uncategorized,02 PCC+
 OCT OPTIC NERVE HEAD (GLAUCOMA)- ONE EYE,Oct Optic Nerve Head (Glaucoma)- One Eye,Ophthalmology,02 PCC+
@@ -5963,7 +5963,7 @@ XRAY-CHEST AP 14X17,X-Ray - Chest Ap 14X17,Imaging,02 PCC+
 (ANTI-HBE) HEPATITIS B ENVELOPE ANTIBODY-QUANTI,Anti-Hbe) Hepatitis B Envelope Antibody-Quanti,Laboratory,01 Clinic+
 DIGITAL COCCYX AP LAT,Digital Coccyx Ap Lat,Uncategorized,02 PCC+
 XRAY-CHEST SPOT OBLIQUE,X-Ray - Chest Spot Oblique,Imaging,02 PCC+
-XRAY-FACIAL MANDIBLEÂ,X-Ray - Facial MandibleÃ¢,Imaging,02 PCC+
+XRAY-FACIAL MANDIBLE,X-Ray - Facial Mandible,Imaging,02 PCC+
 MAGNESIUM (SEND OUT),Magnesium (Mg),Laboratory,01 Clinic+
 XRAY-KUB PORTABLE,X-Ray - Kub Portable,Imaging,02 PCC+
 6 MINUTES WALK TEST,6 Minutes Walk Test,Laboratory,01 Clinic+
@@ -6163,7 +6163,7 @@ URINALYSIS 12 PARAMETERS (AUTOMATED),Urinalysis,Laboratory,01 Clinic+
 IPO4 MOLYBDATE,Ipo4 Molybdate,Uncategorized,02 PCC+
 ECG ( LONG LEAD 11),Electrocardiogram (ECG),Cardiology,02 PCC+
 CHEST XRAY,Chest X-Ray,Imaging,02 PCC+
-HISTOPATHÂ RECEIVINGÂ FEE,HistopathÃ¢ ReceivingÃ¢ Fee,Uncategorized,02 PCC+
+HISTOPATH RECEIVING FEE,Histopath Receiving Fee,Uncategorized,02 PCC+
 REMOVAL OF SUTURE,Removal Of Suture,Uncategorized,02 PCC+
 URINE KOH,Urine Koh,Laboratory,01 Clinic+
 XRAY-CHEST PAL (AD),X-Ray - Chest Pal (Ad),Imaging,02 PCC+

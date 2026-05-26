@@ -15,7 +15,32 @@ WITH acn_clean AS (
         UPPER(TRIM(membershiptype)) AS membershiptype,
 
         cptdesc AS cpt,
-        UPPER(TRIM(cptdesc)) AS cpt_cleaned,
+        UPPER(
+            TRIM(
+                {% if target.type == 'bigquery' %}
+                REGEXP_REPLACE(
+                    REPLACE(
+                        REPLACE(cptdesc, CHR(160), ' '),
+                        '·',
+                        ' '
+                    ),
+                    r'\s+',
+                    ' '
+                )
+                {% else %}
+                REGEXP_REPLACE(
+                    REPLACE(
+                        REPLACE(cptdesc, CHR(160), ' '),
+                        '·',
+                        ' '
+                    ),
+                    '\s+',
+                    ' ',
+                    'g'
+                )
+                {% endif %}
+            )
+        ) AS cpt_cleaned,
         icdcode AS icd,
         MAX(primaryicdgroup) AS primaryicdgroup,
         MAX(primaryicddesc) AS primaryicddesc,
@@ -30,7 +55,7 @@ WITH acn_clean AS (
         ROUND(CAST(SUM(approved) AS NUMERIC) / NULLIF(COUNT(DISTINCT claimno), 0), 2) AS average_cost_per_claim,
         ROUND(CAST(SUM(approved) AS NUMERIC) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 2) AS average_cost_per_member
 
-    FROM {{ ref('masked_acn_2325') }}
+    FROM {{ ref('masked_acn_2325') }} AS base
 
     WHERE loatype = 'PROCEDURE'
       AND icdcode IS NOT NULL
@@ -40,12 +65,11 @@ WITH acn_clean AS (
       AND providername IS NOT NULL
       AND providername NOT IN (' ', '0', '')
       AND admissiondate >= DATE '2024-09-01'
-
     GROUP BY
-        cptdesc,
-        icdcode,
-        providername,
-        UPPER(TRIM(membershiptype))
+        base.cptdesc,
+        base.icdcode,
+        base.providername,
+        base.membershiptype
 ),
 
 pcc_clean AS (
@@ -55,7 +79,32 @@ pcc_clean AS (
 ),
 cpt_standardized AS (
     SELECT DISTINCT
-        cpt_cleaned,
+        UPPER(
+            TRIM(
+                {% if target.type == 'bigquery' %}
+                REGEXP_REPLACE(
+                    REPLACE(
+                        REPLACE(cpt_cleaned, CHR(160), ' '),
+                        '·',
+                        ' '
+                    ),
+                    r'\s+',
+                    ' '
+                )
+                {% else %}
+                REGEXP_REPLACE(
+                    REPLACE(
+                        REPLACE(cpt_cleaned, CHR(160), ' '),
+                        '·',
+                        ' '
+                    ),
+                    '\s+',
+                    ' ',
+                    'g'
+                )
+                {% endif %}
+            )
+        ) AS cpt_cleaned,
         test_type,
         test_classification,
         cpt_cleaned_standard
@@ -87,7 +136,6 @@ SELECT
     acn.average_cost_per_lineitem,
     acn.average_cost_per_claim,
     acn.average_cost_per_member
-
 FROM acn_clean acn
 
 LEFT JOIN pcc_clean pcc

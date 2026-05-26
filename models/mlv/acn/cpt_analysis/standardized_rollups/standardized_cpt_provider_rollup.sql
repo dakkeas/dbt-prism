@@ -24,6 +24,6 @@ SELECT
     COALESCE(ROUND(SUM(average_cost_per_member * unique_member_count) / NULLIF(SUM(unique_member_count), 0), 2), 0) AS average_cost_per_member
 
 FROM {{ ref('cpt_icd_provider') }}
-WHERE cpt_cleaned_standard IS NOT NULL
+-- WHERE cpt_cleaned_standard IS NOT NULL
 GROUP BY cpt_cleaned_standard, providername
 ORDER BY total_utilization DESC
