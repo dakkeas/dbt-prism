@@ -141,7 +141,7 @@ seeds:
           availment_type: text
           icd_code: text
           icd_description: text
-          pcc_branch_name: text
+          pccbranchname: text
           physiciancode: text
           physicianname: text
           service_price: text

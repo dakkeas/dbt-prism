@@ -14,6 +14,7 @@ masked_acn_source AS (
 
 SELECT
     m.*,
+    r.primaryicddesc,
     r.primaryicdgroup
 FROM masked_acn_source m
 LEFT JOIN primaryicdgroup_references r

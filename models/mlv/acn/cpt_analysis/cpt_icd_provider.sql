@@ -16,6 +16,7 @@ WITH acn_clean AS (
         UPPER(TRIM(cptdesc)) AS cpt_cleaned,
         icdcode AS icd,
         MAX(primaryicdgroup) AS primaryicdgroup,
+        MAX(primaryicddesc) AS primaryicddesc,
 
         SUM(approved) AS total_utilization,
         COUNT(*) AS lineitem_count,
@@ -23,9 +24,9 @@ WITH acn_clean AS (
         COUNT(DISTINCT maskedcardno) AS unique_member_count,
         COUNT(DISTINCT physicianname) AS unique_doctor_count,
 
-        ROUND(SUM(approved)::NUMERIC / NULLIF(COUNT(*), 0), 2) AS average_cost_per_lineitem,
-        ROUND(SUM(approved)::NUMERIC / NULLIF(COUNT(DISTINCT claimno), 0), 2) AS average_cost_per_claim,
-        ROUND(SUM(approved)::NUMERIC / NULLIF(COUNT(DISTINCT maskedcardno), 0), 2) AS average_cost_per_member
+        ROUND(CAST(SUM(approved) AS NUMERIC) / NULLIF(COUNT(*), 0), 2) AS average_cost_per_lineitem,
+        ROUND(CAST(SUM(approved) AS NUMERIC) / NULLIF(COUNT(DISTINCT claimno), 0), 2) AS average_cost_per_claim,
+        ROUND(CAST(SUM(approved) AS NUMERIC) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 2) AS average_cost_per_member
 
     FROM {{ ref('masked_acn_2325') }}
 
@@ -46,7 +47,7 @@ WITH acn_clean AS (
 
 pcc_clean AS (
     SELECT DISTINCT
-        TRIM(UPPER(pcc_branch_name)) AS pccbranchname
+        TRIM(UPPER(pccbranchname)) AS pccbranchname  
     FROM {{ ref('pcc_availments_raw_data') }}
 )
 
@@ -55,6 +56,7 @@ SELECT
     acn.cpt,
     acn.cpt_cleaned,
     acn.icd,
+    acn.primaryicddesc,
     acn.primaryicdgroup,
     acn.providername,
     CASE
@@ -75,7 +77,7 @@ SELECT
 FROM acn_clean acn
 
 LEFT JOIN pcc_clean pcc
-    ON acn.providername_clean = pcc.pccbranchname
+    ON acn.providername_clean = pcc.pccbranchname  
 WHERE total_utilization IS NOT NULL
 AND total_utilization <> 0
 

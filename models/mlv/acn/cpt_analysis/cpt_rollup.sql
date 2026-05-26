@@ -1,57 +1,87 @@
 
-{{ config(materialized='table')}}
+{{ config(materialized='table') }}
 
+WITH non_pcc_ranked AS (
+    SELECT
+        cpt_cleaned,
+        providername,
+        average_cost_per_lineitem,
+        ROW_NUMBER() OVER (PARTITION BY cpt_cleaned ORDER BY average_cost_per_lineitem DESC) AS rank_most_expensive,
+        ROW_NUMBER() OVER (PARTITION BY cpt_cleaned ORDER BY average_cost_per_lineitem ASC) AS rank_cheapest
+    FROM {{ ref('cpt_icd_provider') }}
+    WHERE is_pcc = 0
+),
+
+most_expensive AS (
+    SELECT cpt_cleaned, providername AS provider, average_cost_per_lineitem AS cost
+    FROM non_pcc_ranked
+    WHERE rank_most_expensive = 1
+),
+
+cheapest AS (
+    SELECT cpt_cleaned, providername AS provider, average_cost_per_lineitem  AS cost
+    FROM non_pcc_ranked
+    WHERE rank_cheapest = 1
+),
+
+pcc_branches AS (
+    SELECT
+        cpt_cleaned,
+        STRING_AGG(DISTINCT providername, ', ' ORDER BY providername) AS pcc_branches_available
+    FROM {{ ref('cpt_icd_provider') }}
+    WHERE is_pcc = 1
+    GROUP BY cpt_cleaned
+)
 
 SELECT
-    cpt_cleaned,
-
+    o.cpt_cleaned,
     -- Overall metrics
-    SUM(total_utilization) AS total_utilization,
-    SUM(unique_claim_count) AS unique_claim_count,
-    SUM(unique_member_count) AS unique_member_count,
-    SUM(unique_doctor_count) AS unique_doctor_count,
-    ROUND(SUM(average_cost_per_claim * unique_claim_count) / NULLIF(SUM(unique_claim_count), 0), 2) AS average_cost_per_claim,
-    ROUND(SUM(average_cost_per_member * unique_member_count) / NULLIF(SUM(unique_member_count), 0), 2) AS average_cost_per_member,
+    COALESCE(SUM(o.total_utilization), 0) AS total_utilization,
 
+    COALESCE(SUM(o.unique_claim_count), 0) AS unique_claim_count,
+    COALESCE(SUM(o.lineitem_count), 0) AS lineitem_count,
+
+    COALESCE(SUM(o.unique_member_count), 0) AS unique_member_count,
+    COALESCE(SUM(o.unique_doctor_count), 0) AS unique_doctor_count,
+
+    COALESCE(ROUND(CAST(SUM(o.average_cost_per_claim * o.unique_claim_count) AS NUMERIC) / NULLIF(SUM(o.unique_claim_count), 0), 2), 0) AS average_cost_per_claim,
+    COALESCE(ROUND(CAST(SUM(o.average_cost_per_lineitem * o.lineitem_count) AS NUMERIC) / NULLIF(SUM(o.lineitem_count), 0), 2), 0) AS average_cost_per_lineitem,
+
+    COALESCE(ROUND(CAST(SUM(o.average_cost_per_member * o.unique_member_count) AS NUMERIC) / NULLIF(SUM(o.unique_member_count), 0), 2), 0) AS average_cost_per_member,
     -- Non-PCC metrics
-    SUM(CASE WHEN is_pcc = 0 THEN total_utilization END) AS non_pcc_total_utilization,
-    SUM(CASE WHEN is_pcc = 0 THEN lineitem_count END) AS non_pcc_lineitem_count,
-    SUM(CASE WHEN is_pcc = 0 THEN unique_claim_count END) AS non_pcc_unique_claim_count,
-    SUM(CASE WHEN is_pcc = 0 THEN unique_member_count END) AS non_pcc_unique_member_count,
-    SUM(CASE WHEN is_pcc = 0 THEN unique_doctor_count END) AS non_pcc_unique_doctor_count,
-    ROUND(SUM(CASE WHEN is_pcc = 0 THEN average_cost_per_claim * unique_claim_count END) / NULLIF(SUM(CASE WHEN is_pcc = 0 THEN unique_claim_count END), 0), 2) AS non_pcc_average_cost_per_claim,
-    ROUND(SUM(CASE WHEN is_pcc = 0 THEN average_cost_per_member * unique_member_count END) / NULLIF(SUM(CASE WHEN is_pcc = 0 THEN unique_member_count END), 0), 2) AS non_pcc_average_cost_per_member,
+    COALESCE(SUM(CASE WHEN o.is_pcc = 0 THEN o.total_utilization ELSE 0 END), 0) AS non_pcc_total_utilization,
 
-    -- Non-PCC most/cheapest expensive provider
-    MAX(CASE WHEN is_pcc = 0 THEN providername END) FILTER (
-        WHERE is_pcc = 0 AND average_cost_per_claim = (
-            SELECT MAX(i.average_cost_per_claim) FROM dev_acn.cpt_icd_provider i WHERE i.cpt_cleaned = o.cpt_cleaned AND i.is_pcc = 0
-        )
-    ) AS non_pcc_most_expensive_provider,
+    COALESCE(SUM(CASE WHEN o.is_pcc = 0 THEN o.lineitem_count ELSE 0 END), 0) AS non_pcc_lineitem_count,
+    COALESCE(SUM(CASE WHEN o.is_pcc = 0 THEN o.unique_claim_count ELSE 0 END), 0) AS non_pcc_unique_claim_count,
 
-    MAX(CASE WHEN is_pcc = 0 THEN average_cost_per_claim END) AS non_pcc_cost_of_most_expensive_provider,
+    COALESCE(SUM(CASE WHEN o.is_pcc = 0 THEN o.unique_member_count ELSE 0 END), 0) AS non_pcc_unique_member_count,
+    COALESCE(SUM(CASE WHEN o.is_pcc = 0 THEN o.unique_doctor_count ELSE 0 END), 0) AS non_pcc_unique_doctor_count,
 
-    MIN(CASE WHEN is_pcc = 0 THEN providername END) FILTER (
-        WHERE is_pcc = 0 AND average_cost_per_claim = (
-            SELECT MIN(i.average_cost_per_claim) FROM dev_acn.cpt_icd_provider i WHERE i.cpt_cleaned = o.cpt_cleaned AND i.is_pcc = 0
-        )
-    ) AS non_pcc_cheapest_provider,
+    COALESCE(ROUND(CAST(SUM(CASE WHEN o.is_pcc = 0 THEN o.average_cost_per_claim * o.unique_claim_count ELSE 0 END) AS NUMERIC) / NULLIF(SUM(CASE WHEN o.is_pcc = 0 THEN o.unique_claim_count ELSE 0 END), 0), 2), 0) AS non_pcc_average_cost_per_claim,
+    COALESCE(ROUND(CAST(SUM(CASE WHEN o.is_pcc = 0 THEN o.average_cost_per_lineitem * o.lineitem_count ELSE 0 END) AS NUMERIC) / NULLIF(SUM(CASE WHEN o.is_pcc = 0 THEN o.lineitem_count ELSE 0 END), 0), 2), 0) AS non_pcc_average_cost_per_lineitem,
 
-    MIN(CASE WHEN is_pcc = 0 THEN average_cost_per_claim END) AS non_pcc_cost_of_cheapest_provider,
-
+    COALESCE(ROUND(CAST(SUM(CASE WHEN o.is_pcc = 0 THEN o.average_cost_per_member * o.unique_member_count ELSE 0 END) AS NUMERIC) / NULLIF(SUM(CASE WHEN o.is_pcc = 0 THEN o.unique_member_count ELSE 0 END), 0), 2), 0) AS non_pcc_average_cost_per_member,
+    -- Non-PCC most/cheapest provider
+    me.provider AS non_pcc_most_expensive_provider,
+    COALESCE(me.cost, 0) AS non_pcc_cost_of_most_expensive_provider,
+    ch.provider AS non_pcc_cheapest_provider,
+    COALESCE(ch.cost, 0) AS non_pcc_cost_of_cheapest_provider,
     -- PCC metrics
-    CASE WHEN MAX(is_pcc) = 1 THEN 'Yes' ELSE 'No' END AS pcc_test_available,
+    CASE WHEN MAX(o.is_pcc) = 1 THEN 'Yes' ELSE 'No' END AS pcc_test_available,
+    COALESCE(SUM(CASE WHEN o.is_pcc = 1 THEN o.total_utilization ELSE 0 END), 0) AS pcc_total_utilization,
+    COALESCE(SUM(CASE WHEN o.is_pcc = 1 THEN o.lineitem_count ELSE 0 END), 0) AS pcc_lineitem_count,
+    COALESCE(SUM(CASE WHEN o.is_pcc = 1 THEN o.unique_claim_count ELSE 0 END), 0) AS pcc_unique_claim_count,
+    COALESCE(SUM(CASE WHEN o.is_pcc = 1 THEN o.unique_member_count ELSE 0 END), 0) AS pcc_unique_member_count,
+    COALESCE(SUM(CASE WHEN o.is_pcc = 1 THEN o.unique_doctor_count ELSE 0 END), 0) AS pcc_unique_doctor_count,
+    COALESCE(ROUND(CAST(SUM(CASE WHEN o.is_pcc = 1 THEN o.average_cost_per_claim * o.unique_claim_count ELSE 0 END) AS NUMERIC) / NULLIF(SUM(CASE WHEN o.is_pcc = 1 THEN o.unique_claim_count ELSE 0 END), 0), 2), 0) AS pcc_average_cost_per_claim,
+    COALESCE(ROUND(CAST(SUM(CASE WHEN o.is_pcc = 1 THEN o.average_cost_per_lineitem * o.lineitem_count ELSE 0 END) AS NUMERIC) / NULLIF(SUM(CASE WHEN o.is_pcc = 1 THEN o.lineitem_count ELSE 0 END), 0), 2), 0) AS pcc_average_cost_per_lineitem,
 
-    SUM(CASE WHEN is_pcc = 1 THEN total_utilization END) AS pcc_total_utilization,
-    SUM(CASE WHEN is_pcc = 1 THEN lineitem_count END) AS pcc_lineitem_count,
-    SUM(CASE WHEN is_pcc = 1 THEN unique_claim_count END) AS pcc_unique_claim_count,
-    SUM(CASE WHEN is_pcc = 1 THEN unique_member_count END) AS pcc_unique_member_count,
-    SUM(CASE WHEN is_pcc = 1 THEN unique_doctor_count END) AS pcc_unique_doctor_count,
+    COALESCE(ROUND(CAST(SUM(CASE WHEN o.is_pcc = 1 THEN o.average_cost_per_member * o.unique_member_count ELSE 0 END) AS NUMERIC) / NULLIF(SUM(CASE WHEN o.is_pcc = 1 THEN o.unique_member_count ELSE 0 END), 0), 2), 0) AS pcc_average_cost_per_member,
+    pb.pcc_branches_available
 
-    ROUND(SUM(CASE WHEN is_pcc = 1 THEN average_cost_per_claim * unique_claim_count END) / NULLIF(SUM(CASE WHEN is_pcc = 1 THEN unique_claim_count END), 0), 2) AS pcc_average_cost_per_claim,
-    ROUND(SUM(CASE WHEN is_pcc = 1 THEN average_cost_per_member * unique_member_count END) / NULLIF(SUM(CASE WHEN is_pcc = 1 THEN unique_member_count END), 0), 2) AS pcc_average_cost_per_member,
-    STRING_AGG(CASE WHEN is_pcc = 1 THEN providername END, ', ' ORDER BY providername) AS pcc_branches_available
-
-FROM dev_acn.cpt_icd_provider o
-GROUP BY cpt_cleaned
+FROM {{ ref('cpt_icd_provider') }} o
+LEFT JOIN most_expensive me ON me.cpt_cleaned = o.cpt_cleaned
+LEFT JOIN cheapest ch ON ch.cpt_cleaned = o.cpt_cleaned
+LEFT JOIN pcc_branches pb ON pb.cpt_cleaned = o.cpt_cleaned
+GROUP BY o.cpt_cleaned, me.provider, me.cost, ch.provider, ch.cost, pb.pcc_branches_available
 ORDER BY total_utilization DESC
