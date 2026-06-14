@@ -2589,7 +2589,7 @@ H PYLORI STOOL ANTIGEN,H Pylori Stool Antigen,Laboratory,01 Clinic+
 MRI LUMBO-SACRAL~MRCT,MRI - Lumbo-Sacral~Mrct,Imaging,03 Hospital Only
 XRAY-ANKLE AP 11X14,X-Ray - Ankle Ap 11X14,Imaging,02 PCC+
 STONOGRAM CT-SCAN W/ CONTRAST - 50KG,Stonogram Ct-Scan Contrast - 50Kg,Imaging,02 PCC+
-HBAIC,Hbaic,Uncategorized,02 PCC+
+HBAIC,HbA1c,Uncategorized,02 PCC+
 MRI-ANKLE/LEG UNILATERAL,MRI - Ankle/Leg Unilateral,Imaging,03 Hospital Only
 SPECULAR MICROSCOPY WITH PACHYMETRY (BOTH EYES),Specular Microscopy Pachymetry (Both Eyes,Ophthalmology,02 PCC+
 ANTI-R TSH (TRAB) RIA,Thyroid Stimulating Hormone (TSH),Laboratory,01 Clinic+

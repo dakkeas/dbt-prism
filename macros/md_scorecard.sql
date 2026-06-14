@@ -421,96 +421,96 @@ SELECT
     combined_starting_primaryicdgroup,
     
     -- 2. BASE PATIENT METRICS
-    total_unique_patient_cnt,
+    ROUND(CAST(total_unique_patient_cnt AS NUMERIC), 2) AS total_unique_patient_cnt,
 
     -- total length of stay for all tagged patients under MD
-    COALESCE(total_patient_lengthofstay, 0) AS total_patient_lengthofstay,
+    ROUND(CAST(COALESCE(total_patient_lengthofstay, 0) AS NUMERIC), 2) AS total_patient_lengthofstay,
     -- COALESCE(CAST(total_patient_lengthofstay AS NUMERIC) / NULLIF(CAST(total_unique_patient_cnt AS NUMERIC), 0), 0) AS ave_length_of_stay_per_patient,
 
     -- avg length of stay per patient (only patients with length of stay > 0)
 
     -- count_px_multi_stay,
 
-    COALESCE(CAST(total_patient_lengthofstay AS NUMERIC) / NULLIF(CAST(total_patient_cnt_with_stay AS NUMERIC), 0), 0) AS avg_lengthofstay_per_patient_with_stay,
+    ROUND(COALESCE(CAST(total_patient_lengthofstay AS NUMERIC) / NULLIF(CAST(total_patient_cnt_with_stay AS NUMERIC), 0), 0), 2) AS avg_lengthofstay_per_patient_with_stay,
 
     -- 4. ALL CLAIMS METRICS
-    total_claim_count,
-    total_util AS all_claims_sum_of_util,
-    ave_12_month_util_per_patient,
+    ROUND(CAST(total_claim_count AS NUMERIC), 2) AS total_claim_count,
+    ROUND(CAST(total_util AS NUMERIC), 2) AS all_claims_sum_of_util,
+    ROUND(CAST(ave_12_month_util_per_patient AS NUMERIC), 2) AS ave_12_month_util_per_patient,
 
     -- 5. OP LAB METRICS
-    opl_unique_px_cnt_at_least_one,
-    opl_unique_px_count_at_least_one_pct,
-    opl_ave_claims_per_px_at_least_one,
-    opl_total_claims,
-    opl_ave_cost_per_claim_per_px_at_least_one,
-    opl_sum_of_util,
+    ROUND(CAST(opl_unique_px_cnt_at_least_one AS NUMERIC), 2) AS opl_unique_px_cnt_at_least_one,
+    ROUND(CAST(opl_unique_px_count_at_least_one_pct AS NUMERIC), 2) AS opl_unique_px_count_at_least_one_pct,
+    ROUND(CAST(opl_ave_claims_per_px_at_least_one AS NUMERIC), 2) AS opl_ave_claims_per_px_at_least_one,
+    ROUND(CAST(opl_total_claims AS NUMERIC), 2) AS opl_total_claims,
+    ROUND(CAST(opl_ave_cost_per_claim_per_px_at_least_one AS NUMERIC), 2) AS opl_ave_cost_per_claim_per_px_at_least_one,
+    ROUND(CAST(opl_sum_of_util AS NUMERIC), 2) AS opl_sum_of_util,
 
     -- opl_unique_px_count_at_least_one_pct * 
     -- opl_ave_claims_per_px_at_least_one * 
     -- opl_ave_cost_per_claim_per_px_at_least_one AS opl_per_capita,
 
-    opl_ave_twelve_month_util_per_px,
+    ROUND(CAST(opl_ave_twelve_month_util_per_px AS NUMERIC), 2) AS opl_ave_twelve_month_util_per_px,
 
     -- 6. INPATIENT METRICS
-    inp_unique_px_count_at_least_one,
-    inp_unique_px_count_at_least_one_pct,
-    inp_ave_claims_per_px_at_least_one,
-    inp_total_claims,
-    inp_ave_cost_per_claim_per_px_at_least_one,
-    inp_sum_of_util,
+    ROUND(CAST(inp_unique_px_count_at_least_one AS NUMERIC), 2) AS inp_unique_px_count_at_least_one,
+    ROUND(CAST(inp_unique_px_count_at_least_one_pct AS NUMERIC), 2) AS inp_unique_px_count_at_least_one_pct,
+    ROUND(CAST(inp_ave_claims_per_px_at_least_one AS NUMERIC), 2) AS inp_ave_claims_per_px_at_least_one,
+    ROUND(CAST(inp_total_claims AS NUMERIC), 2) AS inp_total_claims,
+    ROUND(CAST(inp_ave_cost_per_claim_per_px_at_least_one AS NUMERIC), 2) AS inp_ave_cost_per_claim_per_px_at_least_one,
+    ROUND(CAST(inp_sum_of_util AS NUMERIC), 2) AS inp_sum_of_util,
 
     -- inp_unique_px_count_at_least_one_pct * 
     -- inp_ave_claims_per_px_at_least_one * 
     -- inp_ave_cost_per_claim_per_px_at_least_one AS inp_per_capita,
 
-    inp_ave_twelve_month_util_per_px,
+    ROUND(CAST(inp_ave_twelve_month_util_per_px AS NUMERIC), 2) AS inp_ave_twelve_month_util_per_px,
 
     -- 7. OTHERS METRICS
-    others_unique_px_count_at_least_one,
-    others_unique_px_count_at_least_one_pct,
-    others_ave_claims_per_px_at_least_one,
-    others_total_claims,
-    others_ave_cost_per_claim_per_px_at_least_one,
-    others_sum_of_util,
+    ROUND(CAST(others_unique_px_count_at_least_one AS NUMERIC), 2) AS others_unique_px_count_at_least_one,
+    ROUND(CAST(others_unique_px_count_at_least_one_pct AS NUMERIC), 2) AS others_unique_px_count_at_least_one_pct,
+    ROUND(CAST(others_ave_claims_per_px_at_least_one AS NUMERIC), 2) AS others_ave_claims_per_px_at_least_one,
+    ROUND(CAST(others_total_claims AS NUMERIC), 2) AS others_total_claims,
+    ROUND(CAST(others_ave_cost_per_claim_per_px_at_least_one AS NUMERIC), 2) AS others_ave_cost_per_claim_per_px_at_least_one,
+    ROUND(CAST(others_sum_of_util AS NUMERIC), 2) AS others_sum_of_util,
 
     -- others_unique_px_count_at_least_one_pct * 
     -- others_ave_claims_per_px_at_least_one * 
     -- others_ave_cost_per_claim_per_px_at_least_one AS others_per_capita,
 
-    others_ave_twelve_month_util_per_px,
+    ROUND(CAST(others_ave_twelve_month_util_per_px AS NUMERIC), 2) AS others_ave_twelve_month_util_per_px,
 
     -- PF metrics
-    total_professional_fees,
-    ave_professional_fees_per_patient,
+    ROUND(CAST(total_professional_fees AS NUMERIC), 2) AS total_professional_fees,
+    ROUND(CAST(ave_professional_fees_per_patient AS NUMERIC), 2) AS ave_professional_fees_per_patient,
 
     -- 8. PHILHEALTH METRICS
-    total_philhealth,
-    percent_of_philhealth_util,
-    ave_philhealth_claim_per_patient,
+    ROUND(CAST(total_philhealth AS NUMERIC), 2) AS total_philhealth,
+    ROUND(CAST(percent_of_philhealth_util AS NUMERIC), 2) AS percent_of_philhealth_util,
+    ROUND(CAST(ave_philhealth_claim_per_patient AS NUMERIC), 2) AS ave_philhealth_claim_per_patient,
 
-    total_overall_cptcode_count,
-    total_overall_cptcode_util,
-    overall_cptcode_avg_count_per_px,
-    overall_cptcode_avg_util_per_px,
+    ROUND(CAST(total_overall_cptcode_count AS NUMERIC), 2) AS total_overall_cptcode_count,
+    ROUND(CAST(total_overall_cptcode_util AS NUMERIC), 2) AS total_overall_cptcode_util,
+    ROUND(CAST(overall_cptcode_avg_count_per_px AS NUMERIC), 2) AS overall_cptcode_avg_count_per_px,
+    ROUND(CAST(overall_cptcode_avg_util_per_px AS NUMERIC), 2) AS overall_cptcode_avg_util_per_px,
     -- total_overall_ruvcode_count,
     -- total_overall_ruvcode_util,
     -- overall_ruvcode_avg_count_per_px,
     -- overall_ruvcode_avg_util_per_px,
 
-    COALESCE(NULLIF(CAST(count_of_end_stage_cardiometabolic_disease_patient AS NUMERIC), 0) / NULLIF(CAST(total_unique_patient_cnt AS NUMERIC), 0), 0) AS percent_of_end_stage_cardiometabolic_disease_patients,
+    ROUND(COALESCE(NULLIF(CAST(count_of_end_stage_cardiometabolic_disease_patient AS NUMERIC), 0) / NULLIF(CAST(total_unique_patient_cnt AS NUMERIC), 0), 0), 2) AS percent_of_end_stage_cardiometabolic_disease_patients,
 
-    count_of_end_stage_cardiometabolic_disease_patient,
-    sum_of_util_of_end_stage_cardiometabolic_disease_patient,
+    ROUND(CAST(count_of_end_stage_cardiometabolic_disease_patient AS NUMERIC), 2) AS count_of_end_stage_cardiometabolic_disease_patient,
+    ROUND(CAST(sum_of_util_of_end_stage_cardiometabolic_disease_patient AS NUMERIC), 2) AS sum_of_util_of_end_stage_cardiometabolic_disease_patient,
 
-    count_of_eph_patient_only,
-    sum_of_util_of_eph_patient_only,
+    ROUND(CAST(count_of_eph_patient_only AS NUMERIC), 2) AS count_of_eph_patient_only,
+    ROUND(CAST(sum_of_util_of_eph_patient_only AS NUMERIC), 2) AS sum_of_util_of_eph_patient_only,
 
-    count_of_diabetes_patient_only,
-    sum_of_util_of_diabetes_patient_only,
+    ROUND(CAST(count_of_diabetes_patient_only AS NUMERIC), 2) AS count_of_diabetes_patient_only,
+    ROUND(CAST(sum_of_util_of_diabetes_patient_only AS NUMERIC), 2) AS sum_of_util_of_diabetes_patient_only,
 
-    count_of_dyslipidaemia_patient_only,
-    sum_of_util_of_dyslipidaemia_patient_only,
+    ROUND(CAST(count_of_dyslipidaemia_patient_only AS NUMERIC), 2) AS count_of_dyslipidaemia_patient_only,
+    ROUND(CAST(sum_of_util_of_dyslipidaemia_patient_only AS NUMERIC), 2) AS sum_of_util_of_dyslipidaemia_patient_only,
 
 
 
@@ -519,31 +519,31 @@ SELECT
     
 
 
-    count_of_rapid_readmissions,
-    count_of_unique_inpatient_stays,
-    readmission_rate,
+    ROUND(CAST(count_of_rapid_readmissions AS NUMERIC), 2) AS count_of_rapid_readmissions,
+    ROUND(CAST(count_of_unique_inpatient_stays AS NUMERIC), 2) AS count_of_unique_inpatient_stays,
+    ROUND(CAST(readmission_rate AS NUMERIC), 2) AS readmission_rate,
 
 
-    count_of_rapid_cardiometabolic_readmissions,
-    count_of_unique_cardiometabolic_inpatient_stays,
-    cardiometabolic_readmission_rate,
+    ROUND(CAST(count_of_rapid_cardiometabolic_readmissions AS NUMERIC), 2) AS count_of_rapid_cardiometabolic_readmissions,
+    ROUND(CAST(count_of_unique_cardiometabolic_inpatient_stays AS NUMERIC), 2) AS count_of_unique_cardiometabolic_inpatient_stays,
+    ROUND(CAST(cardiometabolic_readmission_rate AS NUMERIC), 2) AS cardiometabolic_readmission_rate,
 
-    count_of_unique_emergencies,        
+    ROUND(CAST(count_of_unique_emergencies AS NUMERIC), 2) AS count_of_unique_emergencies,        
 
-    count_of_panic_visits,
-    panic_visit_rate,
+    ROUND(CAST(count_of_panic_visits AS NUMERIC), 2) AS count_of_panic_visits,
+    ROUND(CAST(panic_visit_rate AS NUMERIC), 2) AS panic_visit_rate,
 
-    count_of_non_panic_visits,
-    non_panic_visit_rate,
+    ROUND(CAST(count_of_non_panic_visits AS NUMERIC), 2) AS count_of_non_panic_visits,
+    ROUND(CAST(non_panic_visit_rate AS NUMERIC), 2) AS non_panic_visit_rate,
 
     -- pcc metrics
 
 
-    total_pcc_availment_count,
-    total_pcc_availment_cost,
+    ROUND(CAST(total_pcc_availment_count AS NUMERIC), 2) AS total_pcc_availment_count,
+    ROUND(CAST(total_pcc_availment_cost AS NUMERIC), 2) AS total_pcc_availment_cost,
 
-    ave_12_month_pcc_availment_cost_per_patient,
-    ave_12_month_pcc_availment_count_per_patient
+    ROUND(CAST(ave_12_month_pcc_availment_cost_per_patient AS NUMERIC), 2) AS ave_12_month_pcc_availment_cost_per_patient,
+    ROUND(CAST(ave_12_month_pcc_availment_count_per_patient AS NUMERIC), 2) AS ave_12_month_pcc_availment_count_per_patient
 
 
 
