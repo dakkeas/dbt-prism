@@ -2,6 +2,8 @@
 
 This guide explains the segmentation fields in `md_scorecard_t500_diabetes_production`.
 
+The same production bucket rules are mirrored by the other production scorecards under `models/mlv/marts`.
+
 ## What the table represents
 
 Each row represents one physician-provider attribution unit. The metrics summarize downstream 12-month utilization and cost outcomes for patients whose first qualifying consult was attributed to that physician.
@@ -18,14 +20,6 @@ In `prod`, the output columns use compact PascalCase names, such as `PhysicianBu
 
 Current buckets:
 
-- `Preventative`
-  Strong outpatient management pattern. Assigned when:
-  - inpatient prevalence percentile <= 50
-  - inpatient cost percentile <= 50
-  - OP lab prevalence percentile >= 50
-  - OP lab frequency percentile >= 50
-  - cost percentile is between 25 and 75
-
 - `Acute Escalator`
   Higher hospital-driven burden. Assigned when either:
   - inpatient prevalence percentile >= 75
@@ -39,6 +33,14 @@ Current buckets:
     - CPT utilization per patient
     - others cost per patient
     - professional fees
+
+- `Lab Overutilizer`
+  High outpatient lab activity without high inpatient burden. Assigned when:
+  - inpatient prevalence percentile <= 50
+  - inpatient cost percentile <= 50
+  - and at least one of the following is >= 75 percentile:
+    - OP lab frequency
+    - OP lab cost per patient
 
 - `Minimalist`
   Very low observed follow-up or utilization. Assigned when:
@@ -80,7 +82,8 @@ average_12_month_cost_per_patient / network_average_cost_per_patient
 Where:
 
 - `average_12_month_cost_per_patient` is the physician's own average 12-month cost of care per attributed patient
-- `network_average_cost_per_patient` is the average of that same metric across all physicians in this table
+- `network_average_cost_per_patient` comes from `md_scorecard_network_average_by_primaryicdgroup`
+- the network value is calculated across all physician-provider rows for the same primary ICD group, not only the top 500 rows shown in the production scorecard
 
 Interpretation:
 
@@ -99,6 +102,7 @@ Relevant percentile columns:
 - `Inpatient Cost Percentile` / `InpatientCostPercentile`
 - `OP Lab Prevalence Percentile` / `OpLabPrevalencePercentile`
 - `OP Lab Frequency Percentile` / `OpLabFrequencyPercentile`
+- `OP Lab Cost Percentile` / `OpLabCostPercentile`
 - `CPT Utilization Percentile` / `CptUtilizationPercentile`
 - `Others Cost Percentile` / `OthersCostPercentile`
 - `Professional Fee Percentile` / `ProfessionalFeePercentile`
@@ -146,8 +150,8 @@ Common filter patterns:
 - To focus on hospitalization-heavy patterns:
   Filter `Physician Bucket = Acute Escalator`
 
-- To focus on strong outpatient managers:
-  Filter `Physician Bucket = Preventative`
+- To focus on outpatient lab-heavy physicians without high inpatient burden:
+  Filter `Physician Bucket = Lab Overutilizer`
 
 - To find low-touch or leakage-risk patterns:
   Filter `Physician Bucket = Minimalist`

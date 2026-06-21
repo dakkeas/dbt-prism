@@ -2,7 +2,7 @@
 
 WITH source AS (
     SELECT *
-    FROM {{ ref('md_scorecard_t500_diabetes') }}
+    FROM {{ ref('md_scorecard_t500_crf') }}
 ),
 
 physician_metrics AS (
@@ -69,7 +69,7 @@ network_average AS (
     SELECT
         network_average_cost_per_patient
     FROM {{ ref('md_scorecard_network_average_by_primaryicdgroup') }}
-    WHERE primaryicdgroup = 'DIABETES MELLITUS'
+    WHERE primaryicdgroup = 'CHRONIC RENAL FAILURE'
 ),
 
 peer_percentiles AS (
