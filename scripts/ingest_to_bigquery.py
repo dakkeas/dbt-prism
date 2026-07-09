@@ -2,8 +2,12 @@ import os
 import argparse
 from dotenv import load_dotenv
 
-# specify the full path
-load_dotenv(dotenv_path="secret/.env")
+# Load environment variables from secret/.env, looking for it relative to this script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.abspath(os.path.join(script_dir, "..", "secret", ".env"))
+if not os.path.exists(dotenv_path):
+    dotenv_path = "secret/.env"
+load_dotenv(dotenv_path=dotenv_path)
 
 import pandas as pd
 from sqlalchemy import create_engine
@@ -17,7 +21,7 @@ PG_HOST = os.getenv("PG_HOST")
 PG_PORT = os.getenv("PG_PORT")
 PG_DB   = os.getenv("PG_DB")
 
-PROJECT_ID = os.getenv("BQ_PROJECT_ID")
+PROJECT_ID = os.getenv("BQ_PROJECT_ID") or os.getenv("PRISM_BQ_PROJECT_ID")
 DEFAULT_DATASET_ID = os.getenv("BQ_DATASET_ID")
 SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE")
 

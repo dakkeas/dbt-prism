@@ -1,8 +1,13 @@
 {{ config(materialized = 'table') }}
 
+-- Description:
+-- Production CRF scorecard built from the any-starting-ICD CRF cohort.
+-- Patients qualify if CHRONIC RENAL FAILURE appears at any point in their MLV journey,
+-- and the downstream physician scorecard is evaluated at the physician-provider pair grain.
+
 WITH source AS (
     SELECT *
-    FROM {{ ref('md_scorecard_t500_crf') }}
+    FROM {{ ref('md_scorecard_t500_crf_any_starting_icd') }}
 ),
 
 physician_metrics AS (
@@ -13,6 +18,7 @@ physician_metrics AS (
         physicianname AS physician_name,
         specialization AS specialization_for_verification,
         sub_specialization,
+        computed_primaryicdgroup,
 
         CAST(total_unique_patient_cnt AS NUMERIC) AS unique_patient_count,
         CAST(total_claim_count AS NUMERIC) AS total_claims,
@@ -84,7 +90,8 @@ peer_percentiles AS (
         ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY total_cpt_utilization_per_patient) AS NUMERIC), 2) AS cpt_utilization_percentile,
         ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY others_cost_per_patient) AS NUMERIC), 2) AS others_cost_percentile,
         ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY average_professional_fees) AS NUMERIC), 2) AS professional_fee_percentile,
-        ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY total_claims) AS NUMERIC), 2) AS total_claims_percentile
+        ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY total_claims) AS NUMERIC), 2) AS total_claims_percentile,
+        ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY total_philhealth_support) AS NUMERIC), 2) AS philhealth_support_percentile
     FROM flagged
 ),
 
@@ -109,7 +116,7 @@ segmented AS (
                 ) * f.unique_patient_count
             END,
             2
-        ) AS potential_savings,
+        ) AS network_potential_savings,
         p.cost_percentile,
         p.inpatient_prevalence_percentile,
         p.inpatient_cost_percentile,
@@ -121,9 +128,14 @@ segmented AS (
         p.professional_fee_percentile,
         p.total_claims_percentile,
         CASE
+            WHEN (p.inpatient_prevalence_percentile >= 75
+                OR p.inpatient_cost_percentile >= 75)
+                AND COALESCE(f.inpatient_cost_per_patient, 0) > 0
+                AND p.philhealth_support_percentile <= 25
+                THEN 'High Inpatient Use and Low Philhealth Use'
             WHEN p.inpatient_prevalence_percentile >= 75
                 OR p.inpatient_cost_percentile >= 75
-                THEN 'Acute Escalator'
+                THEN 'High Inpatient Use'
             WHEN p.cost_percentile >= 75
                 AND p.inpatient_prevalence_percentile < 75
                 AND (
@@ -131,19 +143,19 @@ segmented AS (
                     OR p.others_cost_percentile >= 75
                     OR p.professional_fee_percentile >= 75
                 )
-                THEN 'Resource Intensive'
+                THEN 'High Resource Use'
             WHEN p.inpatient_prevalence_percentile <= 50
                 AND p.inpatient_cost_percentile <= 50
                 AND (
                     p.op_lab_frequency_percentile >= 75
                     OR p.op_lab_cost_percentile >= 75
                 )
-                THEN 'Lab Overutilizer'
+                THEN 'High Lab Use'
             WHEN p.cost_percentile <= 25
                 AND p.op_lab_prevalence_percentile <= 25
                 AND p.total_claims_percentile <= 25
-                THEN 'Minimalist'
-            ELSE 'Balanced'
+                THEN 'Low Use'
+            ELSE 'Balanced Use'
         END AS physician_bucket
     FROM flagged f
     CROSS JOIN network_average n
@@ -170,6 +182,17 @@ bucket_summary AS (
         ROUND(AVG(average_professional_fees), 2) AS bucket_average_professional_fees
     FROM segmented
     GROUP BY physician_bucket
+),
+
+t500_averages AS (
+    SELECT
+        ROUND(AVG(inpatient_cost_per_patient), 2) AS t500_avg_inpatient_cost_per_patient,
+        ROUND(AVG(total_cpt_utilization_per_patient), 2) AS t500_avg_cpt_utilization_per_patient,
+        ROUND(AVG(others_cost_per_patient), 2) AS t500_avg_others_cost_per_patient,
+        ROUND(AVG(average_professional_fees), 2) AS t500_avg_professional_fees,
+        ROUND(AVG(op_lab_cost_per_patient), 2) AS t500_avg_op_lab_cost_per_patient,
+        ROUND(AVG(average_12_month_cost_per_patient), 2) AS t500_avg_cost_per_patient
+    FROM segmented
 )
 
 SELECT
@@ -179,6 +202,7 @@ SELECT
     s.physician_name AS {{ env_alias('Physician Name', 'PhysicianName') }},
     s.specialization_for_verification AS {{ env_alias('Specialization For Verification', 'SpecializationForVerification') }},
     s.sub_specialization AS {{ env_alias('Sub Specialization', 'SubSpecialization') }},
+    s.computed_primaryicdgroup AS {{ env_alias('Computed Primary ICD Group', 'ComputedPrimaryICDGroup') }},
     s.physician_bucket AS {{ env_alias('Physician Bucket', 'PhysicianBucket') }},
     s.volume_tier AS {{ env_alias('Volume Tier', 'VolumeTier') }},
     s.confidence_level AS {{ env_alias('Confidence Level', 'ConfidenceLevel') }},
@@ -191,7 +215,36 @@ SELECT
     s.total_inpatient_12_month_cost_of_care AS {{ env_alias('Total Inpatient 12 Month Cost Of Care', 'TotalInpatient12MonthCostOfCare') }},
     s.total_others_12_month_cost_of_care AS {{ env_alias('Total Others 12 Month Cost Of Care', 'TotalOthers12MonthCostOfCare') }},
     s.average_12_month_cost_per_patient AS {{ env_alias('Average 12 Month Cost Per Patient', 'Average12MonthCostPerPatient') }},
-    s.potential_savings AS {{ env_alias('Potential Savings', 'PotentialSavings') }},
+    s.network_potential_savings AS {{ env_alias('Network Potential Savings', 'NetworkPotentialSavings') }},
+    ROUND(
+        GREATEST(
+            CASE s.physician_bucket
+                WHEN 'High Inpatient Use and Low Philhealth Use' THEN
+                    (s.inpatient_cost_per_patient - t500.t500_avg_inpatient_cost_per_patient)
+                    * s.unique_patient_count
+                WHEN 'High Inpatient Use' THEN
+                    (s.inpatient_cost_per_patient - t500.t500_avg_inpatient_cost_per_patient)
+                    * s.unique_patient_count
+                WHEN 'High Resource Use' THEN
+                    GREATEST(
+                        (s.total_cpt_utilization_per_patient - t500.t500_avg_cpt_utilization_per_patient),
+                        (s.others_cost_per_patient - t500.t500_avg_others_cost_per_patient),
+                        (s.average_professional_fees - t500.t500_avg_professional_fees)
+                    ) * s.unique_patient_count
+                WHEN 'High Lab Use' THEN
+                    (s.op_lab_cost_per_patient - t500.t500_avg_op_lab_cost_per_patient)
+                    * s.unique_patient_count
+                WHEN 'Low Use' THEN
+                    (s.average_12_month_cost_per_patient - t500.t500_avg_cost_per_patient)
+                    * s.unique_patient_count
+                ELSE
+                    (s.average_12_month_cost_per_patient - t500.t500_avg_cost_per_patient)
+                    * s.unique_patient_count
+            END,
+            0
+        ),
+        2
+    ) AS {{ env_alias('Potential Savings', 'PotentialSavings') }},
 
     s.op_lab_prevalence AS {{ env_alias('OP Lab Prevalence', 'OpLabPrevalence') }},
     s.op_lab_frequency AS {{ env_alias('OP Lab Frequency', 'OpLabFrequency') }},
@@ -241,5 +294,6 @@ SELECT
     bs.bucket_average_others_cost_per_patient AS {{ env_alias('Bucket Average Others Cost Per Patient', 'BucketAverageOthersCostPerPatient') }},
     bs.bucket_average_professional_fees AS {{ env_alias('Bucket Average Professional Fees', 'BucketAverageProfessionalFees') }}
 FROM segmented s
+CROSS JOIN t500_averages t500
 LEFT JOIN bucket_summary bs
     ON s.physician_bucket = bs.physician_bucket
