@@ -50,9 +50,10 @@ models:
       acn:
         +schema: acn
         +materialized: table
-      blhc:
-        +schema: blhc
+      bestlife:
+        +schema: bestlife
         +materialized: table
+      
       # prod:
       #   +schema: prod
       #   +materialized: table
@@ -92,8 +93,35 @@ seeds:
           physiciancode: text
           maskedcardno: text
 
+    bestlife:
+      seed_bestlife_unmasked_patient_no:
+        +schema: seed_bestlife
+        +column_types:
+          patient_code_full_name: text
+          final_patient_code: text
+          cardno: text
+          activity_status: text
+          final_company: text
+          member_type: text
+          inactive_tagging_date: date
+          dropout_date: date
+          baseline_test_date_final: date
+
+      forward_medicines_copay:
+        +schema: seed_bestlife
+        +column_types:
+          sku_name: text
+          drug_name: text
+          category: text
+          icd_code: text
+          icd_description: text
+          organ_system: text
+          drug_class: text
+          part_of_bl_copay: text
+          part_of_bl_free_meds: text
+
       seed_blhc_labs_raw:
-        +schema: seed_blhc
+        +schema: seed_bestlife
         +column_types:
           reference_number: text
           final_patient_code: text
@@ -115,7 +143,7 @@ seeds:
           within_fbs_cutoff: text
           
       seed_blhc_bp_raw:
-        +schema: seed_blhc
+        +schema: seed_bestlife
         +column_types:
           reference_number: text
           final_patient_code: text
@@ -132,7 +160,7 @@ seeds:
           within_dbp_cutoff: text
 
       seed_reference_member_base:
-        +schema: seed_blhc
+        +schema: seed_bestlife
         +column_types:
           Patient Code-Full Name: text
           Final Patient Code: text
