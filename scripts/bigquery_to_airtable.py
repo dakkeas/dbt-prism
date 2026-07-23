@@ -3,14 +3,12 @@ from dotenv import load_dotenv
 import pandas as pd
 import requests
 from google.cloud import bigquery
-from google.oauth2 import service_account
 
 load_dotenv(dotenv_path="secret/.env")
 # ==========================
 # BIGQUERY SETTINGS
 # ==========================
-PROJECT_ID = os.getenv("PRISM_BQ_PROJECT_ID")
-SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE")
+PROJECT_ID = os.getenv("BQ_PROJECT_ID") or os.getenv("PRISM_BQ_PROJECT_ID")
 
 
 
@@ -32,10 +30,7 @@ def prompt_user_inputs():
 def fetch_bigquery_data(dataset_id: str, bq_table_id: str) -> pd.DataFrame:
     print("\nFetching data from BigQuery...")
 
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE
-    )
-    client = bigquery.Client(credentials=credentials, project=PROJECT_ID)
+    client = bigquery.Client(project=PROJECT_ID)
 
     query = f"SELECT * FROM `{PROJECT_ID}.{dataset_id}.{bq_table_id}`"
     df = client.query(query).to_dataframe()

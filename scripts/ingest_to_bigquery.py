@@ -11,7 +11,6 @@ load_dotenv(dotenv_path=dotenv_path)
 
 import pandas as pd
 from sqlalchemy import create_engine
-from google.oauth2 import service_account
 
 # --- CONSTANTS (Defaults) ---
 
@@ -23,14 +22,12 @@ PG_DB   = os.getenv("PG_DB")
 
 PROJECT_ID = os.getenv("BQ_PROJECT_ID") or os.getenv("PRISM_BQ_PROJECT_ID")
 DEFAULT_DATASET_ID = os.getenv("BQ_DATASET_ID")
-SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE")
 
 def run_ingestion(source_table, dataset_id, dest_table):
     print("\n=== Postgres to BigQuery Ingestor ===")
 
     try:
-        # 1. Authenticate
-        credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE)
+        # 1. Connect
         pg_engine = create_engine(f'postgresql://{PG_USER}:{PG_PASS}@{PG_HOST}:{PG_PORT}/{PG_DB}')
 
         # 2. Extract
@@ -46,7 +43,6 @@ def run_ingestion(source_table, dataset_id, dest_table):
         df.to_gbq(
             destination_table=f"{dataset_id}.{dest_table}",
             project_id=PROJECT_ID,
-            credentials=credentials,
             if_exists='replace',
             progress_bar=True
         )
