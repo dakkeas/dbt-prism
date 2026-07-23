@@ -1,64 +1,12 @@
 {{ config(materialized = 'table') }}
 
-with bestlife_unmaskedcardno as (
-    select
-        maskedcardno,
-        replace(cardno, ' ', '') as cardno_norm
-    from {{ ref('bl_unmaskedcardno') }}
-    where nullif(trim(cardno), '') is not null
-),
-
-reference_member_base as (
-    select
-        patient_code_full_name,
-        final_patient_code,
-        cardno,
-        replace(cardno, ' ', '') as cardno_norm
-        ,activity_status
-        ,final_company
-        ,member_type
-        ,inactive_tagging_date
-        ,dropout_date
-        ,baseline_test_date_final
-    from {{ ref('seed_bestlife_unmasked_patient_no') }}
-    where nullif(trim(cardno), '') is not null
-),
-
-matched_bestlife_patients as (
-    -- BestLife patient list comes from normalized card-number overlap.
-    -- Keep distinct maskedcardno so downstream claim joins stay one-to-many, not many-to-many.
-    select distinct
-        b.maskedcardno,
-        r.patient_code_full_name,
-        r.final_patient_code,
-        r.cardno,
-        r.activity_status,
-        r.final_company,
-        r.member_type,
-        r.inactive_tagging_date,
-        r.dropout_date,
-        r.baseline_test_date_final
-    from bestlife_unmaskedcardno b
-    inner join reference_member_base r
-        on b.cardno_norm = r.cardno_norm
-),
-
-mxc_2024_2025 as (
+with bestlife_claim_source as (
     -- Limit to the 2024-2025 MXC window before any claim-level aggregation.
     select
         *
-    from {{ ref('mxc_raw_claims') }}
+    from {{ ref('bestlife_mxc_claims_2225') }}
     where source_year between 2024 and 2025
       and nullif(trim(maskedcardno), '') is not null
-),
-
-bestlife_claim_source as (
-    -- Keep only claims for matched BestLife patients.
-    select
-        c.*
-    from mxc_2024_2025 c
-    inner join matched_bestlife_patients p
-        on c.maskedcardno = p.maskedcardno
 ),
 
 claim_rollup as (
@@ -66,6 +14,15 @@ claim_rollup as (
     select
         claimno,
         min(maskedcardno) as maskedcardno,
+        min(patient_code_full_name) as patient_code_full_name,
+        min(final_patient_code) as final_patient_code,
+        min(cardno) as cardno,
+        min(activity_status) as activity_status,
+        min(final_company) as final_company,
+        min(member_type) as member_type,
+        min(inactive_tagging_date) as inactive_tagging_date,
+        min(dropout_date) as dropout_date,
+        min(baseline_test_date_final) as baseline_test_date_final,
         min(membertypedesc) as membertypedesc,
         min(source_year) as source_year,
         min(loatype) as loatype,
@@ -96,6 +53,15 @@ op_lab_claims as (
     select
         cr.claimno,
         cr.maskedcardno,
+        cr.patient_code_full_name,
+        cr.final_patient_code,
+        cr.cardno,
+        cr.activity_status,
+        cr.final_company,
+        cr.member_type,
+        cr.inactive_tagging_date,
+        cr.dropout_date,
+        cr.baseline_test_date_final,
         cr.membertypedesc,
         cr.source_year,
         cr.loatype,
@@ -135,19 +101,20 @@ patient_op_lab as (
 ),
 
 patient_profile as (
-    -- One seed row per matched patient. This is joined at the end so claim aggregation stays unchanged.
-    select distinct
+    -- Profile columns are attached by the canonical raw BestLife claims model.
+    select
         maskedcardno,
-        patient_code_full_name,
-        final_patient_code,
-        cardno,
-        activity_status,
-        final_company,
-        member_type,
-        inactive_tagging_date,
-        dropout_date,
-        baseline_test_date_final
-    from matched_bestlife_patients
+        string_agg(distinct patient_code_full_name, ', ' order by patient_code_full_name) as patient_code_full_name,
+        string_agg(distinct final_patient_code, ', ' order by final_patient_code) as final_patient_code,
+        string_agg(distinct cardno, ', ' order by cardno) as cardno,
+        string_agg(distinct activity_status, ', ' order by activity_status) as activity_status,
+        string_agg(distinct final_company, ', ' order by final_company) as final_company,
+        string_agg(distinct member_type, ', ' order by member_type) as member_type,
+        string_agg(distinct inactive_tagging_date::text, ', ' order by inactive_tagging_date::text) as inactive_tagging_date,
+        string_agg(distinct dropout_date::text, ', ' order by dropout_date::text) as dropout_date,
+        string_agg(distinct baseline_test_date_final::text, ', ' order by baseline_test_date_final::text) as baseline_test_date_final
+    from claim_rollup
+    group by 1
 ),
 
 bucketed_patients as (
@@ -166,11 +133,10 @@ bucketed_patients as (
         op_lab_icd_bucket_list,
         op_lab_icd_description_list,
         case
-            when total_op_lab_claims between 1 and 2 then 'Routine (1-2)'
-            when total_op_lab_claims between 3 and 5 then 'Occasional Bucket (3-5)'
-            when total_op_lab_claims between 6 and 10 then 'Chronic Monitoring (6-10)'
-            when total_op_lab_claims between 11 and 20 then 'High Frequency (11-20)'
-            when total_op_lab_claims >= 21 then 'Extreme Flyers (>20)'
+            when total_op_lab_claims = 1 then 'Single Claim'
+            when total_op_lab_claims between 2 and 4 then '2-4 (Routine Testing)'
+            when total_op_lab_claims between 5 and 9 then '5-9 (Non-high Risk Conditions)'
+            when total_op_lab_claims >= 10 then '10+ (High Risk Conditions)'
         end as op_lab_claim_bucket
     from patient_op_lab
 )
@@ -202,12 +168,11 @@ left join patient_profile pp
     on bp.maskedcardno = pp.maskedcardno
 order by
     case bp.op_lab_claim_bucket
-        when 'Routine' then 1
-        when 'Occasional Bucket' then 2
-        when 'Chronic Monitoring' then 3
-        when 'High Frequency' then 4
-        when 'Extreme Flyers' then 5
-        else 6
+        when 'Single Claim' then 1
+        when '2-4 (Routine Testing)' then 2
+        when '5-9 (Non-high Risk Conditions)' then 3
+        when '10+ (High Risk Conditions)' then 4
+        else 5
     end,
     bp.total_op_lab_claims desc,
     bp.maskedcardno
