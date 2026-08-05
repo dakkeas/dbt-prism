@@ -4,7 +4,7 @@ SELECT
     c.maskedcardno
 FROM {{ref('mlv')}} c
 LEFT JOIN
-    {{ref('bl_unmaskedcardno')}} b
+    {{ref('bestlife_unmaskedcardno')}} b
 ON c.maskedcardno = b.maskedcardno
 WHERE
     b.maskedcardno IS NULL

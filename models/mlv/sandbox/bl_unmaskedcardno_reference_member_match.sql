@@ -1,10 +1,10 @@
 {{ config(materialized = 'view') }}
 
-with bl_unmaskedcardno as (
+with bestlife_unmaskedcardno as (
     select
         maskedcardno,
-        replace(cardno, ' ', '') as cardno_norm
-    from {{ ref('bl_unmaskedcardno') }}
+        replace(trim(cardno), ' ', '') as cardno_norm
+    from {{ ref('bestlife_unmaskedcardno') }}
     where nullif(trim(cardno), '') is not null
 ),
 
@@ -20,7 +20,7 @@ matched as (
     select
         b.maskedcardno,
         count(*) as match_count
-    from bl_unmaskedcardno b
+    from bestlife_unmaskedcardno b
     inner join reference_member_base r
         on b.cardno_norm = r.cardno_norm
     group by 1

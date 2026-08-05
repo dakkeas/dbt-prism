@@ -224,11 +224,10 @@ seeds:
       source_claims_with_bills:
         +column_types:
           claimno: varchar(255)
-      bl_unmaskedcardno:
+      bestlife_unmaskedcardno:
         +column_types:
           maskedcardno: varchar(255)
           cardno: varchar(255)
-          blp_cardno: varchar(255)
       blp_icdcodes_v2:
         +column_type:
           icdcode: varchar(255)

@@ -1,11 +1,9 @@
-
 {{ config(materialized='table')}}
 
--- VETTING VERSION: Uses vetting models and mxc_raw_claims source tables
--- Purpose: to check dataset integrity
+-- 2025 Cohort Version of MLV staging model
 
-WITH raw_claims_2023_2025 AS (
-    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year >= 2023
+WITH raw_claims_window AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year = 2025
 ),
 first_claim_details AS (
     SELECT
@@ -40,62 +38,45 @@ first_claim_details AS (
                 ELSE 0 END
         ) AS starting_professional_fees,
 
-        -- count & sum of cptcode
-
         SUM(
             CASE 
                 WHEN NULLIF(rc.cptcode,'') IS NOT NULL THEN 1 ELSE 0
             END
-        )
-        AS starting_count_of_cptcode,
+        ) AS starting_count_of_cptcode,
 
         SUM(
             CASE 
                 WHEN NULLIF(rc.cptcode,'') IS NOT NULL THEN rc.approved ELSE 0
             END
-        )
-        AS starting_sum_of_util_cptcode,
-
-
-        -- count & sum of ruvcode
+        ) AS starting_sum_of_util_cptcode,
 
         SUM(
             CASE 
                 WHEN NULLIF(rc.ruvcode,'') IS NOT NULL THEN 1 ELSE 0
             END
-        )
-        AS starting_count_of_ruvcode,
+        ) AS starting_count_of_ruvcode,
 
         SUM(
             CASE 
                 WHEN NULLIF(rc.ruvcode,'') IS NOT NULL THEN rc.approved ELSE 0
             END
-        )
-        AS starting_sum_of_util_ruvcode,
-
-        -- aggregation of cptcode & ruvcode
+        ) AS starting_sum_of_util_ruvcode,
 
         STRING_AGG(DISTINCT CASE
-
-        WHEN TRIM(rc.cptcode) NOT IN ('0', ' ', '') AND rc.cptcode IS NOT NULL THEN rc.cptcode
-
+            WHEN TRIM(rc.cptcode) NOT IN ('0', ' ', '') AND rc.cptcode IS NOT NULL THEN rc.cptcode
         END, ', ') AS starting_cptcodes,
 
         STRING_AGG(DISTINCT CASE
-
-        WHEN TRIM(rc.ruvcode) NOT IN ('0', ' ', '') AND rc.ruvcode IS NOT NULL THEN rc.ruvcode
-
+            WHEN TRIM(rc.ruvcode) NOT IN ('0', ' ', '') AND rc.ruvcode IS NOT NULL THEN rc.ruvcode
         END, ', ') AS starting_ruvcodes,
         MIN(CAST(pcc.total_availment_cost AS NUMERIC)) AS total_availment_cost,
         MIN(CAST(pcc.total_availment_count AS NUMERIC)) AS total_availment_count,
         MIN(pcc.earliest_availment_date) AS earliest_availment_date,
         MIN(pcc.latest_availment_date) AS latest_availment_date
-        
-
     FROM
-        {{ ref('first_consults')}} fc
+        {{ ref('first_consults_y25')}} fc
     INNER JOIN
-        raw_claims_2023_2025 rc
+        raw_claims_window rc
         ON fc.starting_claimno = rc.claimno
     LEFT JOIN
         {{ ref('pcc_availments_shortlisted_card_numbers')}} pcc 
@@ -107,7 +88,6 @@ first_claim_details AS (
 ),
 subsequent_details AS (
     SELECT
-        -- MIN(rc.lengthofstay) AS subsequent_lengthofstay,
         s.maskedcardno, 
         MIN(s.claim_sequence) AS claim_sequence,
         s.subsequent_claimno AS subsequent_claimno,
@@ -118,9 +98,7 @@ subsequent_details AS (
         MIN(rc.dischargedate) AS subsequent_dischargedate,
         NULLIF(MIN(rc.lengthofstay), 0) AS subsequent_lengthofstay,
         STRING_AGG(DISTINCT CASE
-
-        WHEN TRIM(rc.physiciancode) NOT IN ('0', ' ', '') AND rc.physiciancode IS NOT NULL THEN rc.physiciancode
-
+            WHEN TRIM(rc.physiciancode) NOT IN ('0', ' ', '') AND rc.physiciancode IS NOT NULL THEN rc.physiciancode
         END, ', ') AS subsequent_physiciancodes,
         MIN(pd.subsequent_primary_physiciancode_by_rank) AS subsequent_primary_physiciancode_by_rank,
         MIN(pd.subsequent_primary_physiciancode_by_approved_amount) AS subsequent_primary_physiciancode_by_approved_amount,
@@ -147,72 +125,53 @@ subsequent_details AS (
             CASE 
                 WHEN NULLIF(rc.cptcode,'') IS NOT NULL THEN 1 ELSE 0
             END
-        )
-        AS subsequent_count_of_cptcode,
+        ) AS subsequent_count_of_cptcode,
 
         SUM(
             CASE 
                 WHEN NULLIF(rc.cptcode,'') IS NOT NULL THEN rc.approved ELSE 0
             END
-        )
-        AS subsequent_sum_of_util_cptcode,
-
+        ) AS subsequent_sum_of_util_cptcode,
 
         SUM(
             CASE 
                 WHEN NULLIF(rc.ruvcode,'') IS NOT NULL THEN 1 ELSE 0
             END
-        )
-        AS subsequent_count_of_ruvcode,
+        ) AS subsequent_count_of_ruvcode,
 
         SUM(
             CASE 
                 WHEN NULLIF(rc.ruvcode,'') IS NOT NULL THEN rc.approved ELSE 0
             END
-        )
-        AS subsequent_sum_of_util_ruvcode,
+        ) AS subsequent_sum_of_util_ruvcode,
 
         STRING_AGG(DISTINCT CASE
-
-        WHEN TRIM(rc.cptcode) NOT IN ('0', ' ', '') AND rc.cptcode IS NOT NULL THEN rc.cptcode
-
+            WHEN TRIM(rc.cptcode) NOT IN ('0', ' ', '') AND rc.cptcode IS NOT NULL THEN rc.cptcode
         END, ', ') AS subsequent_cptcodes,
 
         STRING_AGG(DISTINCT CASE
-
-        WHEN TRIM(rc.ruvcode) NOT IN ('0', ' ', '') AND rc.ruvcode IS NOT NULL THEN rc.ruvcode
-
+            WHEN TRIM(rc.ruvcode) NOT IN ('0', ' ', '') AND rc.ruvcode IS NOT NULL THEN rc.ruvcode
         END, ', ') AS subsequent_ruvcodes
-
-        
     FROM
-        {{ref('subsequent_claims')}} s
+        {{ ref('subsequent_claims_y25') }} s
     INNER JOIN
-        raw_claims_2023_2025 rc ON s.subsequent_claimno = rc.claimno
+        raw_claims_window rc ON s.subsequent_claimno = rc.claimno
     LEFT JOIN
-        {{ref('prim_physician')}} pd ON s.subsequent_claimno = pd.subsequent_claimno
+        {{ ref('prim_physician_y25') }} pd ON s.subsequent_claimno = pd.subsequent_claimno
     GROUP BY
         s.maskedcardno, 
         s.subsequent_claimno
 ),
-
--- CUSTOM LOGICS
 target_cardiometabolic_primaryicdcodes AS (
-    SELECT
-        primaryicdcode
-    FROM {{ref('cardiometabolic_primaryicdcodes')}}
+    SELECT primaryicdcode FROM {{ref('cardiometabolic_primaryicdcodes')}}
     UNION ALL
-    SELECT
-        primaryicdcode
-    FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}
+    SELECT primaryicdcode FROM {{ref('end_stage_cardiometabolic_primaryicdcodes')}}
 ),
 flagged_as_cardiometabolic AS (
-    -- Step 1 & 2: Get discharge and next admission dates per patient
     SELECT 
         maskedcardno,
         subsequent_admissiondate,
         MAX(subsequent_dischargedate) AS subsequent_dischargedate,
-        -- If ANY claim on this day matches the list, flag the whole stay as 1
         MAX(CASE 
             WHEN subsequent_primaryicdcode IN (SELECT primaryicdcode FROM target_cardiometabolic_primaryicdcodes) THEN 1 
             ELSE 0 
@@ -222,7 +181,6 @@ flagged_as_cardiometabolic AS (
     GROUP BY maskedcardno, subsequent_admissiondate
 ),
 inpatient_patient_journey AS (
-    -- Step 2: Use LEAD() to look at the NEXT stay's admission and flag
     SELECT 
         *,
         LEAD(subsequent_admissiondate) OVER (
@@ -236,20 +194,16 @@ inpatient_patient_journey AS (
     FROM flagged_as_cardiometabolic 
 ),
 readmission_logic AS (
-    -- Step 3 & 4: Flag the readmissions
     SELECT 
         *,
-        -- Date difference logic
         {% if target.type == 'bigquery' %}
-            DATE_DIFF(next_admissiondate, subsequent_dischargedate, DAY) as days_to_readmit -- BigQuery syntax
+            DATE_DIFF(next_admissiondate, subsequent_dischargedate, DAY) as days_to_readmit
         {% else %}
-            (next_admissiondate - subsequent_dischargedate) as days_to_readmit -- PostgreSQL syntax
+            (next_admissiondate - subsequent_dischargedate) as days_to_readmit
         {% endif %}
     FROM inpatient_patient_journey
 ),
 er_inp_claims AS (
-    -- Step 1: Group by patient, date, AND type. 
-    -- This keeps ER and INPATIENT separate even if they happen on the same day.
     SELECT 
         maskedcardno,
         subsequent_admissiondate,
@@ -260,12 +214,11 @@ er_inp_claims AS (
     GROUP BY 1, 2, 4
 ),
 er_patient_journey AS (
-    -- Step 2: Now LEAD() can see the Inpatient row following an ER row
     SELECT 
         *,
         LEAD(subsequent_loatype) OVER (
             PARTITION BY maskedcardno 
-            ORDER BY subsequent_admissiondate, subsequent_loatype DESC -- ER usually comes before INPATIENT alphabetically
+            ORDER BY subsequent_admissiondate, subsequent_loatype DESC
         ) AS next_loatype,
         LEAD(subsequent_admissiondate) OVER (
             PARTITION BY maskedcardno 
@@ -274,7 +227,6 @@ er_patient_journey AS (
     FROM er_inp_claims
 ),
 panic_logic AS (
-    -- Step 3: Check the gap
     SELECT 
         *,
         CASE 
@@ -286,9 +238,8 @@ panic_logic AS (
                 {% else %}
                     AND (next_admissiondate - subsequent_admissiondate) <= 1
                 {% endif %}
-            ) THEN 0 -- This is a VALID admission (NOT panic)
-            
-            WHEN subsequent_loatype = 'EMERGENCY' THEN 1 -- Everything else is Panic
+            ) THEN 0
+            WHEN subsequent_loatype = 'EMERGENCY' THEN 1
             ELSE 0 
         END AS is_panic_visit
     FROM er_patient_journey
@@ -309,7 +260,6 @@ merged_table AS (
             WHEN fc.starting_primaryicdgroup IN ('NON-INSULIN-DEPENDENT DIABETES MELLITUS','INSULIN-DEPENDENT DIABETES MELLITUS', 'UNSPECIFIED DIABETES MELLITUS') THEN 'DIABETES MELLITUS'
             ELSE fc.starting_primaryicdgroup
         END AS combined_starting_primaryicdgroup,
-        -- fc.starting_primaryicdgroup,
         
         fc.starting_primaryicdcode,
         fc.starting_primaryicddesc,
@@ -361,8 +311,6 @@ merged_table AS (
         s.subsequent_philhealth,
         s.subsequent_professional_fees,
         
-        -- cpt code & ruv codes
-
         s.subsequent_count_of_cptcode,
         s.subsequent_sum_of_util_cptcode,
         s.subsequent_count_of_ruvcode,

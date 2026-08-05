@@ -10,8 +10,8 @@ with bestlife_unmaskedcardno as (
     -- Normalize the BestLife card-number mapping and keep only usable masked card links.
     select distinct
         maskedcardno,
-        replace(cardno, ' ', '') as cardno_norm
-    from {{ ref('bl_unmaskedcardno') }}
+        replace(trim(cardno), ' ', '') as cardno_norm
+    from {{ ref('bestlife_unmaskedcardno') }}
     where nullif(trim(cardno), '') is not null
       and nullif(trim(maskedcardno), '') is not null
 ),

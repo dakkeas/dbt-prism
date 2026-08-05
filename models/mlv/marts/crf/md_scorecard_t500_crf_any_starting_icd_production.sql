@@ -88,6 +88,7 @@ peer_percentiles AS (
         ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY op_lab_frequency) AS NUMERIC), 2) AS op_lab_frequency_percentile,
         ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY op_lab_cost_per_patient) AS NUMERIC), 2) AS op_lab_cost_percentile,
         ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY total_cpt_utilization_per_patient) AS NUMERIC), 2) AS cpt_utilization_percentile,
+        ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY total_cpt_count_per_patient) AS NUMERIC), 2) AS total_cpt_count_per_patient_percentile,
         ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY others_cost_per_patient) AS NUMERIC), 2) AS others_cost_percentile,
         ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY average_professional_fees) AS NUMERIC), 2) AS professional_fee_percentile,
         ROUND(CAST(100 * PERCENT_RANK() OVER (ORDER BY total_claims) AS NUMERIC), 2) AS total_claims_percentile,
@@ -128,34 +129,33 @@ segmented AS (
         p.professional_fee_percentile,
         p.total_claims_percentile,
         CASE
-            WHEN (p.inpatient_prevalence_percentile >= 75
-                OR p.inpatient_cost_percentile >= 75)
-                AND COALESCE(f.inpatient_cost_per_patient, 0) > 0
-                AND p.philhealth_support_percentile <= 25
-                THEN 'High Inpatient Use and Low Philhealth Use'
+            WHEN (p.inpatient_prevalence_percentile >= 75 OR p.inpatient_cost_percentile >= 75)
+                 AND COALESCE(f.inpatient_cost_per_patient, 0) > 0
+                 AND p.philhealth_support_percentile <= 25
+                THEN 'High Inpatient & Low PhilHealth Support'
             WHEN p.inpatient_prevalence_percentile >= 75
-                OR p.inpatient_cost_percentile >= 75
-                THEN 'High Inpatient Use'
-            WHEN p.cost_percentile >= 75
-                AND p.inpatient_prevalence_percentile < 75
-                AND (
-                    p.cpt_utilization_percentile >= 75
-                    OR p.others_cost_percentile >= 75
-                    OR p.professional_fee_percentile >= 75
-                )
-                THEN 'High Resource Use'
-            WHEN p.inpatient_prevalence_percentile <= 50
-                AND p.inpatient_cost_percentile <= 50
-                AND (
-                    p.op_lab_frequency_percentile >= 75
-                    OR p.op_lab_cost_percentile >= 75
-                )
-                THEN 'High Lab Use'
+              OR p.inpatient_cost_percentile >= 75
+                THEN 'High Inpatient Escalation'
+            WHEN (p.cpt_utilization_percentile >= 75 OR p.total_cpt_count_per_patient_percentile >= 75)
+                 AND p.inpatient_prevalence_percentile < 75
+                 AND p.inpatient_cost_percentile < 75
+                THEN 'High Outpatient Procedure Use'
+            WHEN (p.op_lab_cost_percentile >= 75
+                  OR p.op_lab_frequency_percentile >= 75
+                  OR p.others_cost_percentile >= 75
+                  OR p.professional_fee_percentile >= 75)
+                 AND p.inpatient_prevalence_percentile < 75
+                 AND p.inpatient_cost_percentile < 75
+                THEN 'High Diagnostic & Ancillary Use'
+            WHEN p.op_lab_frequency_percentile <= 25
+                 AND p.cost_percentile >= 50
+                 AND p.inpatient_prevalence_percentile < 75
+                THEN 'Low Monitoring / High Progression Risk'
             WHEN p.cost_percentile <= 25
-                AND p.op_lab_prevalence_percentile <= 25
-                AND p.total_claims_percentile <= 25
-                THEN 'Low Use'
-            ELSE 'Balanced Use'
+                 AND p.op_lab_prevalence_percentile <= 25
+                 AND p.total_claims_percentile <= 25
+                THEN 'Low Resource Use'
+            ELSE 'Standard Care'
         END AS physician_bucket
     FROM flagged f
     CROSS JOIN network_average n
@@ -219,22 +219,28 @@ SELECT
     ROUND(
         GREATEST(
             CASE s.physician_bucket
-                WHEN 'High Inpatient Use and Low Philhealth Use' THEN
+                WHEN 'High Inpatient & Low PhilHealth Support' THEN
                     (s.inpatient_cost_per_patient - t500.t500_avg_inpatient_cost_per_patient)
                     * s.unique_patient_count
-                WHEN 'High Inpatient Use' THEN
+                WHEN 'High Inpatient Escalation' THEN
                     (s.inpatient_cost_per_patient - t500.t500_avg_inpatient_cost_per_patient)
                     * s.unique_patient_count
-                WHEN 'High Resource Use' THEN
+                WHEN 'High Outpatient Procedure Use' THEN
+                    (s.total_cpt_utilization_per_patient - t500.t500_avg_cpt_utilization_per_patient)
+                    * s.unique_patient_count
+                WHEN 'High Diagnostic & Ancillary Use' THEN
                     GREATEST(
-                        (s.total_cpt_utilization_per_patient - t500.t500_avg_cpt_utilization_per_patient),
+                        (s.op_lab_cost_per_patient - t500.t500_avg_op_lab_cost_per_patient),
                         (s.others_cost_per_patient - t500.t500_avg_others_cost_per_patient),
                         (s.average_professional_fees - t500.t500_avg_professional_fees)
                     ) * s.unique_patient_count
-                WHEN 'High Lab Use' THEN
-                    (s.op_lab_cost_per_patient - t500.t500_avg_op_lab_cost_per_patient)
+                WHEN 'Low Monitoring / High Progression Risk' THEN
+                    (s.average_12_month_cost_per_patient - t500.t500_avg_cost_per_patient)
                     * s.unique_patient_count
-                WHEN 'Low Use' THEN
+                WHEN 'Low Resource Use' THEN
+                    (s.average_12_month_cost_per_patient - t500.t500_avg_cost_per_patient)
+                    * s.unique_patient_count
+                WHEN 'Standard Care' THEN
                     (s.average_12_month_cost_per_patient - t500.t500_avg_cost_per_patient)
                     * s.unique_patient_count
                 ELSE

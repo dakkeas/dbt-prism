@@ -21,7 +21,7 @@
     ('prism_2023_july_to_dec', 2023),
     ('prism_2024_jan_to_jun', 2024),
     ('prism_2024_july_to_dec', 2024),
-    ('prism_2025_jan_to_mar', 2025)
+    ('prism_2025_jan_to_dec', 2025)
 ] %}
 
 {% for table_name, year in tables %}

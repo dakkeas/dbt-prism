@@ -1,48 +1,40 @@
+{{ config(materialized = 'table')}}
 
-{{ config(materialized = 'table')}} -- creates a table
+-- 2024 Cohort Version: 2022 cool-off period, claims window 2024
 
--- VETTING VERSION: Uses mxc_raw_claims source tables instead of raw_claims_2023_2025 / raw_claims_2022
--- Purpose: to check dataset integrity
-
-
-
-WITH raw_claims_2022 AS (
+WITH raw_claims_cool_off AS (
     SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year = 2022
 ),
-raw_claims_2023_2025 AS (
-    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year >= 2023
+raw_claims_window AS (
+    SELECT * FROM {{ ref('mxc_raw_claims') }} WHERE source_year = 2024
 ),
-cool_off_period AS ( -- produces unique patients
+cool_off_period AS (
     SELECT
         rc.claimno AS claimno,
         rc.physiciancode AS physiciancode,
         rc.coverageitemdesc AS coverageitemdesc,
-        DENSE_RANK() OVER (PARTITION BY c.maskedcardno ORDER BY rc.admissiondate, rc.claimno) -- counter on each row (grouped by maskedcardno) by admissiondate, claimno
-        AS claim_sequence
-        FROM  (
-            SELECT
-                rc2.maskedcardno AS maskedcardno
-            FROM
-                raw_claims_2023_2025 rc2
-            LEFT JOIN -- selects claims from 2023 - 2025 data
-                raw_claims_2022 rc1
-            ON 
-                rc1.maskedcardno = rc2.maskedcardno -- gets rows from left table + matching rows from right table
-            WHERE
-                rc1.maskedcardno IS NULL -- for maskedcardno that are in 2022 but not in 2023 (meaning there are no claims in 2022)
-                -- since there wouldnt be any maskedcardno rows in 2022
-            GROUP BY rc2.maskedcardno -- ensures no duplicates  
-        ) c
-        INNER JOIN raw_claims_2023_2025 rc -- joining with raw
-        ON c.maskedcardno = rc.maskedcardno
+        DENSE_RANK() OVER (PARTITION BY c.maskedcardno ORDER BY rc.admissiondate, rc.claimno) AS claim_sequence
+    FROM (
+        SELECT
+            rc2.maskedcardno AS maskedcardno
+        FROM
+            raw_claims_window rc2
+        LEFT JOIN
+            raw_claims_cool_off rc1
+        ON 
+            rc1.maskedcardno = rc2.maskedcardno
         WHERE
-            rc.primaryicdcode IN (SELECT icdcode FROM {{ref('blp_icdcodes_v2')}}) -- primaryicdcode has to be in best life  
-            AND rc.loatype IN ('OP LAB', 'OP_CONSULT') -- has to be the ff loatypes
+            rc1.maskedcardno IS NULL
+        GROUP BY rc2.maskedcardno
+    ) c
+    INNER JOIN raw_claims_window rc
+    ON c.maskedcardno = rc.maskedcardno
+    WHERE
+        rc.primaryicdcode IN (SELECT icdcode FROM {{ref('blp_icdcodes_v2')}})
+        AND rc.loatype IN ('OP LAB', 'OP_CONSULT')
 ),
 aggregate_starting_claim AS (
-    -- aggregating by into a single row 
     SELECT 
-        -- aggregate into claim number
         rc.maskedcardno,
         t.claimno AS starting_claimno,
         MIN(rc.admissiondate) AS starting_admissiondate, 
@@ -73,7 +65,6 @@ aggregate_starting_claim AS (
         MIN(rc.providername) AS starting_providername,
         MIN(rc.loatype) AS starting_loatype
     FROM (
-        -- selects first consults only from cool off table that has a single doctor services doctor OR a single doctor. 
         SELECT claimno FROM cool_off_period WHERE claim_sequence = 1
         AND TRIM(physiciancode) NOT IN ('0', '0,', '')
         AND physiciancode IS NOT NULL
@@ -84,7 +75,7 @@ aggregate_starting_claim AS (
             WHEN coverageitemdesc = 'DOCTOR SERVICES' THEN physiciancode 
             END) = 1
     ) t
-    INNER JOIN raw_claims_2023_2025 rc
+    INNER JOIN raw_claims_window rc
     ON t.claimno = rc.claimno
     GROUP BY t.claimno, rc.maskedcardno
 )

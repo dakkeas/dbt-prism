@@ -1,11 +1,10 @@
-
-{{config(materialized = 'table')}}
+{{ config(materialized = 'table') }}
 
 {{
-    md_scorecard(
+    md_scorecard_y24(
         ['DIABETES MELLITUS', 'ESSENTIAL (PRIMARY) HYPERTENSION','DISORDERS OF LIPOPROTEIN METABOLISM AND OTHER LIPIDAEMIAS'],
-        100000000,
-        100000000,
+        20,
+        500,
         6
     ) 
 }}

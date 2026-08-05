@@ -14,6 +14,7 @@ WITH scorecard AS (
         -- Metrics needed for driver formatting
         {{ env_alias('Inpatient Cost Per Patient', 'InpatientCostPerPatient') }} AS inpatient_cost_per_patient,
         {{ env_alias('OP Lab Cost Per Patient', 'OpLabCostPerPatient') }} AS op_lab_cost_per_patient,
+        {{ env_alias('OP Lab Frequency', 'OpLabFrequency') }} AS op_lab_frequency,
         {{ env_alias('Average 12 Month Cost Per Patient', 'Average12MonthCostPerPatient') }} AS average_12_month_cost_per_patient,
         {{ env_alias('Total CPT Utilization Per Patient', 'TotalCptUtilizationPerPatient') }} AS total_cpt_utilization_per_patient,
         {{ env_alias('Others Cost Per Patient', 'OthersCostPerPatient') }} AS others_cost_per_patient,
@@ -27,6 +28,7 @@ t500_averages AS (
     SELECT
         AVG(inpatient_cost_per_patient) AS t500_avg_inpatient_cost_per_patient,
         AVG(op_lab_cost_per_patient) AS t500_avg_op_lab_cost_per_patient,
+        AVG(op_lab_frequency) AS t500_avg_op_lab_frequency,
         AVG(average_12_month_cost_per_patient) AS t500_avg_cost_per_patient,
         AVG(total_cpt_utilization_per_patient) AS t500_avg_cpt_utilization_per_patient,
         AVG(others_cost_per_patient) AS t500_avg_others_cost_per_patient,
@@ -52,6 +54,10 @@ aggregated_scorecard AS (
             SUM(op_lab_cost_per_patient * unique_patient_count) / NULLIF(SUM(unique_patient_count), 0),
             AVG(op_lab_cost_per_patient)
         ) AS op_lab_cost_per_patient,
+        COALESCE(
+            SUM(op_lab_frequency * unique_patient_count) / NULLIF(SUM(unique_patient_count), 0),
+            AVG(op_lab_frequency)
+        ) AS op_lab_frequency,
         COALESCE(
             SUM(average_12_month_cost_per_patient * unique_patient_count) / NULLIF(SUM(unique_patient_count), 0),
             AVG(average_12_month_cost_per_patient)
@@ -83,37 +89,27 @@ with_driver AS (
         sc.specialization,
         sc.sub_specialization,
         CASE sc.physician_bucket
-            WHEN 'High Inpatient Use and Low Philhealth Use' THEN
+            WHEN 'High Inpatient & Low PhilHealth Support' THEN
                 'Avg Inpatient Cost (' || {{ format_currency('sc.inpatient_cost_per_patient') }} ||
                 ') vs Inpatient T500 Avg (' || {{ format_currency('t500.t500_avg_inpatient_cost_per_patient') }} ||
-                ') with ' || {{ format_currency('sc.total_philhealth_support') }} || ' Total PhilHealth Utilization'
-            WHEN 'High Inpatient Use' THEN
+                ') with ' || {{ format_currency('sc.total_philhealth_support') }} || ' Total PhilHealth Support'
+            WHEN 'High Inpatient Escalation' THEN
                 'Avg Inpatient Cost (' || {{ format_currency('sc.inpatient_cost_per_patient') }} ||
                 ') vs Inpatient T500 Avg (' || {{ format_currency('t500.t500_avg_inpatient_cost_per_patient') }} || ')'
-            WHEN 'High Lab Use' THEN
+            WHEN 'High Outpatient Procedure Use' THEN
+                'CPT Utilization Per Patient (' || {{ format_currency('sc.total_cpt_utilization_per_patient') }} ||
+                ') vs CPT T500 Avg (' || {{ format_currency('t500.t500_avg_cpt_utilization_per_patient') }} || ')'
+            WHEN 'High Diagnostic & Ancillary Use' THEN
                 'OP Lab Cost Per Patient (' || {{ format_currency('sc.op_lab_cost_per_patient') }} ||
-                ') vs OP Lab T500 Avg (' || {{ format_currency('t500.t500_avg_op_lab_cost_per_patient') }} || ')'
-            WHEN 'Low Use' THEN
+                ') vs OP Lab T500 Avg (' || {{ format_currency('t500.t500_avg_op_lab_cost_per_patient') }} ||
+                ') or Related Ancillary Spend'
+            WHEN 'Low Monitoring / High Progression Risk' THEN
+                'OP Lab Frequency (' || {{ format_currency('sc.op_lab_frequency') }} ||
+                ') vs OP Lab T500 Avg (' || {{ format_currency('t500.t500_avg_op_lab_frequency') }} ||
+                ') with Higher 12-Month Cost'
+            WHEN 'Low Resource Use' THEN
                 'Avg 12-Month Cost Per Patient (' || {{ format_currency('sc.average_12_month_cost_per_patient') }} ||
                 ') vs 12-Month Cost T500 Avg (' || {{ format_currency('t500.t500_avg_cost_per_patient') }} || ')'
-            WHEN 'Balanced Use' THEN
-                'Avg 12-Month Cost Per Patient (' || {{ format_currency('sc.average_12_month_cost_per_patient') }} ||
-                ') vs 12-Month Cost T500 Avg (' || {{ format_currency('t500.t500_avg_cost_per_patient') }} || ')'
-            WHEN 'High Resource Use' THEN
-                CASE
-                    WHEN (COALESCE(sc.total_cpt_utilization_per_patient, 0) - t500.t500_avg_cpt_utilization_per_patient)
-                         >= (COALESCE(sc.others_cost_per_patient, 0) - t500.t500_avg_others_cost_per_patient)
-                     AND (COALESCE(sc.total_cpt_utilization_per_patient, 0) - t500.t500_avg_cpt_utilization_per_patient)
-                         >= (COALESCE(sc.average_professional_fees, 0) - t500.t500_avg_professional_fees)
-                        THEN 'CPT Utilization Per Patient (' || {{ format_currency('sc.total_cpt_utilization_per_patient') }} ||
-                             ') vs CPT Utilization T500 Avg (' || {{ format_currency('t500.t500_avg_cpt_utilization_per_patient') }} || ')'
-                    WHEN (COALESCE(sc.others_cost_per_patient, 0) - t500.t500_avg_others_cost_per_patient)
-                         >= (COALESCE(sc.average_professional_fees, 0) - t500.t500_avg_professional_fees)
-                        THEN 'Others Cost Per Patient (' || {{ format_currency('sc.others_cost_per_patient') }} ||
-                             ') vs Others Cost T500 Avg (' || {{ format_currency('t500.t500_avg_others_cost_per_patient') }} || ')'
-                    ELSE 'Professional Fees (' || {{ format_currency('sc.average_professional_fees') }} ||
-                         ') vs Professional Fees T500 Avg (' || {{ format_currency('t500.t500_avg_professional_fees') }} || ')'
-                END
             ELSE
                 'Avg 12-Month Cost Per Patient (' || {{ format_currency('sc.average_12_month_cost_per_patient') }} ||
                 ') vs 12-Month Cost T500 Avg (' || {{ format_currency('t500.t500_avg_cost_per_patient') }} || ')'

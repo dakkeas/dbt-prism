@@ -3,8 +3,8 @@
 with bestlife_unmaskedcardno as (
     select distinct
         maskedcardno,
-        replace(cardno, ' ', '') as cardno_norm
-    from {{ ref('bl_unmaskedcardno') }}
+        replace(trim(cardno), ' ', '') as cardno_norm
+    from {{ ref('bestlife_unmaskedcardno') }}
     where nullif(trim(cardno), '') is not null
 ),
 

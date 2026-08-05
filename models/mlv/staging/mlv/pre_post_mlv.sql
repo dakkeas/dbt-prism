@@ -261,7 +261,7 @@ panic_logic AS (
 merged_table AS (
     SELECT
         fc.maskedcardno,
-        bl.cardno AS bl_cardno,
+        trim(bl.cardno) AS bl_cardno,
         fc.starting_claimno,
         fc.starting_admissiondate,
         fc.starting_dischargedate,
@@ -327,7 +327,7 @@ merged_table AS (
     INNER JOIN
         subsequent_details s ON fc.maskedcardno = s.maskedcardno
     LEFT JOIN
-        {{ref('bl_unmaskedcardno')}} bl ON bl.maskedcardno = fc.maskedcardno
+        {{ref('bestlife_unmaskedcardno')}} bl ON bl.maskedcardno = fc.maskedcardno
     LEFT JOIN 
         readmission_logic rl ON rl.maskedcardno = fc.maskedcardno AND rl.subsequent_admissiondate = s.subsequent_admissiondate
     LEFT JOIN 

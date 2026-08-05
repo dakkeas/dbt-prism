@@ -1,10 +1,10 @@
 {{ config(materialized = 'table') }}
 
-with bl_unmaskedcardno as (
+with bestlife_unmaskedcardno as (
     select
         maskedcardno,
-        replace(cardno, ' ', '') as cardno_norm
-    from {{ ref('bl_unmaskedcardno') }}
+        replace(trim(cardno), ' ', '') as cardno_norm
+    from {{ ref('bestlife_unmaskedcardno') }}
     where nullif(trim(cardno), '') is not null
 ),
 
@@ -39,7 +39,7 @@ matched_patients as (
         min(r.dropout_date) as dropout_date,
         min(r.baseline_test_date_final) as baseline_test_date_final,
         count(*) as match_rows
-    from bl_unmaskedcardno b
+    from bestlife_unmaskedcardno b
     inner join reference_member_base r
         on b.cardno_norm = r.cardno_norm
     group by 1

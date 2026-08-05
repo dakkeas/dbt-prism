@@ -35,7 +35,7 @@ prism_claims AS (
     UNION ALL
     SELECT icdcode, icddesc FROM {{ source('mxc_raw_claims', 'prism_2024_july_to_dec') }}
     UNION ALL
-    SELECT icdcode, icddesc FROM {{ source('mxc_raw_claims', 'prism_2025_jan_to_mar') }}
+    SELECT icdcode, icddesc FROM {{ source('mxc_raw_claims', 'prism_2025_jan_to_dec') }}
 ),
 
 icd_mapping AS (
