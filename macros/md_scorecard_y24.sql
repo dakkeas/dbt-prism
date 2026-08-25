@@ -1,4 +1,4 @@
-{% macro md_scorecard_y24(primaryicdgroup_list, top_n_provider, top_n_physicians, more_than_n_patients) %}
+{% macro md_scorecard_y24(primaryicdgroup_list, top_n_provider, top_n_physicians, more_than_n_patients, px_engine_model='px_engine_y24', icd_column='combined_starting_primaryicdgroup') %}
 
 WITH physician_engine AS (
     SELECT
@@ -125,7 +125,7 @@ WITH physician_engine AS (
         COALESCE(SUM(total_pcc_availment_cost) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 0) AS ave_12_month_pcc_availment_cost_per_patient,
         COALESCE(SUM(total_pcc_availment_count) / NULLIF(COUNT(DISTINCT maskedcardno), 0), 0) AS ave_12_month_pcc_availment_count_per_patient
 
-    FROM {{ ref('px_engine_y24') }} pe
+    FROM {{ ref(px_engine_model) }} pe
 
     LEFT JOIN (SELECT DISTINCT 
         physiciancode, 
@@ -142,7 +142,7 @@ WITH physician_engine AS (
             pi.physiciancode::TEXT
         {% endif %}
 
-    WHERE pe.combined_starting_primaryicdgroup IN (
+    WHERE pe.{{ icd_column }} IN (
     {% for icd in primaryicdgroup_list %}
         '{{ icd }}'{% if not loop.last %}, {% endif %}
     {% endfor %}
@@ -241,8 +241,8 @@ WHERE providername IN (
         SELECT 
             starting_providername AS providername,
             SUM(overall_util) AS total_util
-        FROM {{ref('px_engine_y24')}}
-        WHERE combined_starting_primaryicdgroup IN (
+        FROM {{ref(px_engine_model)}}
+        WHERE {{ icd_column }} IN (
         {% for icd in primaryicdgroup_list %}
             '{{ icd }}'{% if not loop.last %}, {% endif %}
         {% endfor %}

@@ -1,0 +1,19 @@
+flowchart LR
+  claims[(MXC claims\n2019–2025)] --> raw[mxc_raw_claims\nunion + type casts]
+  raw --> fc[first_consults\nfirst eligible consult\nphysician/provider attribution]
+  raw --> sc[subsequent_claims\n12-month journey window]
+  fc --> mlv[mlv\nstarting + subsequent claim detail]
+  sc --> mlv
+  icd[(ICD reference seeds)] -. disease groups .-> mlv
+  pcc[(PCC data)] -. patient PCC metrics .-> mlv
+  cpt[(CPT / RUV fields)] -. procedure metrics .-> mlv
+  mlv --> px[px_engine\npatient-level aggregation]
+  physician[(physicianinfo)] -. names + specialty + PCC flags .-> agg
+  px --> agg[md_scorecard macro\nphysician/provider aggregation]
+  agg --> filt[Disease filter\nDIABETES / EPH / DYSLIPIDAEMIAS]
+  filt --> prov[Top 20 providers\nby total utilization]
+  prov --> vol[Patient threshold\n> 3 patients]
+  vol --> top500[Top 500 physician-provider rows\nranked by 12-month cost/patient]
+  top500 --> prod[Production scorecard\nvolume tier + confidence\npeer percentiles + network average\nphysician bucket + potential savings]
+  px --> metrics[Metrics\nOP Lab / inpatient / others\nclaims + utilization\nCPT + PhilHealth + professional fees\nLOS + readmission + panic visits]
+  metrics --> agg

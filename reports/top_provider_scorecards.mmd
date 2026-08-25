@@ -1,0 +1,16 @@
+flowchart LR
+  raw[mxc_raw_claims] --> journey[Shared journey\nfirst_consults → subsequent_claims → mlv]
+  icd[(ICD reference seeds)] -. disease filter .-> journey
+  journey --> disease[Disease-specific MLV rows\nDiabetes / EPH / Dyslipidaemias / CRF]
+  disease --> rank[Aggregate approved utilization\nby starting provider]
+  rank --> top10[Rank descending\nselect top 10 providers]
+  top10 --> topmetrics[Top-provider metrics\npatients + claims\napproved utilization\naverage utilization\nOP consult / OP Lab / inpatient\nemergency / ACU / dental]
+  topmetrics --> compare[Compare against\nALL OTHER PROVIDERS]
+  compare --> output[Top provider scorecard output\nshare of total patients\nshare of claims\nshare of utilization\nclaims and utilization per patient]
+  disease --> crfbranch{CRF?}
+  crfbranch -->|Yes| crf[crf_t10_provider_summary\ncustom CRF logic from\nmlv_crf_any_starting_icd]
+  crf --> output
+  crfbranch -->|No| macro[icd_summary_per_provider macro\nDiabetes / EPH / Dyslipidaemias]
+  macro --> output
+  shared[(icd_summary)] -. total disease denominators .-> macro
+  shared -. total disease denominators .-> crf

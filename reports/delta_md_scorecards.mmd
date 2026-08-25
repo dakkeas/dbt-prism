@@ -1,0 +1,22 @@
+flowchart LR
+  raw[(MXC claims)] --> y24base[2024 path\nsource_year = 2024]
+  raw --> y25base[2025 path\nsource_year = 2025]
+  y24base --> fc24[first_consults_y24]
+  y25base --> fc25[first_consults_y25]
+  fc24 --> sc24[subsequent_claims_y24]
+  fc25 --> sc25[subsequent_claims_y25]
+  sc24 --> mlv24[mlv_y24]
+  sc25 --> mlv25[mlv_y25]
+  mlv24 --> px24[px_engine_y24]
+  mlv25 --> px25[px_engine_y25]
+  crf24[CRF override:\nmlv_crf_y24_any_starting_icd\npx_engine_crf_y24] -. CRF only .-> px24
+  crf25[CRF override:\nmlv_crf_y25_any_starting_icd\npx_engine_crf_y25] -. CRF only .-> px25
+  px24 --> sc24out[md_scorecard_t500_*_y24\nMD scorecard macro]
+  px25 --> sc25out[md_scorecard_t500_*_y25\nMD scorecard macro]
+  sc24out --> join[Join on\nphysician code + provider name]
+  sc25out --> join
+  join --> calc[Delta calculation\n2025 value − 2024 value]
+  calc --> measures[Delta measures\npatients + claims + utilization\nOP Lab / inpatient / others\nPhilHealth + professional fees\nCPT + readmission + panic visits\nLOS + PCC]
+  measures --> disease[Delta outputs\nCRF / Diabetes / EPH / Dyslipidaemias]
+  disease --> shortlist[Disease physician shortlist]
+  disease --> drivers[Main delta analysis\nranked change drivers]

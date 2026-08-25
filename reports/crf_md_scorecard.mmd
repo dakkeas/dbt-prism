@@ -1,0 +1,20 @@
+flowchart LR
+  raw[mxc_raw_claims] --> base[Shared MLV journey\nfirst_consults → subsequent_claims → mlv]
+  base --> cohort[mlv_crf_any_starting_icd\npatient qualifies if CRF appears\nin starting OR subsequent ICD group]
+  cohort --> retain[Retain all journey rows\nfull 12-month patient experience]
+  retain --> crfpx[CRF patient engine\nutilization + service buckets\nCPT/RUV + PhilHealth/PF\nLOS + readmission + panic visits\npatient journey category]
+  icd[(ICD references)] -. CRF + end-stage codes .-> cohort
+  pcc[(PCC data)] -. PCC cost/count .-> crfpx
+  physician[(physicianinfo)] -. physician enrichment .-> crfagg
+  crfpx --> crfagg[Custom CRF scorecard aggregation\nprovider ranking + physician/provider metrics]
+  crfagg --> crftop[Top 20 providers\npatient threshold > 3]
+  crftop --> crf500[Top 500 CRF physician-provider rows]
+  crf500 --> crfprod[CRF production scorecard\nvolume/confidence + percentiles\nnetwork comparison + bucket\npotential savings]
+  retain --> y24[mlv_crf_y24_any_starting_icd\n→ px_engine_crf_y24]
+  retain --> y25[mlv_crf_y25_any_starting_icd\n→ px_engine_crf_y25]
+  y24 --> sc24[md_scorecard_t500_crf_y24]
+  y25 --> sc25[md_scorecard_t500_crf_y25]
+  sc24 --> delta[md_scorecard_delta_crf\njoin physician code + provider\ncalculate 2025 − 2024]
+  sc25 --> delta
+  delta --> shortlist[crf_physician_shortlist]
+  cohort --> provider[crf_t10_provider_summary\ncustom CRF provider summary]
